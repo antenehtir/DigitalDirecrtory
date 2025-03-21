@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HabariDOC Digital Directory</title>
+  
+  <!-- Cache-Busting: Add version numbers to force updates -->
+  <link rel="stylesheet" href="styles.css?v=1.2" />
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-pb3JZjHk9WbKQ3lqC1QX9u+46eL8v+0RF9F1e6UpK6+6SywRzBOs4ug+vOLfEIjK5oUro+gIkg4z1r9Bf5lGwg==" 
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <div class="container">
+    <!-- Title Box -->
+    <div class="title-box">
+      <h1>HabariDOC Digital Directory</h1>
+    </div>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <h2>Find a Health Facility</h2>
+      <form id="filterForm">
+        <!-- Facility Type (Optional now to allow free search) -->
+        <label class="label-facility" for="facilityType">
+          <i class="fa-solid fa-hospital"></i> Facility Type
+        </label>
+        <select id="facilityType">
+          <option value="">-- Select Facility Type --</option>
+          <option value="general">🏥 General Hospitals</option>
+          <option value="speciality">🏨 Specialty Centers</option>
+          <option value="diagnostic">🔬 Diagnostic Centers (imaging/laboratory)</option>
+          <option value="ambulance">🚑 Ambulance Services</option>
+          <option value="homecare">🏡 Home Care Services</option>
+        </select>
+        
+        <!-- Specialty Category Dropdown (Visible only when "speciality" is chosen) -->
+        <div id="specialtyGroup" class="filter-group" style="display: none;">
+          <label class="label-specialty" for="specialtyType">
+            <i class="fa-solid fa-stethoscope"></i> Specialty Category
+          </label>
+          <select id="specialtyType">
+            <option value="">-- Select Specialty --</option>
+            <option value="multi speciality">Multi Speciality</option>
+            <option value="mch">MCH</option>
+            <option value="surgical center">Surgical center</option>
+            <option value="pediatric">Pediatric</option>
+            <option value="internal medicine">Internal medicine</option>
+            <option value="cardiac">Cardiac</option>
+            <option value="oncology">Oncology</option>
+            <option value="orthopedic">Orthopedic</option>
+            <option value="neurology and spine">Neurology and Spine</option>
+            <option value="psychiatry">Psychiatry</option>
+            <option value="psychological center">Psychological centers</option>
+            <option value="eye center">Eye center</option>
+            <option value="dental center">Dental center</option>
+            <option value="dermatology and venerology">Dermatology and Venerology</option>
+            <option value="physiotherapy">Physiotherapy</option>
+            <option value="speech and language therapy">Speech and Language Therapy</option>
+            <option value="fertility and reproductive medicine">Fertility and Reproductive Medicine</option>
+            <option value="nutritional centers">Nutritional centers</option>
+            <option value="ent">ENT</option>
+          </select>
+        </div>
+        
+        <!-- Sub-City (Optional) -->
+        <label class="label-subcity" for="subCity">
+          <i class="fa-solid fa-location-dot"></i> Sub-City
+        </label>
+        <select id="subCity">
+          <option value="">-- Select Sub-City (or leave blank to search all) --</option>
+          <option value="arada">Arada</option>
+          <option value="addis ketema">Addis Ketema</option>
+          <option value="yeka">Yeka</option>
+          <option value="bole">Bole</option>
+          <option value="gullele">Gullele</option>
+          <option value="kirkos">Kirkos</option>
+          <option value="kolfe">Kolfe</option>
+          <option value="lideta">Lideta</option>
+          <option value="nifas silk-lafto">Nifas Silk-Lafto</option>
+          <option value="akaki-kaliti">Akaki-Kaliti</option>
+          <option value="lemi kura">Lemi kura</option>
+          <option value="sheger city">Sheger City</option>
+        </select>
+        
+        <!-- Search Row: Area and Facility Name -->
+        <div class="search-row">
+          <!-- Area Dropdown (Populated Dynamically) -->
+          <div class="search-box">
+            <label class="label-area" for="area">
+              <i class="fa-solid fa-map-pin"></i> Select Area
+            </label>
+            <select id="area">
+              <option value="">-- Select Area --</option>
+            </select>
+          </div>
+          <!-- OR, Type in an area manually with datalist for suggestions -->
+          <div class="search-box">
+            <label class="label-area-search" for="areaSearch">
+              <i class="fa-solid fa-map-pin"></i> Or Enter Area
+            </label>
+            <input type="text" id="areaSearch" list="areaSuggestions" placeholder="Enter area..." />
+            <datalist id="areaSuggestions">
+              <!-- Options will be populated via JS -->
+            </datalist>
+          </div>
+          <!-- Facility Name Search (Optional) -->
+          <div class="search-box">
+            <label class="label-name-search" for="nameSearch">
+              <i class="fa-solid fa-magnifying-glass"></i> Facility Name
+            </label>
+            <input type="text" id="nameSearch" list="nameSuggestions" placeholder="Enter facility name or keyword..." />
+            <datalist id="nameSuggestions">
+              <!-- Options will be populated via JS -->
+            </datalist>
+          </div>
+        </div>
+        
+        <button type="submit"><i class="fa-solid fa-search"></i> Search</button>
+        <button type="button" id="resetButton">Reset</button>
+      </form>
+    </div>
+    
+    <!-- Results Section -->
+    <div class="results-section" id="resultsSection">
+      <h2>Search Results</h2>
+      <p>No results yet. Use the filters above to search.</p>
+    </div>
+    
+    <!-- Rules Section -->
+    <div class="rules">
+      <h2>Directory Rules</h2>
+      <ul>
+        <li>This directory is entirely free for any user.</li>
+        <li>Choosing the facility type is recommended to narrow your search (or leave blank for a free search by name).</li>
+        <li>You can keep track of real-time data of the desired center by joining Telegram or visiting the provided website; you can proceed with making an appointment using the provided contact information.</li>
+        <li>For any medical-related inquiry, please call our helpline <strong>9873</strong>.</li>
+        <li>If you have comments or feedback on this directory, please DM <strong>@Anteneh95</strong> on Telegram.</li>
+      </ul>
+      <p>Thank you!</p>
+    </div>
+  </div>
+  
+  <script src="script.js?v=1.2"></script>
+</body>
+</html>
