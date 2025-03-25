@@ -378,7 +378,7 @@ document.addEventListener("DOMContentLoaded", function () {
   specialServices: "Surfactant Administration at NICU, ENT",
       specialtyCategory: "mch",
       subCity: "arada",
-      area: "Arat Kilo",
+      area: ["Arat Kilo","4 kilo"],
       location: "Arat Kilo, Behind Tourist Hotel, Arada Sub-City",
       map: "https://maps.app.goo.gl/ndjDmqb4czDJTmmJ8",
       contact: "0931225366 / 0919484405",
