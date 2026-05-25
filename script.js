@@ -1799,6 +1799,36 @@ specialtyCategory: "orthopedic",
     }
   }
 
+  // ============================================================
+  //  GRADIENT AVATAR HELPERS  (must be before buildTicker call)
+  // ============================================================
+  const GRAD_PALETTE = [
+    ["#0A2647","#1B98E0"],
+    ["#1B98E0","#06b6d4"],
+    ["#0d7a5f","#34d399"],
+    ["#4f46e5","#818cf8"],
+    ["#7c3aed","#c084fc"],
+    ["#be123c","#fb7185"],
+    ["#92400e","#f59e0b"],
+    ["#065f46","#6ee7b7"],
+  ];
+
+  function getFacilityInitials(name) {
+    if (!name) return "?";
+    return name.split(/\s+/).filter(Boolean).slice(0, 2)
+      .map(w => w[0]).join("").toUpperCase() || "?";
+  }
+
+  function getFacilityGradient(name, accentColor) {
+    if (accentColor) {
+      return "linear-gradient(135deg, " + accentColor + ", " + accentColor + "99)";
+    }
+    const hash = name.split("").reduce(function(a, c) { return a + c.charCodeAt(0); }, 0);
+    const pair  = GRAD_PALETTE[hash % GRAD_PALETTE.length];
+    const angle = (hash * 7 + 45) % 360;
+    return "linear-gradient(" + angle + "deg, " + pair[0] + ", " + pair[1] + ")";
+  }
+
   function capitalize(str) {
     if (!str) return "";
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -2088,7 +2118,15 @@ specialtyCategory: "orthopedic",
   function triggerHeroSearch() {
     const val = heroSearch.value.trim();
     if (val) nameSearchEl.value = val;
-    // Scroll to filter then fire submit after scroll settles
+    // Open collapsed filter if needed
+    const fb = document.getElementById("filterBody");
+    const fi = document.getElementById("filterToggleIcon");
+    const ftb = document.getElementById("filterToggleBtn");
+    if (fb && fb.style.display === "none") {
+      fb.style.display = "block";
+      if (fi) fi.classList.add("open");
+      if (ftb) ftb.setAttribute("aria-expanded", "true");
+    }
     document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
     setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 350);
   }
@@ -2112,6 +2150,15 @@ specialtyCategory: "orthopedic",
       facilityTypeEl.value = filter;
       facilityTypeEl.dispatchEvent(new Event("change"));
 
+      // Open collapsed filter if needed
+      const fb = document.getElementById("filterBody");
+      const fi = document.getElementById("filterToggleIcon");
+      const ftb = document.getElementById("filterToggleBtn");
+      if (fb && fb.style.display === "none") {
+        fb.style.display = "block";
+        if (fi) fi.classList.add("open");
+        if (ftb) ftb.setAttribute("aria-expanded", "true");
+      }
       document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
       setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 350);
     });
@@ -2203,13 +2250,22 @@ specialtyCategory: "orthopedic",
     const speed     = 80; // px per second
     track.style.animationDuration = Math.round(totalPx / speed) + "s";
 
-    // Click handler: pre-fill name search and trigger search
+    // Click handler: open filter, pre-fill name search, trigger search
     track.querySelectorAll(".ticker-card").forEach(card => {
       function activate() {
         const facilityName = card.dataset.name;
         document.getElementById("nameSearch").value = facilityName;
+        // Ensure the collapsible filter body is open
+        const fb = document.getElementById("filterBody");
+        const fi = document.getElementById("filterToggleIcon");
+        const ftb = document.getElementById("filterToggleBtn");
+        if (fb && fb.style.display === "none") {
+          fb.style.display = "block";
+          if (fi) fi.classList.add("open");
+          if (ftb) ftb.setAttribute("aria-expanded", "true");
+        }
         document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
-        setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 380);
+        setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 420);
       }
       card.addEventListener("click", activate);
       card.addEventListener("keydown", function (e) {
@@ -2291,36 +2347,6 @@ specialtyCategory: "orthopedic",
     correctionForm.style.display = "none";
     modalThankYou.style.display  = "flex";
   });
-
-  // ============================================================
-  //  GRADIENT AVATAR HELPERS — v4.0
-  // ============================================================
-  const GRAD_PALETTE = [
-    ["#0A2647","#1B98E0"],
-    ["#1B98E0","#06b6d4"],
-    ["#0d7a5f","#34d399"],
-    ["#4f46e5","#818cf8"],
-    ["#7c3aed","#c084fc"],
-    ["#be123c","#fb7185"],
-    ["#92400e","#f59e0b"],
-    ["#065f46","#6ee7b7"],
-  ];
-
-  function getFacilityInitials(name) {
-    if (!name) return "?";
-    return name.split(/\s+/).filter(Boolean).slice(0, 2)
-      .map(w => w[0]).join("").toUpperCase() || "?";
-  }
-
-  function getFacilityGradient(name, accentColor) {
-    if (accentColor) {
-      return "linear-gradient(135deg, " + accentColor + ", " + accentColor + "99)";
-    }
-    const hash = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-    const [c1, c2] = GRAD_PALETTE[hash % GRAD_PALETTE.length];
-    const angle = (hash * 7 + 45) % 360;
-    return "linear-gradient(" + angle + "deg, " + c1 + ", " + c2 + ")";
-  }
 
   // ============================================================
   //  STAT PILLS — v4.0
@@ -2582,13 +2608,24 @@ specialtyCategory: "orthopedic",
       });
     }
 
-    // Show nearby cards
+    // Show nearby facility cards in nearMeGrid (not the main resultsGrid)
     const nearGrid = document.getElementById("nearMeGrid");
-    renderResults(withDist.filter(f => f._coords && f._dist < 10));
-    // Move the rendered cards into nearGrid instead of resultsGrid
-    const rg = document.getElementById("resultsGrid");
+    const rg       = document.getElementById("resultsGrid");
+    const nearby   = withDist.filter(f => f._coords && f._dist < 15);
+    // Use all sorted facilities if none found within 15 km
+    const toShow   = nearby.length > 0 ? nearby : withDist.filter(f => f._coords).slice(0, 20);
+
+    // Temporarily unhide resultsSection so renderResults can write to resultsGrid
+    const rSec = document.getElementById("resultsSection");
+    const prevDisplay = rSec.style.display;
+    rSec.style.display = "block";
+    renderResults(toShow);
     nearGrid.innerHTML = rg.innerHTML;
     rg.innerHTML = "";
+    rSec.style.display = prevDisplay || "none";
+
+    // Scroll map into view
+    mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   const nearMeBtn    = document.getElementById("nearMeBtn");
