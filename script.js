@@ -2548,12 +2548,24 @@ specialtyCategory: "orthopedic",
     var activePanel = null;
 
     function showMainPage() {
+      // Clear active state from all top nav tabs
+      topNavTabs.forEach(function (t) { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
       mainSections.forEach(function (el) { el.style.display = ""; });
       if (floatBtn) floatBtn.style.display = "";
       topNavContent.style.display = "none";
       document.querySelectorAll(".top-panel").forEach(function (p) { p.style.display = "none"; });
       activePanel = null;
     }
+
+    // Home button + clickable logo both return to main page
+    function goHome() { showMainPage(); }
+    var homeBtn   = document.getElementById("homeBtn");
+    var navBrand  = document.getElementById("navBrand");
+    if (homeBtn)  homeBtn.addEventListener("click", goHome);
+    if (navBrand) navBrand.addEventListener("click", goHome);
+    if (navBrand) navBrand.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); goHome(); }
+    });
 
     function showPanel(panelId) {
       // Hide main page
@@ -2854,6 +2866,9 @@ specialtyCategory: "orthopedic",
   //  INIT — Run all v4 setup
   // ============================================================
   buildStatPills();
+
+  // Show ALL facilities immediately on load (no "ready to search" empty state)
+  renderResults(facilities);
 
 });
 

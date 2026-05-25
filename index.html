@@ -89,12 +89,15 @@
   <!-- ===== HEADER ===== -->
   <header class="header">
     <nav class="nav">
-      <div class="nav-brand">
-        <span class="logo-icon"><i class="fa-solid fa-plus"></i></span>
-        <div class="logo-text">
-          <span class="logo-name">Antex MedDirectory</span>
-          <span class="logo-sub">Addis Ababa Health Finder</span>
+      <div class="nav-left">
+        <div class="nav-brand" id="navBrand" role="button" tabindex="0" aria-label="Return to home">
+          <span class="logo-icon"><i class="fa-solid fa-plus"></i></span>
+          <div class="logo-text">
+            <span class="logo-name">Antex MedDirectory</span>
+            <span class="logo-sub">Addis Ababa Health Finder</span>
+          </div>
         </div>
+        <button class="nav-home-btn" id="homeBtn" aria-label="Return to home">🏠 <span class="hnav-label">Home</span></button>
       </div>
       <div class="header-nav-tabs" role="tablist" aria-label="Site navigation">
         <button class="top-nav-tab" data-panel="tn-about" role="tab" aria-selected="false">ℹ️ <span class="hnav-label">About</span></button>
@@ -123,8 +126,8 @@
             </div>
             <div id="heroSuggest" class="hero-suggest-dropdown" style="display:none;" role="listbox" aria-label="Search suggestions"></div>
           </div>
-          <button class="hero-nearme-btn" id="heroNearMeBtn" aria-label="Find facilities near me">
-            📍 Near Me
+          <button class="hero-nearme-btn" id="heroNearMeBtn" aria-label="Find health facilities near me">
+            📍 Health Facility Near Me
           </button>
         </div>
         <div class="hero-search-tags">
@@ -318,11 +321,8 @@
       <button class="main-tab" data-tab="financing" role="tab" aria-selected="false">
         <i class="fa-solid fa-credit-card"></i> <span>Health Care Financing</span>
       </button>
-      <button class="main-tab" data-tab="about" role="tab" aria-selected="false">
-        <i class="fa-solid fa-circle-info"></i> <span>About</span>
-      </button>
       <button class="main-tab" data-tab="nearme" role="tab" aria-selected="false">
-        <i class="fa-solid fa-location-dot"></i> <span>Near Me</span>
+        <span>📍 Health Facility Near Me</span>
       </button>
     </nav>
 
