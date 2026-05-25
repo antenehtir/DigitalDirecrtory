@@ -1644,12 +1644,14 @@ specialtyCategory: "orthopedic",
   // ============================================================
   function getFacilityTypeInfo(type) {
     switch (type) {
-      case "general":   return { icon: "fa-solid fa-hospital",      label: "General Hospital",  cls: "type-general"    };
-      case "speciality":return { icon: "fa-solid fa-stethoscope",   label: "Specialty Center",  cls: "type-speciality" };
-      case "diagnostic":return { icon: "fa-solid fa-microscope",    label: "Diagnostic Center", cls: "type-diagnostic" };
-      case "ambulance": return { icon: "fa-solid fa-truck-medical", label: "Ambulance Service", cls: "type-ambulance"  };
-      case "homecare":  return { icon: "fa-solid fa-house-medical", label: "Home Care",         cls: "type-homecare"   };
-      default:          return { icon: "fa-solid fa-hospital",      label: type,                cls: "type-general"    };
+      case "general":      return { icon: "fa-solid fa-hospital",       label: "General Hospital",    cls: "type-general",      emoji: "🏥" };
+      case "speciality":   return { icon: "fa-solid fa-stethoscope",    label: "Specialty Center",    cls: "type-speciality",   emoji: "🏨" };
+      case "diagnostic":   return { icon: "fa-solid fa-microscope",     label: "Diagnostic Center",   cls: "type-diagnostic",   emoji: "🔬" };
+      case "ambulance":    return { icon: "fa-solid fa-truck-medical",  label: "Ambulance Service",   cls: "type-ambulance",    emoji: "🚑" };
+      case "homecare":     return { icon: "fa-solid fa-house-medical",  label: "Home Care",           cls: "type-homecare",     emoji: "🏡" };
+      case "telemedicine": return { icon: "fa-solid fa-laptop-medical", label: "Telemedicine",        cls: "type-telemedicine", emoji: "💻" };
+      case "pharmacy":     return { icon: "fa-solid fa-pills",          label: "Online Pharmacy",     cls: "type-pharmacy",     emoji: "💊" };
+      default:             return { icon: "fa-solid fa-hospital",       label: type,                  cls: "type-general",      emoji: "🏥" };
     }
   }
 
@@ -1877,6 +1879,9 @@ specialtyCategory: "orthopedic",
             ${facility.telegram ? `<a href="${facility.telegram}" target="_blank" class="action-btn action-telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>` : ""}
             ${facility.website ? `<a href="${ensureHttp(facility.website)}" target="_blank" class="action-btn action-website"><i class="fa-solid fa-globe"></i> Website</a>` : ""}
             ${firstMap ? `<a href="${firstMap}" target="_blank" class="action-btn action-map"><i class="fa-solid fa-map-location-dot"></i> Map</a>` : ""}
+            <button class="action-btn action-correction" type="button" onclick="openCorrectionModal(${JSON.stringify(facility.name)})">
+              <i class="fa-solid fa-pen-to-square"></i> Request Correction
+            </button>
           </div>
         </div>`;
     });
@@ -1969,7 +1974,7 @@ specialtyCategory: "orthopedic",
       return;
     }
 
-    const subject = encodeURIComponent("New Facility Submission: " + name);
+    const subject = encodeURIComponent("New Facility Submission — Antex MedDirectory: " + name);
     const body = encodeURIComponent(
       "Facility Name: " + name + "\n" +
       "Type: " + type + "\n" +
@@ -1993,6 +1998,132 @@ specialtyCategory: "orthopedic",
     submitForm.reset();
     submitForm.style.display = "flex";
     thankYouMessage.style.display = "none";
+  });
+
+  // ============================================================
+  //  TICKER — build from live facility data
+  // ============================================================
+  function buildTicker() {
+    const track = document.getElementById("tickerTrack");
+    if (!track) return;
+
+    function getSubCityDisplay(subCity) {
+      if (Array.isArray(subCity)) return capitalize(subCity[0] || "");
+      return capitalize(subCity || "");
+    }
+
+    function buildCard(facility) {
+      const info    = getFacilityTypeInfo(facility.facilityType);
+      const subCity = getSubCityDisplay(facility.subCity);
+      const safeName = facility.name.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      return `<div class="ticker-card" data-name="${safeName}" tabindex="0" role="button" aria-label="Search ${safeName}">
+        <span class="ticker-emoji">${info.emoji}</span>
+        <div class="ticker-card-info">
+          <span class="ticker-name">${facility.name}</span>
+          <div class="ticker-badges">
+            <span class="result-card-type ${info.cls}">${info.label}</span>
+            ${subCity ? `<span class="result-card-subcity"><i class="fa-solid fa-location-dot"></i> ${subCity}</span>` : ""}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    // Build cards + duplicate for seamless infinite loop
+    const cardsHTML = facilities.map(buildCard).join("");
+    track.innerHTML = cardsHTML + cardsHTML;
+
+    // Set animation duration dynamically (~280px per card at 80px/s)
+    const totalPx   = facilities.length * 280;
+    const speed     = 80; // px per second
+    track.style.animationDuration = Math.round(totalPx / speed) + "s";
+
+    // Click handler: pre-fill name search and trigger search
+    track.querySelectorAll(".ticker-card").forEach(card => {
+      function activate() {
+        const facilityName = card.dataset.name;
+        document.getElementById("nameSearch").value = facilityName;
+        document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
+        setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 380);
+      }
+      card.addEventListener("click", activate);
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+      });
+    });
+  }
+
+  buildTicker();
+
+  // ============================================================
+  //  CORRECTION MODAL
+  // ============================================================
+  const correctionModal  = document.getElementById("correctionModal");
+  const correctionForm   = document.getElementById("correctionForm");
+  const modalThankYou    = document.getElementById("modalThankYou");
+  const modalClose       = document.getElementById("modalClose");
+  const modalCancelBtn   = document.getElementById("modalCancelBtn");
+  const modalCloseAfter  = document.getElementById("modalCloseAfterSubmit");
+
+  // Exposed globally so onclick in result cards can call it
+  window.openCorrectionModal = function (facilityName) {
+    document.getElementById("corr-facility").value = facilityName;
+    correctionForm.style.display  = "flex";
+    modalThankYou.style.display   = "none";
+    correctionModal.style.display = "flex";
+    document.body.style.overflow  = "hidden";
+    // Focus first editable field
+    setTimeout(() => document.getElementById("corr-issue").focus(), 50);
+  };
+
+  function closeCorrectionModal() {
+    correctionModal.style.display = "none";
+    document.body.style.overflow  = "";
+    correctionForm.reset();
+    correctionForm.style.display  = "flex";
+    modalThankYou.style.display   = "none";
+  }
+
+  modalClose.addEventListener("click", closeCorrectionModal);
+  modalCancelBtn.addEventListener("click", closeCorrectionModal);
+  modalCloseAfter.addEventListener("click", closeCorrectionModal);
+
+  // Close on backdrop click
+  correctionModal.addEventListener("click", function (e) {
+    if (e.target === this) closeCorrectionModal();
+  });
+
+  // Close on Escape key
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && correctionModal.style.display === "flex") closeCorrectionModal();
+  });
+
+  correctionForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const facility = document.getElementById("corr-facility").value;
+    const issue    = document.getElementById("corr-issue").value.trim();
+    const correct  = document.getElementById("corr-correct").value.trim();
+    const name     = document.getElementById("corr-name").value.trim();
+    const contact  = document.getElementById("corr-contact").value.trim();
+
+    if (!issue || !correct) {
+      alert("Please fill in the required fields.");
+      return;
+    }
+
+    const subject = encodeURIComponent("Correction Request — " + facility + " — Antex MedDirectory");
+    const body    = encodeURIComponent(
+      "Facility Name: " + facility + "\n" +
+      "What Needs Correction: " + issue + "\n" +
+      "Correct Information: " + correct + "\n" +
+      "Reporter Name: " + (name || "Not provided") + "\n" +
+      "Reporter Contact: " + (contact || "Not provided")
+    );
+
+    window.location.href = "mailto:antenehtirusew8@gmail.com?subject=" + subject + "&body=" + body;
+
+    // Show thank-you
+    correctionForm.style.display = "none";
+    modalThankYou.style.display  = "flex";
   });
 
 });

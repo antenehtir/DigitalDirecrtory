@@ -1,5 +1,5 @@
 /* ============================================
-   ANTEX DIGITAL DIRECTORY — Styles v2.0
+   ANTEX MEDDIRECTORY — Styles v3.0
    Deep Navy + Teal | Poppins Font
    ============================================ */
 
@@ -128,7 +128,7 @@ ul { list-style: none; }
    ============================================ */
 .hero {
   position: relative;
-  min-height: 530px;
+  min-height: 620px;
   background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 42%, var(--navy-light) 72%, #1a5d96 100%);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
@@ -177,10 +177,30 @@ ul { list-style: none; }
   margin-bottom: 16px;
 }
 .hero-subtitle {
-  font-size: 1rem; color: rgba(255,255,255,0.7);
-  max-width: 580px; margin: 0 auto 36px;
-  line-height: 1.75;
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.82);
+  font-style: italic;
+  font-weight: 400;
+  text-align: center;
+  margin: 0 auto 18px;
+  letter-spacing: 0.01em;
 }
+
+/* Welcome paragraph in hero */
+.hero-welcome {
+  font-size: 0.87rem;
+  color: rgba(255,255,255,0.62);
+  max-width: 660px;
+  margin: 0 auto 28px;
+  line-height: 1.8;
+  padding: 16px 22px;
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+.hero-welcome strong { color: white; font-weight: 600; }
 
 /* Hero Search Bar */
 .hero-search { margin-bottom: 36px; }
@@ -261,7 +281,7 @@ ul { list-style: none; }
   background: white;
   border-radius: var(--radius-xl);
   padding: 40px 40px 36px;
-  margin-top: -44px;
+  margin-top: -48px;
   box-shadow: var(--shadow-xl);
   margin-bottom: 36px;
   position: relative; z-index: 2;
@@ -472,11 +492,13 @@ ul { list-style: none; }
   font-size: 0.68rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.055em;
 }
-.type-general    { background: #fef2f2; color: #b91c1c; }
-.type-speciality { background: #eff6ff; color: #1d4ed8; }
-.type-diagnostic { background: #faf5ff; color: #7c3aed; }
-.type-ambulance  { background: #fff7ed; color: #c2410c; }
-.type-homecare   { background: #f0fdf4; color: #166534; }
+.type-general      { background: #fef2f2; color: #b91c1c; }
+.type-speciality   { background: #eff6ff; color: #1d4ed8; }
+.type-diagnostic   { background: #faf5ff; color: #7c3aed; }
+.type-ambulance    { background: #fff7ed; color: #c2410c; }
+.type-homecare     { background: #f0fdf4; color: #166534; }
+.type-telemedicine { background: #f0f9ff; color: #0369a1; }
+.type-pharmacy     { background: #fdf4ff; color: #86198f; }
 
 .result-card-subcity {
   display: inline-flex; align-items: center; gap: 5px;
@@ -682,7 +704,8 @@ ul { list-style: none; }
 
 @media (max-width: 520px) {
   .hero-title { font-size: 1.65rem; }
-  .hero-subtitle { font-size: 0.9rem; }
+  .hero-subtitle { font-size: 1rem; }
+  .hero-welcome { font-size: 0.8rem; padding: 12px 14px; }
   .hero-search-bar { padding: 5px 5px 5px 14px; }
   .hero-search-bar input { font-size: 0.83rem; }
   .hero-tag { font-size: 0.72rem; padding: 4px 10px; }
@@ -692,4 +715,176 @@ ul { list-style: none; }
   .result-card-actions { gap: 6px; }
   .action-btn { font-size: 0.72rem; padding: 5px 10px; }
   .result-card-name { font-size: 0.93rem; }
+}
+
+/* ============================================
+   TICKER SECTION
+   ============================================ */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.ticker-section {
+  background: linear-gradient(180deg, #071e38 0%, #0a2240 100%);
+  padding: 24px 0 60px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ticker-header {
+  text-align: center;
+  padding: 0 24px;
+  margin-bottom: 18px;
+}
+.ticker-header h3 {
+  font-size: 0.75rem; font-weight: 600;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase; letter-spacing: 0.15em;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-family: var(--font);
+}
+.ticker-header h3::before,
+.ticker-header h3::after {
+  content: '';
+  flex: 1; max-width: 100px;
+  height: 1px; background: rgba(255,255,255,0.1);
+}
+
+.ticker-wrap { overflow: hidden; }
+
+.ticker-track {
+  display: flex;
+  gap: 14px;
+  width: max-content;
+  animation: ticker-scroll 90s linear infinite;
+  padding: 6px 0 10px;
+}
+.ticker-wrap:hover .ticker-track { animation-play-state: paused; }
+
+.ticker-card {
+  background: white;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 11px;
+  min-width: 240px; max-width: 300px;
+  border-left: 3px solid var(--teal);
+  box-shadow: 0 2px 14px rgba(0,0,0,0.2);
+  cursor: pointer; flex-shrink: 0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  user-select: none;
+}
+.ticker-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.ticker-card:focus { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+.ticker-emoji { font-size: 1.35rem; flex-shrink: 0; line-height: 1; }
+.ticker-card-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; overflow: hidden; }
+.ticker-name {
+  font-size: 0.78rem; font-weight: 600; color: var(--navy);
+  line-height: 1.3; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--font);
+}
+.ticker-badges { display: flex; gap: 4px; overflow: hidden; flex-wrap: nowrap; }
+.ticker-badges .result-card-type  { font-size: 0.58rem; padding: 2px 7px; white-space: nowrap; }
+.ticker-badges .result-card-subcity { font-size: 0.58rem; padding: 2px 7px; white-space: nowrap; }
+
+/* ============================================
+   CORRECTION BUTTON & MODAL
+   ============================================ */
+.action-correction {
+  background: var(--gray-50); color: var(--gray-600);
+  border-color: var(--gray-200);
+}
+.action-correction:hover {
+  background: var(--navy); color: white;
+  border-color: var(--navy); transform: translateY(-1px);
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(7, 26, 48, 0.72);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-box {
+  background: white;
+  border-radius: var(--radius-xl);
+  width: 100%; max-width: 520px;
+  max-height: 92vh; overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(7,26,48,0.3);
+  animation: fadeInUp 0.28s ease;
+}
+
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  position: sticky; top: 0; background: white; z-index: 1;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+.modal-header h3 {
+  font-size: 1rem; font-weight: 700; color: var(--navy);
+  display: flex; align-items: center; gap: 8px;
+}
+.modal-header h3 i { color: var(--teal); }
+.modal-close {
+  background: none; border: none; font-size: 1.4rem;
+  color: var(--gray-400); cursor: pointer;
+  padding: 2px 8px; border-radius: var(--radius-sm);
+  transition: var(--transition); line-height: 1;
+  font-family: inherit;
+}
+.modal-close:hover { background: var(--gray-100); color: var(--gray-700); }
+
+.modal-form {
+  padding: 22px 24px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.modal-actions {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 6px; flex-wrap: wrap;
+}
+
+.modal-thank-you {
+  padding: 48px 24px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.modal-thank-you i { font-size: 3.2rem; color: var(--success); }
+.modal-thank-you h4 { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+.modal-thank-you p { color: var(--gray-600); font-size: 0.86rem; }
+
+/* ============================================
+   BUTTON ICON CONTRAST FIX
+   ============================================ */
+.btn-primary i,
+.btn-primary { color: white !important; }
+.btn-submit i,
+.btn-submit { color: white !important; }
+
+/* ============================================
+   RESPONSIVE — NEW ELEMENTS
+   ============================================ */
+@media (max-width: 768px) {
+  .ticker-section { padding: 20px 0 52px; }
+  .ticker-card { min-width: 200px; padding: 10px 12px; gap: 9px; }
+  .ticker-emoji { font-size: 1.1rem; }
+  .ticker-name { font-size: 0.72rem; }
+  .filter-section { margin-top: -40px; }
+  .modal-box { border-radius: var(--radius-lg); }
+  .modal-form { padding: 18px 16px; }
+  .modal-header { padding: 16px 16px 12px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+}
+
+@media (max-width: 480px) {
+  .ticker-card { min-width: 170px; padding: 9px 10px; }
+  .ticker-emoji { font-size: 1rem; }
+  .ticker-name { font-size: 0.68rem; }
+  .hero-welcome { margin: 0 8px 22px; }
+  .modal-actions { flex-direction: column; }
+  .modal-actions .btn { width: 100%; justify-content: center; }
 }

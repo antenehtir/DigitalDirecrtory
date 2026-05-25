@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Antex Digital Directory — Health Facility Finder for Addis Ababa</title>
-  <meta name="description" content="A free directory for doctors and health professionals to search, discover, and connect with health facilities across all sub-cities of Addis Ababa." />
+  <title>Antex MedDirectory — Health Facility Finder for Addis Ababa</title>
+  <meta name="description" content="Ethiopia's fastest growing health facility finder — completely free. Search, discover, and connect with facilities across all sub-cities of Addis Ababa." />
 
   <!-- Google Fonts: Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,7 @@
         integrity="sha512-pb3JZjHk9WbKQ3lqC1QX9u+46eL8v+0RF9F1e6UpK6+6SywRzBOs4ug+vOLfEIjK5oUro+gIkg4z1r9Bf5lGwg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <link rel="stylesheet" href="styles.css?v=2.0" />
+  <link rel="stylesheet" href="styles.css?v=3.0" />
 </head>
 <body class="page-fade">
 
@@ -26,7 +26,7 @@
       <div class="nav-brand">
         <span class="logo-icon"><i class="fa-solid fa-plus"></i></span>
         <div class="logo-text">
-          <span class="logo-name">Antex Digital Directory</span>
+          <span class="logo-name">Antex MedDirectory</span>
           <span class="logo-sub">Addis Ababa Health Finder</span>
         </div>
       </div>
@@ -41,12 +41,12 @@
       <div class="hero-badge">
         <i class="fa-solid fa-shield-heart"></i> Completely Free · Built for Medical Professionals
       </div>
-      <h1 class="hero-title">
-        Find the Right Health Facility<br>in Addis Ababa
-      </h1>
-      <p class="hero-subtitle">
-        A free directory built for doctors and health professionals — search, discover, and connect with facilities across all sub-cities
-      </p>
+      <h1 class="hero-title">Find a Health Facility — STAT</h1>
+      <p class="hero-subtitle">Because in medicine, every second counts.</p>
+
+      <div class="hero-welcome">
+        Welcome to <strong>Antex MedDirectory</strong> — Ethiopia's fastest growing health facility finder, completely free for everyone. Built for doctors, health professionals, and anyone seeking timely care across Addis Ababa. Every facility listed here is verified and accessible at no cost to you. Together, let's build the largest medical directory in Ethiopia — for better, faster, and more informed healthcare decisions.
+      </div>
 
       <div class="hero-search">
         <div class="hero-search-bar">
@@ -57,6 +57,8 @@
           </button>
         </div>
         <div class="hero-search-tags">
+          <span class="hero-tag" data-filter="telemedicine">💻 Telemedicine</span>
+          <span class="hero-tag" data-filter="pharmacy">💊 Online Pharmacy</span>
           <span class="hero-tag" data-filter="general">🏥 General Hospitals</span>
           <span class="hero-tag" data-filter="speciality">🏨 Specialty Centers</span>
           <span class="hero-tag" data-filter="diagnostic">🔬 Diagnostic Centers</span>
@@ -84,6 +86,18 @@
     </div>
   </section>
 
+  <!-- ===== TICKER ===== -->
+  <section class="ticker-section">
+    <div class="ticker-header">
+      <h3>Explore Our Listed Facilities</h3>
+    </div>
+    <div class="ticker-wrap">
+      <div class="ticker-track" id="tickerTrack">
+        <!-- populated by JS -->
+      </div>
+    </div>
+  </section>
+
   <!-- ===== MAIN CONTENT ===== -->
   <main class="main-content">
 
@@ -103,6 +117,8 @@
             <label for="facilityType">Facility Type</label>
             <select id="facilityType">
               <option value="">All Types</option>
+              <option value="telemedicine">💻 Telemedicine Services</option>
+              <option value="pharmacy">💊 Online Pharmacy</option>
               <option value="general">🏥 General Hospitals</option>
               <option value="speciality">🏨 Specialty Centers</option>
               <option value="diagnostic">🔬 Diagnostic Centers</option>
@@ -242,6 +258,8 @@
             <label for="sf-type"><i class="fa-solid fa-tag"></i> Facility Type <span class="required">*</span></label>
             <select id="sf-type" required>
               <option value="">-- Select Type --</option>
+              <option value="Telemedicine Service">💻 Telemedicine Service</option>
+              <option value="Online Pharmacy">💊 Online Pharmacy</option>
               <option value="General Hospital">General Hospital</option>
               <option value="Specialty Center">Specialty Center</option>
               <option value="Diagnostic Center">Diagnostic Center</option>
@@ -327,12 +345,12 @@
         <div class="footer-logo">
           <span class="footer-logo-icon"><i class="fa-solid fa-plus"></i></span>
           <div>
-            <span class="footer-logo-name">Antex Digital Directory</span>
+            <span class="footer-logo-name">Antex MedDirectory</span>
             <span class="footer-logo-tagline">Addis Ababa's Free Health Facility Finder for Medical Professionals</span>
           </div>
         </div>
         <p class="footer-description">
-          Antex Digital Directory is completely free for all users. We connect doctors and health professionals with health facilities across all sub-cities of Addis Ababa. For inquiries or feedback, contact us via phone or Telegram.
+          Antex MedDirectory is completely free for all users — forever. We connect doctors and health professionals with health facilities across all sub-cities of Addis Ababa. For inquiries or feedback, contact us via phone or Telegram.
         </p>
       </div>
 
@@ -355,7 +373,7 @@
       <div class="footer-info">
         <h3>Directory Facts</h3>
         <ul>
-          <li>Free for all users</li>
+          <li>Free for all users — forever</li>
           <li>84+ facilities listed</li>
           <li>12 sub-cities covered</li>
           <li>Updated regularly</li>
@@ -365,11 +383,57 @@
     </div>
 
     <div class="footer-bottom">
-      <p>© 2025 Antex Digital Directory. Antex Digital Directory is completely free for all users.</p>
+      <p>© 2025 Antex MedDirectory. Antex MedDirectory is completely free for all users — forever.</p>
       <p>Built with ❤️ for the medical community of Addis Ababa</p>
     </div>
   </footer>
 
-  <script src="script.js?v=2.0"></script>
+  <!-- ===== CORRECTION MODAL ===== -->
+  <div class="modal-overlay" id="correctionModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modalTitle"><i class="fa-solid fa-pen-to-square"></i> Request a Correction</h3>
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      </div>
+
+      <form class="modal-form" id="correctionForm">
+        <div class="form-group">
+          <label for="corr-facility"><i class="fa-solid fa-hospital"></i> Facility Name</label>
+          <input type="text" id="corr-facility" readonly />
+        </div>
+        <div class="form-group">
+          <label for="corr-issue"><i class="fa-solid fa-triangle-exclamation"></i> What Needs Correction? <span class="required">*</span></label>
+          <input type="text" id="corr-issue" required placeholder="e.g. Wrong phone number, incorrect address…" />
+        </div>
+        <div class="form-group">
+          <label for="corr-correct"><i class="fa-solid fa-circle-check"></i> Correct Information <span class="required">*</span></label>
+          <textarea id="corr-correct" rows="3" required placeholder="Please provide the accurate information here…"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="corr-name"><i class="fa-solid fa-user"></i> Your Name</label>
+          <input type="text" id="corr-name" placeholder="Optional" />
+        </div>
+        <div class="form-group">
+          <label for="corr-contact"><i class="fa-solid fa-phone"></i> Your Contact (Phone / Email)</label>
+          <input type="text" id="corr-contact" placeholder="Optional" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-paper-plane"></i> Send Correction
+          </button>
+          <button type="button" class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+        </div>
+      </form>
+
+      <div class="modal-thank-you" id="modalThankYou" style="display:none;">
+        <i class="fa-solid fa-circle-check"></i>
+        <h4>Thank you! Your correction has been submitted.</h4>
+        <p>We'll review and update the listing as soon as possible.</p>
+        <button class="btn btn-outline" id="modalCloseAfterSubmit">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=3.0"></script>
 </body>
 </html>
