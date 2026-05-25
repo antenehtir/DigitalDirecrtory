@@ -1,4 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // ============================================================
+  //  SITE CONFIG — flip hasNewNews to true to show red dot
+  // ============================================================
+  var hasNewNews = false;
+
   // Sample Facilities Data – add your full facility objects as needed.
   const facilities = [
     {
@@ -2357,15 +2362,15 @@ specialtyCategory: "orthopedic",
     if (!container) return;
 
     const typeDefs = [
-      { key: "telemedicine",  label: "Telemedicine",      emoji: "💻" },
-      { key: "pharmacy",      label: "Online Pharmacy",   emoji: "💊" },
-      { key: "medical_plaza", label: "Medical Plaza",     emoji: "🏛️" },
-      { key: "financing",     label: "Financing",         emoji: "💳" },
-      { key: "general",       label: "General Hospitals", emoji: "🏥" },
-      { key: "speciality",    label: "Specialty Centers", emoji: "🏨" },
-      { key: "diagnostic",    label: "Diagnostics",       emoji: "🔬" },
-      { key: "ambulance",     label: "Ambulance",         emoji: "🚑" },
-      { key: "homecare",      label: "Home Care",         emoji: "🏡" },
+      { key: "general",       label: "General Hospitals",      emoji: "🏥" },
+      { key: "speciality",    label: "Specialty Centers",      emoji: "🏨" },
+      { key: "medical_plaza", label: "Medical Plaza",          emoji: "🏛️" },
+      { key: "diagnostic",    label: "Diagnostic Centers",     emoji: "🔬" },
+      { key: "ambulance",     label: "Ambulance",              emoji: "🚑" },
+      { key: "homecare",      label: "Home Care",              emoji: "🏡" },
+      { key: "telemedicine",  label: "Telemedicine",           emoji: "💻" },
+      { key: "pharmacy",      label: "Online Pharmacy",        emoji: "💊" },
+      { key: "financing",     label: "Health Care Financing",  emoji: "💳" },
     ];
 
     // All Facilities pill
@@ -2521,29 +2526,62 @@ specialtyCategory: "orthopedic",
   });
 
   // ============================================================
-  //  GLOBAL RESET BUTTON
+  //  TOP NAV BAR — About / News / Quiz / Contact
   // ============================================================
   (function () {
-    var resetBtn = document.getElementById("globalResetBtn");
-    if (!resetBtn) return;
-    resetBtn.addEventListener("click", function () {
-      // Clear all filter inputs
-      var ftEl    = document.getElementById("facilityType");
-      var spEl    = document.getElementById("specialtyType");
-      var scEl    = document.getElementById("subCity");
-      var arEl    = document.getElementById("area");
-      var asEl    = document.getElementById("areaSearch");
-      var nsEl    = document.getElementById("nameSearch");
-      var hsEl    = document.getElementById("heroSearch");
-      if (ftEl) { ftEl.value = ""; ftEl.dispatchEvent(new Event("change")); }
-      if (spEl) spEl.value = "";
-      if (scEl) scEl.value = "";
-      if (arEl) arEl.value = "";
-      if (asEl) asEl.value = "";
-      if (nsEl) nsEl.value = "";
-      if (hsEl) hsEl.value = "";
-      // Activate Facilities tab and show all
-      activateTab("facilities", true);
+    // Show news dot if hasNewNews
+    var newsDot = document.getElementById("topNavNewsDot");
+    if (newsDot && hasNewNews) newsDot.style.display = "inline-block";
+
+    var topNavTabs    = document.querySelectorAll(".top-nav-tab");
+    var topNavContent = document.getElementById("topNavContent");
+    if (!topNavContent) return;
+
+    // Collect main page sections to hide when a panel is active
+    var mainSections = Array.prototype.slice.call(
+      document.querySelectorAll(".header, .hero, .stat-pills-section, .ticker-section, .main-content, .footer")
+    );
+    // Also the floating call button
+    var floatBtn = document.querySelector(".float-call-btn");
+
+    var activePanel = null;
+
+    function showMainPage() {
+      mainSections.forEach(function (el) { el.style.display = ""; });
+      if (floatBtn) floatBtn.style.display = "";
+      topNavContent.style.display = "none";
+      document.querySelectorAll(".top-panel").forEach(function (p) { p.style.display = "none"; });
+      activePanel = null;
+    }
+
+    function showPanel(panelId) {
+      // Hide main page
+      mainSections.forEach(function (el) { el.style.display = "none"; });
+      if (floatBtn) floatBtn.style.display = "none";
+      // Hide all panels, show chosen
+      document.querySelectorAll(".top-panel").forEach(function (p) { p.style.display = "none"; });
+      var panel = document.getElementById(panelId);
+      if (panel) panel.style.display = "block";
+      topNavContent.style.display = "block";
+      activePanel = panelId;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    topNavTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        var panelId = this.dataset.panel;
+        // Toggle off if already active
+        if (activePanel === panelId) {
+          topNavTabs.forEach(function (t) { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+          showMainPage();
+          return;
+        }
+        // Activate tab
+        topNavTabs.forEach(function (t) { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+        this.classList.add("active");
+        this.setAttribute("aria-selected", "true");
+        showPanel(panelId);
+      });
     });
   })();
 
@@ -2582,7 +2620,7 @@ specialtyCategory: "orthopedic",
       activeIdx = -1;
       if (q.length < 2) { suggestBox.style.display = "none"; return; }
       var ql = q.toLowerCase();
-      var matches = corpus.filter(function (c) { return c.label.toLowerCase().indexOf(ql) !== -1; }).slice(0, 8);
+      var matches = corpus.filter(function (c) { return c.label.toLowerCase().indexOf(ql) !== -1; }).slice(0, 6);
       if (!matches.length) { suggestBox.style.display = "none"; return; }
       matches.forEach(function (m, i) {
         var div = document.createElement("div");
@@ -2604,8 +2642,12 @@ specialtyCategory: "orthopedic",
     }
 
     heroInput.addEventListener("input", function () { showSuggestions(this.value); });
-    heroInput.addEventListener("blur",  function () { setTimeout(function () { suggestBox.style.display = "none"; }, 180); });
     heroInput.addEventListener("focus", function () { if (this.value.length >= 2) showSuggestions(this.value); });
+    document.addEventListener("click", function (e) {
+      if (!heroInput.contains(e.target) && !suggestBox.contains(e.target)) {
+        suggestBox.style.display = "none";
+      }
+    });
 
     heroInput.addEventListener("keydown", function (e) {
       var items = suggestBox.querySelectorAll(".hero-suggest-item");

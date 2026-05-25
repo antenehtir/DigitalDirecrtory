@@ -23,6 +23,82 @@
 </head>
 <body class="page-fade">
 
+  <!-- ===== TOP NAV BAR ===== -->
+  <nav class="top-nav-bar" id="topNavBar" role="navigation" aria-label="Site navigation">
+    <div class="top-nav-inner">
+      <span class="top-nav-brand">Antex MedDirectory</span>
+      <div class="top-nav-tabs" role="tablist">
+        <button class="top-nav-tab" data-panel="tn-about" role="tab" aria-selected="false">ℹ️ About</button>
+        <button class="top-nav-tab" data-panel="tn-news" role="tab" aria-selected="false">📰 News <span class="top-nav-dot" id="topNavNewsDot" style="display:none;"></span></button>
+        <button class="top-nav-tab" data-panel="tn-quiz" role="tab" aria-selected="false">🧠 Quiz</button>
+        <button class="top-nav-tab" data-panel="tn-contact" role="tab" aria-selected="false">📞 Contact</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== TOP NAV PANELS ===== -->
+  <div id="topNavContent" style="display:none;" aria-live="polite">
+
+    <!-- About Panel -->
+    <div class="top-panel" id="tn-about" style="display:none;">
+      <div class="top-panel-inner">
+        <div class="top-panel-card">
+          <div class="top-panel-icon">ℹ️</div>
+          <h2 class="top-panel-title">About Antex MedDirectory</h2>
+          <p class="top-panel-body">Antex MedDirectory is a free health facility finder empowering medical professionals and individuals to find the right care without delay. We aim to build Ethiopia's most comprehensive medical directory — one facility at a time, together.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- News Panel -->
+    <div class="top-panel" id="tn-news" style="display:none;">
+      <div class="top-panel-inner">
+        <div class="top-panel-card">
+          <div class="top-panel-icon">📰</div>
+          <h2 class="top-panel-title">News &amp; Updates Coming Soon</h2>
+          <p class="top-panel-body">Check back soon for Ethiopian health news and directory updates.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quiz Panel -->
+    <div class="top-panel" id="tn-quiz" style="display:none;">
+      <div class="top-panel-inner">
+        <div class="top-panel-card">
+          <div class="top-panel-icon">🧠</div>
+          <h2 class="top-panel-title">Medical Quiz — Coming Soon</h2>
+          <p class="top-panel-body">Challenge your knowledge of Addis Ababa's health facilities and general medical topics. Coming soon!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Panel -->
+    <div class="top-panel" id="tn-contact" style="display:none;">
+      <div class="top-panel-inner">
+        <div class="top-panel-card">
+          <div class="top-panel-icon">📞</div>
+          <h2 class="top-panel-title">Contact Us</h2>
+          <p class="top-panel-note">For facility submissions, corrections, or feedback — we'd love to hear from you.</p>
+          <div class="top-contact-rows">
+            <a href="tel:+251912412707" class="top-contact-row">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+              +251 912 412 707
+            </a>
+            <a href="https://t.me/AntenehTir" target="_blank" rel="noopener" class="top-contact-row">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.96 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+              @AntenehTir
+            </a>
+            <a href="mailto:antenehtirusew8@gmail.com" class="top-contact-row">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              antenehtirusew8@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /topNavContent -->
+
   <!-- ===== HEADER ===== -->
   <header class="header">
     <nav class="nav">
@@ -41,11 +117,8 @@
   <section class="hero">
     <div class="hero-glow-left"></div>
     <div class="hero-content">
-      <div class="hero-badge">
-        <i class="fa-solid fa-shield-heart"></i> Completely Free · Built for Medical Professionals
-      </div>
       <h1 class="hero-title">Find a Health Facility — STAT</h1>
-      <p class="hero-subtitle">Built for medical professionals and anyone seeking timely care.</p>
+      <p class="hero-subtitle">For anyone searching for and seeking timely care.</p>
 
       <div class="hero-search">
         <div class="hero-search-bar-wrap">
@@ -53,7 +126,7 @@
             <i class="fa-solid fa-magnifying-glass hero-search-icon"></i>
             <input type="text" id="heroSearch" placeholder="Search by facility name, specialty, or keyword…" autocomplete="off" />
             <button class="hero-search-btn" id="heroSearchBtn" aria-label="Search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </button>
           </div>
           <div id="heroSuggest" class="hero-suggest-dropdown" style="display:none;" role="listbox" aria-label="Search suggestions"></div>
@@ -114,13 +187,10 @@
 
     <!-- ===== COLLAPSIBLE FILTER ===== -->
     <section class="filter-section" id="filterSection">
-      <div class="filter-toggle-row">
-        <button class="filter-toggle-btn" id="filterToggleBtn" aria-expanded="false" aria-controls="filterBody">
-          <span><i class="fa-solid fa-magnifying-glass"></i> Search &amp; Filter Facilities</span>
-          <i class="fa-solid fa-chevron-down filter-toggle-icon" id="filterToggleIcon"></i>
-        </button>
-        <button class="filter-reset-btn" id="globalResetBtn" aria-label="Reset all filters">↺ Reset</button>
-      </div>
+      <button class="filter-toggle-btn" id="filterToggleBtn" aria-expanded="false" aria-controls="filterBody">
+        <span><i class="fa-solid fa-magnifying-glass"></i> Search &amp; Filter Facilities</span>
+        <i class="fa-solid fa-chevron-down filter-toggle-icon" id="filterToggleIcon"></i>
+      </button>
 
       <div class="filter-body" id="filterBody" style="display:none;">
         <div class="filter-body-inner">
@@ -250,7 +320,7 @@
         <i class="fa-solid fa-pills"></i> <span>Pharmacy</span>
       </button>
       <button class="main-tab" data-tab="financing" role="tab" aria-selected="false">
-        <i class="fa-solid fa-credit-card"></i> <span>Financing</span>
+        <i class="fa-solid fa-credit-card"></i> <span>Health Care Financing</span>
       </button>
       <button class="main-tab" data-tab="about" role="tab" aria-selected="false">
         <i class="fa-solid fa-circle-info"></i> <span>About</span>
@@ -549,7 +619,7 @@
 
   <!-- ===== FLOATING CALL BUTTON ===== -->
   <a href="tel:+251912412707" class="float-call-btn" aria-label="Call Antex MedDirectory">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
     <span class="float-call-tooltip">Call Antex MedDirectory</span>
   </a>
 
