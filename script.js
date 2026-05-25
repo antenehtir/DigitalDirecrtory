@@ -2541,7 +2541,7 @@ specialtyCategory: "orthopedic",
     // Collect main page sections to hide when a panel is active
     // NOTE: .header is NOT hidden — tabs live inside it and it stays visible
     var mainSections = Array.prototype.slice.call(
-      document.querySelectorAll(".hero, .stat-pills-section, .ticker-section, .main-content, .footer")
+      document.querySelectorAll(".hero, .stat-pills-section, .ticker-section, .main-content, .followup-section, .footer")
     );
     // Also the floating call button
     var floatBtn = document.querySelector(".float-call-btn");
