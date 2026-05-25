@@ -23,19 +23,6 @@
 </head>
 <body class="page-fade">
 
-  <!-- ===== TOP NAV BAR ===== -->
-  <nav class="top-nav-bar" id="topNavBar" role="navigation" aria-label="Site navigation">
-    <div class="top-nav-inner">
-      <span class="top-nav-brand">Antex MedDirectory</span>
-      <div class="top-nav-tabs" role="tablist">
-        <button class="top-nav-tab" data-panel="tn-about" role="tab" aria-selected="false">ℹ️ About</button>
-        <button class="top-nav-tab" data-panel="tn-news" role="tab" aria-selected="false">📰 News <span class="top-nav-dot" id="topNavNewsDot" style="display:none;"></span></button>
-        <button class="top-nav-tab" data-panel="tn-quiz" role="tab" aria-selected="false">🧠 Quiz</button>
-        <button class="top-nav-tab" data-panel="tn-contact" role="tab" aria-selected="false">📞 Contact</button>
-      </div>
-    </div>
-  </nav>
-
   <!-- ===== TOP NAV PANELS ===== -->
   <div id="topNavContent" style="display:none;" aria-live="polite">
 
@@ -109,7 +96,12 @@
           <span class="logo-sub">Addis Ababa Health Finder</span>
         </div>
       </div>
-      <div class="nav-tagline">Ethiopia's Free Health Facility Finder</div>
+      <div class="header-nav-tabs" role="tablist" aria-label="Site navigation">
+        <button class="top-nav-tab" data-panel="tn-about" role="tab" aria-selected="false">ℹ️ <span class="hnav-label">About</span></button>
+        <button class="top-nav-tab" data-panel="tn-news" role="tab" aria-selected="false">📰 <span class="hnav-label">News</span><span class="top-nav-dot" id="topNavNewsDot" style="display:none;"></span></button>
+        <button class="top-nav-tab" data-panel="tn-quiz" role="tab" aria-selected="false">🧠 <span class="hnav-label">Quiz</span></button>
+        <button class="top-nav-tab" data-panel="tn-contact" role="tab" aria-selected="false">📞 <span class="hnav-label">Contact</span></button>
+      </div>
     </nav>
   </header>
 
@@ -118,18 +110,22 @@
     <div class="hero-glow-left"></div>
     <div class="hero-content">
       <h1 class="hero-title">Find a Health Facility — STAT</h1>
-      <p class="hero-subtitle">For anyone searching for and seeking timely care.</p>
 
       <div class="hero-search">
-        <div class="hero-search-bar-wrap">
-          <div class="hero-search-bar">
-            <i class="fa-solid fa-magnifying-glass hero-search-icon"></i>
-            <input type="text" id="heroSearch" placeholder="Search by facility name, specialty, or keyword…" autocomplete="off" />
-            <button class="hero-search-btn" id="heroSearchBtn" aria-label="Search">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            </button>
+        <div class="hero-search-row">
+          <div class="hero-search-bar-wrap">
+            <div class="hero-search-bar">
+              <i class="fa-solid fa-magnifying-glass hero-search-icon"></i>
+              <input type="text" id="heroSearch" placeholder="Search by facility name, specialty, or keyword…" autocomplete="off" />
+              <button class="hero-search-btn" id="heroSearchBtn" aria-label="Search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </button>
+            </div>
+            <div id="heroSuggest" class="hero-suggest-dropdown" style="display:none;" role="listbox" aria-label="Search suggestions"></div>
           </div>
-          <div id="heroSuggest" class="hero-suggest-dropdown" style="display:none;" role="listbox" aria-label="Search suggestions"></div>
+          <button class="hero-nearme-btn" id="heroNearMeBtn" aria-label="Find facilities near me">
+            📍 Near Me
+          </button>
         </div>
         <div class="hero-search-tags">
           <span class="hero-tag" data-filter="telemedicine">💻 Telemedicine</span>

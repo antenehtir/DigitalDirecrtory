@@ -2538,8 +2538,9 @@ specialtyCategory: "orthopedic",
     if (!topNavContent) return;
 
     // Collect main page sections to hide when a panel is active
+    // NOTE: .header is NOT hidden — tabs live inside it and it stays visible
     var mainSections = Array.prototype.slice.call(
-      document.querySelectorAll(".header, .hero, .stat-pills-section, .ticker-section, .main-content, .footer")
+      document.querySelectorAll(".hero, .stat-pills-section, .ticker-section, .main-content, .footer")
     );
     // Also the floating call button
     var floatBtn = document.querySelector(".float-call-btn");
@@ -2826,6 +2827,28 @@ specialtyCategory: "orthopedic",
       );
     });
   }
+
+  // ============================================================
+  //  HERO NEAR ME BUTTON
+  // ============================================================
+  (function () {
+    var heroNearMeBtn = document.getElementById("heroNearMeBtn");
+    if (!heroNearMeBtn) return;
+    heroNearMeBtn.addEventListener("click", function () {
+      // Activate the Near Me tab to show the nearme section
+      activateTab("nearme", true);
+      // Scroll to nearme section
+      var nearMeSec = document.getElementById("nearmeSection");
+      if (nearMeSec) nearMeSec.scrollIntoView({ behavior: "smooth", block: "start" });
+      // Auto-trigger the GPS button after a short delay
+      setTimeout(function () {
+        var nearMeBtn = document.getElementById("nearMeBtn");
+        if (nearMeBtn && !nearMeBtn.disabled && nearMeBtn.style.display !== "none") {
+          nearMeBtn.click();
+        }
+      }, 450);
+    });
+  })();
 
   // ============================================================
   //  INIT — Run all v4 setup
