@@ -1593,49 +1593,90 @@ specialtyCategory: "orthopedic",
 }
 ];	
 
-// Get references to form elements 
-  const facilityTypeEl = document.getElementById("facilityType");
+  // ============================================================
+  //  DOM REFERENCES — v2.0
+  // ============================================================
+  const facilityTypeEl  = document.getElementById("facilityType");
   const specialtyTypeEl = document.getElementById("specialtyType");
-  const specialtyGroupEl = document.getElementById("specialtyGroup");
-  const subCityEl = document.getElementById("subCity");
-  const areaEl = document.getElementById("area");
-  const areaSearchEl = document.getElementById("areaSearch");
-  const nameSearchEl = document.getElementById("nameSearch");
-  const filterForm = document.getElementById("filterForm");
-  const resetButton = document.getElementById("resetButton");
-  const resultsSection = document.getElementById("resultsSection");
+  const specialtyGroupEl= document.getElementById("specialtyGroup");
+  const subCityEl       = document.getElementById("subCity");
+  const areaEl          = document.getElementById("area");
+  const areaSearchEl    = document.getElementById("areaSearch");
+  const nameSearchEl    = document.getElementById("nameSearch");
+  const filterForm      = document.getElementById("filterForm");
+  const resetButton     = document.getElementById("resetButton");
 
-  // Mapping of sub-cities to their areas
+  // Results UI elements
+  const resultsInitial  = document.getElementById("resultsInitial");
+  const searchLoading   = document.getElementById("searchLoading");
+  const resultsGrid     = document.getElementById("resultsGrid");
+  const resultsCount    = document.getElementById("resultsCount");
+
+  // Hero search elements
+  const heroSearch    = document.getElementById("heroSearch");
+  const heroSearchBtn = document.getElementById("heroSearchBtn");
+
+  // Submit form elements
+  const submitForm       = document.getElementById("submitForm");
+  const thankYouMessage  = document.getElementById("thankYouMessage");
+  const submitAnotherBtn = document.getElementById("submitAnotherBtn");
+
+  // ============================================================
+  //  AREA MAPPING
+  // ============================================================
   const areaMapping = {
-    "arada": ["Sumale tera", "Arat Kilo", "4 kilo", "General Wingate Street", "Printing press", "Pasture", "Tewodros Square", "Arogew Kera"],
-    "addis ketema": ["Medhanialem roundabout"],
-   "yeka": ["Minilik Hospital area", "Megenagha", "shola", "Kebena Round about", "Yeka Sub city Area","yeka area","yeka", "Kebena", "CMC road", "Shola", "Gurd shola"],
-    "bole": ["24", "Bole homes","Bole wellosefer",  "Bole medhanialem", "Haya Hulet","urrael", "Gazebo Square", "bole alem cinema", "Bole Medhanialem", "Figa", "Gerji", "Bole", "Fiyel bet", "Bole Rwanda", "bole airport", "Bole bulbula", "Capital Hotel"],
-    "gullele": ["Gullele", "kebena", "Enkulal Fabrica"],
-    "kirkos": ["Gotera Condominium", "Kazanchis", "Addis Ababa Stadium", "Genet Hotel", "Kera", "Kera bulgaria mazoria", "Cherkos", "Wello sefer","Wello sefer garad moll",  "Gotera", "Bulgaria"],
-    "kolfe": ["Kolfe", "Sefere selam", "Torhayloch", "Ayertena", "Total 3kuter Mazoria", "Bethel", "Alert hospital area"],
-    "lideta": ["Abenet", "Lideta", "Goma Kuteba", "Tikur Ambessa area", "BIherawi area"],
-    "nifas silk-lafto": ["Sarbet", "Jemo", "Jemo 3", "Gofa", "Bisrate Gabriel"],
-    "akaki-kaliti": [],
-    "lemi kura": ["CMC", "Goro", "Ayat", "Sunshine real estate meri lokie", "Feyel bet", "CMC Michael", "Wossen area"],
-    "sheger city": ["Furi", "Lege tafo"]
+    "arada":          ["Sumale tera","Arat Kilo","4 kilo","General Wingate Street","Printing press","Pasture","Tewodros Square","Arogew Kera"],
+    "addis ketema":   ["Medhanialem roundabout"],
+    "yeka":           ["Minilik Hospital area","Megenagha","shola","Kebena Round about","Yeka Sub city Area","yeka area","yeka","Kebena","CMC road","Shola","Gurd shola"],
+    "bole":           ["24","Bole homes","Bole wellosefer","Bole medhanialem","Haya Hulet","urrael","Gazebo Square","bole alem cinema","Bole Medhanialem","Figa","Gerji","Bole","Fiyel bet","Bole Rwanda","bole airport","Bole bulbula","Capital Hotel"],
+    "gullele":        ["Gullele","kebena","Enkulal Fabrica"],
+    "kirkos":         ["Gotera Condominium","Kazanchis","Addis Ababa Stadium","Genet Hotel","Kera","Kera bulgaria mazoria","Cherkos","Wello sefer","Wello sefer garad moll","Gotera","Bulgaria"],
+    "kolfe":          ["Kolfe","Sefere selam","Torhayloch","Ayertena","Total 3kuter Mazoria","Bethel","Alert hospital area"],
+    "lideta":         ["Abenet","Lideta","Goma Kuteba","Tikur Ambessa area","BIherawi area"],
+    "nifas silk-lafto":["Sarbet","Jemo","Jemo 3","Gofa","Bisrate Gabriel"],
+    "akaki-kaliti":   [],
+    "lemi kura":      ["CMC","Goro","Ayat","Sunshine real estate meri lokie","Feyel bet","CMC Michael","Wossen area"],
+    "sheger city":    ["Furi","Lege tafo"]
   };
 
-  // Function to populate the area dropdown and its datalist for manual suggestions
+  // ============================================================
+  //  HELPERS
+  // ============================================================
+  function getFacilityTypeInfo(type) {
+    switch (type) {
+      case "general":   return { icon: "fa-solid fa-hospital",      label: "General Hospital",  cls: "type-general"    };
+      case "speciality":return { icon: "fa-solid fa-stethoscope",   label: "Specialty Center",  cls: "type-speciality" };
+      case "diagnostic":return { icon: "fa-solid fa-microscope",    label: "Diagnostic Center", cls: "type-diagnostic" };
+      case "ambulance": return { icon: "fa-solid fa-truck-medical", label: "Ambulance Service", cls: "type-ambulance"  };
+      case "homecare":  return { icon: "fa-solid fa-house-medical", label: "Home Care",         cls: "type-homecare"   };
+      default:          return { icon: "fa-solid fa-hospital",      label: type,                cls: "type-general"    };
+    }
+  }
+
+  function capitalize(str) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function ensureHttp(url) {
+    if (!url) return "";
+    return url.startsWith("http") ? url : "https://" + url;
+  }
+
+  // ============================================================
+  //  AREA DROPDOWN POPULATION
+  // ============================================================
   function populateAreaOptions() {
-    areaEl.innerHTML = '<option value="">-- Select Area --</option>';
+    areaEl.innerHTML = '<option value="">All Areas</option>';
     const areaDatalist = document.getElementById("areaSuggestions");
     areaDatalist.innerHTML = "";
-    
+
     let areas = [];
     const subCity = subCityEl.value.toLowerCase().trim();
     if (subCity && areaMapping[subCity] && areaMapping[subCity].length > 0) {
       areas = areaMapping[subCity];
     } else {
-      // If no sub-city is selected, combine all areas and remove duplicates.
-      Object.values(areaMapping).forEach(arr => {
-        areas = areas.concat(arr);
-      });
+      Object.values(areaMapping).forEach(arr => { areas = areas.concat(arr); });
       areas = [...new Set(areas)];
     }
     areas.forEach(a => {
@@ -1643,131 +1684,315 @@ specialtyCategory: "orthopedic",
       opt.value = a.toLowerCase().trim();
       opt.textContent = a;
       areaEl.appendChild(opt);
-      
+
       const dataOpt = document.createElement("option");
       dataOpt.value = a;
       areaDatalist.appendChild(dataOpt);
     });
   }
 
-  // Function to populate facility name suggestions for autocomplete
+  // ============================================================
+  //  FACILITY NAME AUTOCOMPLETE
+  // ============================================================
   function populateNameSuggestions() {
     const nameDatalist = document.getElementById("nameSuggestions");
     nameDatalist.innerHTML = "";
-    const names = facilities.map(f => f.name);
-    const uniqueNames = [...new Set(names)];
-    uniqueNames.forEach(name => {
+    [...new Set(facilities.map(f => f.name))].forEach(name => {
       const opt = document.createElement("option");
       opt.value = name;
       nameDatalist.appendChild(opt);
     });
   }
 
-  // Populate area options and facility name suggestions on page load and when subCity changes
   subCityEl.addEventListener("change", populateAreaOptions);
   populateAreaOptions();
   populateNameSuggestions();
 
-  // Toggle specialty dropdown when facility type is "speciality"
+  // ============================================================
+  //  SPECIALTY CARD TOGGLE
+  // ============================================================
   facilityTypeEl.addEventListener("change", function () {
-    specialtyGroupEl.style.display = this.value === "speciality" ? "block" : "none";
+    specialtyGroupEl.style.display = this.value === "speciality" ? "flex" : "none";
   });
 
-  // Handle form submission for filtering
-  filterForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const facilityType = facilityTypeEl.value;
-    const subCity = subCityEl.value.toLowerCase().trim();
-    const areaDropdown = areaEl.value.toLowerCase().trim();
-    const areaSearch = areaSearchEl.value.toLowerCase().trim();
-    const area = areaSearch || areaDropdown;
-    const nameSearch = nameSearchEl.value.toLowerCase().trim();
-    const specialtyType = facilityType === "speciality" && specialtyTypeEl ? specialtyTypeEl.value.toLowerCase().trim() : "";
-    
-    let filtered = facilities.filter(f => {
-      // If facilityType is selected, filter by it; if not, allow free search by name.
-      if (facilityType) {
-        if (f.facilityType !== facilityType) return false;
-      }
-      
-      // Facility name filter (free text; partial match)
+  // ============================================================
+  //  CORE FILTER LOGIC
+  // ============================================================
+  function runFilter() {
+    const facilityType  = facilityTypeEl.value;
+    const subCity       = subCityEl.value.toLowerCase().trim();
+    const areaDropdown  = areaEl.value.toLowerCase().trim();
+    const areaSearchVal = areaSearchEl.value.toLowerCase().trim();
+    const area          = areaSearchVal || areaDropdown;
+    const nameSearch    = nameSearchEl.value.toLowerCase().trim();
+    const specialtyType = (facilityType === "speciality" && specialtyTypeEl)
+                          ? specialtyTypeEl.value.toLowerCase().trim() : "";
+
+    return facilities.filter(f => {
+      if (facilityType && f.facilityType !== facilityType) return false;
       if (nameSearch && !f.name.toLowerCase().includes(nameSearch)) return false;
-      
-      // Sub-city filtering (partial match allowed)
+
       if (subCity) {
         if (typeof f.subCity === "string") {
           if (!f.subCity.trim().toLowerCase().includes(subCity)) return false;
         } else if (Array.isArray(f.subCity)) {
-          if (!f.subCity.some(item => item.trim().toLowerCase().includes(subCity))) return false;
+          if (!f.subCity.some(s => s.trim().toLowerCase().includes(subCity))) return false;
         }
       }
-      
-      // Area filtering
+
       if (area) {
         if (f.area) {
           if (typeof f.area === "string") {
             if (f.area.trim().toLowerCase() !== area) return false;
           } else if (Array.isArray(f.area)) {
-            if (!f.area.some(item => item.trim().toLowerCase() === area)) return false;
+            if (!f.area.some(a => a.trim().toLowerCase() === area)) return false;
           }
         } else {
-          if (!f.location.trim().toLowerCase().includes(area)) return false;
+          const locText = Array.isArray(f.location) ? f.location.join(" ") : f.location;
+          if (!locText.toLowerCase().includes(area)) return false;
         }
       }
-      
-      // Specialty Category filtering (for speciality facilities)
+
       if (facilityType === "speciality" && specialtyType) {
         if (Array.isArray(f.specialtyCategory)) {
-          if (!f.specialtyCategory.some(item => item.trim().toLowerCase() === specialtyType)) return false;
+          if (!f.specialtyCategory.some(c => c.trim().toLowerCase() === specialtyType)) return false;
         } else {
           if (!f.specialtyCategory || f.specialtyCategory.trim().toLowerCase() !== specialtyType) return false;
         }
       }
       return true;
     });
-    
-    renderResults(filtered);
+  }
+
+  // ============================================================
+  //  SHOW / HIDE RESULTS UI
+  // ============================================================
+  function showLoading() {
+    resultsInitial.style.display  = "none";
+    searchLoading.style.display   = "flex";
+    resultsGrid.innerHTML         = "";
+    resultsCount.style.display    = "none";
+  }
+
+  function hideLoading() {
+    searchLoading.style.display = "none";
+  }
+
+  function showInitial() {
+    resultsInitial.style.display = "flex";
+    searchLoading.style.display  = "none";
+    resultsGrid.innerHTML        = "";
+    resultsCount.style.display   = "none";
+  }
+
+  // ============================================================
+  //  RENDER RESULT CARDS
+  // ============================================================
+  function renderResults(results) {
+    hideLoading();
+
+    if (results.length === 0) {
+      resultsCount.style.display = "none";
+      resultsGrid.innerHTML = `
+        <div class="empty-state">
+          <i class="fa-solid fa-magnifying-glass-minus empty-state-icon"></i>
+          <h3>No Facilities Found</h3>
+          <p>Try adjusting your filters or search term. You can also submit a missing facility below.</p>
+          <a href="#submitSection" class="btn btn-primary" style="margin-top:8px;">
+            <i class="fa-solid fa-plus"></i> Submit a Missing Facility
+          </a>
+        </div>`;
+      return;
+    }
+
+    resultsCount.textContent = results.length + " result" + (results.length !== 1 ? "s" : "") + " found";
+    resultsCount.style.display = "inline-flex";
+
+    let html = "";
+    results.forEach(facility => {
+      const typeInfo = getFacilityTypeInfo(facility.facilityType);
+
+      // Sub-city display
+      const subCities = Array.isArray(facility.subCity)
+        ? [...new Set(facility.subCity)].map(capitalize).join(", ")
+        : capitalize(facility.subCity || "");
+
+      // Location display
+      const locationText = Array.isArray(facility.location)
+        ? facility.location.join("<br>")
+        : (facility.location || "");
+
+      // Map link (first branch)
+      const firstMap = Array.isArray(facility.map) ? facility.map[0] : facility.map;
+
+      // Phone links
+      const phones = facility.contact ? facility.contact.split("/") : [];
+      const firstPhone = phones.length ? phones[0].trim().replace(/\s/g, "") : "";
+      const allPhoneLinks = phones
+        .map(p => `<a href="tel:${p.trim().replace(/\s/g,'')}">${p.trim()}</a>`)
+        .join(" / ");
+
+      html += `
+        <div class="result-card">
+          <div class="result-card-header">
+            <span class="result-card-type ${typeInfo.cls}">
+              <i class="${typeInfo.icon}"></i> ${typeInfo.label}
+            </span>
+            ${subCities ? `<span class="result-card-subcity"><i class="fa-solid fa-location-dot"></i> ${subCities}</span>` : ""}
+          </div>
+
+          <div class="result-card-body">
+            <h3 class="result-card-name">${facility.name}</h3>
+
+            <div class="result-card-detail">
+              <i class="fa-solid fa-stethoscope"></i>
+              <span>${facility.specialty}</span>
+            </div>
+
+            ${facility.specialServices ? `
+            <div class="result-card-detail">
+              <i class="fa-solid fa-star"></i>
+              <span><strong>Special services:</strong> ${facility.specialServices}</span>
+            </div>` : ""}
+
+            <div class="result-card-detail">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>${locationText}</span>
+            </div>
+
+            ${facility.availability ? `
+            <div class="result-card-detail">
+              <i class="fa-solid fa-clock"></i>
+              <span>${facility.availability}</span>
+            </div>` : ""}
+
+            <div class="result-card-detail">
+              <i class="fa-solid fa-phone"></i>
+              <span>${allPhoneLinks}</span>
+            </div>
+          </div>
+
+          <div class="result-card-actions">
+            ${firstPhone ? `<a href="tel:${firstPhone}" class="action-btn action-call"><i class="fa-solid fa-phone"></i> Call</a>` : ""}
+            ${facility.telegram ? `<a href="${facility.telegram}" target="_blank" class="action-btn action-telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>` : ""}
+            ${facility.website ? `<a href="${ensureHttp(facility.website)}" target="_blank" class="action-btn action-website"><i class="fa-solid fa-globe"></i> Website</a>` : ""}
+            ${firstMap ? `<a href="${firstMap}" target="_blank" class="action-btn action-map"><i class="fa-solid fa-map-location-dot"></i> Map</a>` : ""}
+          </div>
+        </div>`;
+    });
+
+    resultsGrid.innerHTML = html;
+  }
+
+  // ============================================================
+  //  FORM SUBMIT — with loading animation
+  // ============================================================
+  filterForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    showLoading();
+
+    // Scroll to results section
+    document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Small delay so spinner is visible, then render
+    setTimeout(() => {
+      const filtered = runFilter();
+      renderResults(filtered);
+    }, 380);
   });
 
-  // Reset button to clear the form and results
+  // ============================================================
+  //  RESET
+  // ============================================================
   resetButton.addEventListener("click", function () {
     filterForm.reset();
     specialtyGroupEl.style.display = "none";
-    resultsSection.innerHTML = "<h2>Search Results</h2><p>No results yet. Use the filters above to search.</p>";
     populateAreaOptions();
+    showInitial();
+    // Clear any active hero tag highlight
+    document.querySelectorAll(".hero-tag").forEach(t => t.classList.remove("active"));
   });
 
-  // Render Search Results (supports multiple branch locations)
-  function renderResults(results) {
-    if (results.length === 0) {
-      resultsSection.innerHTML = "<h2>Search Results</h2><p>No facilities match your criteria.</p>";
+  // ============================================================
+  //  HERO SEARCH BAR
+  // ============================================================
+  function triggerHeroSearch() {
+    const val = heroSearch.value.trim();
+    if (val) nameSearchEl.value = val;
+    // Scroll to filter then fire submit after scroll settles
+    document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 350);
+  }
+
+  heroSearchBtn.addEventListener("click", triggerHeroSearch);
+  heroSearch.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") { e.preventDefault(); triggerHeroSearch(); }
+  });
+
+  // ============================================================
+  //  HERO QUICK-FILTER TAGS
+  // ============================================================
+  document.querySelectorAll(".hero-tag").forEach(tag => {
+    tag.addEventListener("click", function () {
+      // Highlight active tag
+      document.querySelectorAll(".hero-tag").forEach(t => t.classList.remove("active"));
+      this.classList.add("active");
+
+      // Set facility type and trigger search
+      const filter = this.dataset.filter;
+      facilityTypeEl.value = filter;
+      facilityTypeEl.dispatchEvent(new Event("change"));
+
+      document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 350);
+    });
+  });
+
+  // ============================================================
+  //  SUBMIT MISSING FACILITY FORM
+  // ============================================================
+  submitForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const name     = document.getElementById("sf-name").value.trim();
+    const type     = document.getElementById("sf-type").value;
+    const specialty= document.getElementById("sf-specialty").value.trim();
+    const subcity  = document.getElementById("sf-subcity").value;
+    const area     = document.getElementById("sf-area").value.trim();
+    const phone    = document.getElementById("sf-phone").value.trim();
+    const telegram = document.getElementById("sf-telegram").value.trim();
+    const notes    = document.getElementById("sf-notes").value.trim();
+
+    // Basic validation
+    if (!name || !type || !subcity || !phone) {
+      alert("Please fill in all required fields (marked with *).");
       return;
     }
-    
-    let html = "<h2>Search Results</h2>";
-    results.forEach(facility => {
-      const locationText = Array.isArray(facility.location)
-        ? facility.location.join("<br>")
-        : facility.location;
-      const mapLinks = Array.isArray(facility.map)
-        ? facility.map.map(link => `<a href="${link}" target="_blank">View Map <i class="fa-solid fa-map-marker-alt"></i></a>`).join("<br>")
-        : `<a href="${facility.map}" target="_blank">View Map <i class="fa-solid fa-map-marker-alt"></i></a>`;
-      
-      html += `
-        <div class="result-item">
-          <h3>${facility.name}</h3>
-          <p><strong>Specialty:</strong> ${facility.specialty}</p>
-          <p><strong>Special Services:</strong> ${facility.specialServices ? facility.specialServices : "N/A"}</p>
-          <p><strong>Location:</strong> ${locationText}</p>
-          <p><strong>Map:</strong> ${mapLinks}</p>
-          <p><strong>Contact:</strong> ${facility.contact.split('/').map(phone => `<a href="tel:${phone.trim()}">${phone.trim()}</a>`).join(' / ')}</p>
-          <p><strong>Telegram:</strong> ${facility.telegram ? `<a href="${facility.telegram}" target="_blank">Join Telegram <i class="fa-brands fa-telegram"></i></a>` : "N/A"}</p>
-          <p><strong>Website:</strong> ${facility.website ? `<a href="${facility.website}" target="_blank">Visit Website <i class="fa-solid fa-globe"></i></a>` : "N/A"}</p>
-          <p><strong>Email:</strong> ${facility.email ? `<a href="mailto:${facility.email}">${facility.email} <i class="fa-solid fa-envelope"></i></a>` : "N/A"}</p>
-          <p><strong>Availability:</strong> ${facility.availability}</p>
-        </div>
-      `;
-    });
-    resultsSection.innerHTML = html;
-  }
+
+    const subject = encodeURIComponent("New Facility Submission: " + name);
+    const body = encodeURIComponent(
+      "Facility Name: " + name + "\n" +
+      "Type: " + type + "\n" +
+      "Specialty: " + specialty + "\n" +
+      "Sub-City: " + subcity + "\n" +
+      "Area: " + area + "\n" +
+      "Phone: " + phone + "\n" +
+      "Telegram / Website: " + telegram + "\n" +
+      "Notes: " + notes
+    );
+
+    // Open email client
+    window.location.href = "mailto:antenehtirusew8@gmail.com?subject=" + subject + "&body=" + body;
+
+    // Show thank-you state
+    submitForm.style.display = "none";
+    thankYouMessage.style.display = "flex";
+  });
+
+  submitAnotherBtn.addEventListener("click", function () {
+    submitForm.reset();
+    submitForm.style.display = "flex";
+    thankYouMessage.style.display = "none";
+  });
+
 });

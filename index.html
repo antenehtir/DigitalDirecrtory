@@ -3,147 +3,373 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HabariDOC Digital Directory</title>
-  
-  <!-- Cache-Busting: Add version numbers to force updates -->
-  <link rel="stylesheet" href="styles.css?v=1.2" />
-  
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
-        integrity="sha512-pb3JZjHk9WbKQ3lqC1QX9u+46eL8v+0RF9F1e6UpK6+6SywRzBOs4ug+vOLfEIjK5oUro+gIkg4z1r9Bf5lGwg==" 
+  <title>Antex Digital Directory — Health Facility Finder for Addis Ababa</title>
+  <meta name="description" content="A free directory for doctors and health professionals to search, discover, and connect with health facilities across all sub-cities of Addis Ababa." />
+
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-pb3JZjHk9WbKQ3lqC1QX9u+46eL8v+0RF9F1e6UpK6+6SywRzBOs4ug+vOLfEIjK5oUro+gIkg4z1r9Bf5lGwg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <link rel="stylesheet" href="styles.css?v=2.0" />
 </head>
-<body>
-  <div class="container">
-    <!-- Title Box -->
-    <div class="title-box">
-      <h1>HabariDOC Digital Directory</h1>
-    </div>
-    
-    <!-- Filter Section -->
-    <div class="filter-section">
-      <h2>Find a Health Facility</h2>
-      <form id="filterForm">
-        <!-- Facility Type (Optional now to allow free search) -->
-        <label class="label-facility" for="facilityType">
-          <i class="fa-solid fa-hospital"></i> Facility Type
-        </label>
-        <select id="facilityType">
-          <option value="">-- Select Facility Type --</option>
-          <option value="general">🏥 General Hospitals</option>
-          <option value="speciality">🏨 Specialty Centers</option>
-          <option value="diagnostic">🔬 Diagnostic Centers (imaging/laboratory)</option>
-          <option value="ambulance">🚑 Ambulance Services</option>
-          <option value="homecare">🏡 Home Care Services</option>
-        </select>
-        
-        <!-- Specialty Category Dropdown (Visible only when "speciality" is chosen) -->
-        <div id="specialtyGroup" class="filter-group" style="display: none;">
-          <label class="label-specialty" for="specialtyType">
-            <i class="fa-solid fa-stethoscope"></i> Specialty Category
-          </label>
-          <select id="specialtyType">
-            <option value="">-- Select Specialty --</option>
-            <option value="multi speciality">Multi Speciality</option>
-            <option value="mch">MCH</option>
-            <option value="surgical center">Surgical center</option>
-            <option value="pediatric">Pediatric</option>
-            <option value="internal medicine">Internal medicine</option>
-            <option value="cardiac">Cardiac</option>
-            <option value="oncology">Oncology</option>
-            <option value="orthopedic">Orthopedic</option>
-            <option value="neurology and spine">Neurology and Spine</option>
-            <option value="psychiatry">Psychiatry</option>
-            <option value="psychological center">Psychological centers</option>
-            <option value="eye center">Eye center</option>
-            <option value="dental center">Dental center</option>
-            <option value="dermatology and venerology">Dermatology and Venerology</option>
-            <option value="physiotherapy">Physiotherapy</option>
-            <option value="speech and language therapy">Speech and Language Therapy</option>
-            <option value="fertility and reproductive medicine">Fertility and Reproductive Medicine</option>
-            <option value="nutritional centers">Nutritional centers</option>
-            <option value="ent">ENT</option>
-          </select>
+<body class="page-fade">
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <nav class="nav">
+      <div class="nav-brand">
+        <span class="logo-icon"><i class="fa-solid fa-plus"></i></span>
+        <div class="logo-text">
+          <span class="logo-name">Antex Digital Directory</span>
+          <span class="logo-sub">Addis Ababa Health Finder</span>
         </div>
-        
-        <!-- Sub-City (Optional) -->
-        <label class="label-subcity" for="subCity">
-          <i class="fa-solid fa-location-dot"></i> Sub-City
-        </label>
-        <select id="subCity">
-          <option value="">-- Select Sub-City (leave blank to search all) --</option>
-          <option value="arada">Arada</option>
-          <option value="addis ketema">Addis Ketema</option>
-          <option value="yeka">Yeka</option>
-          <option value="bole">Bole</option>
-          <option value="gullele">Gullele</option>
-          <option value="kirkos">Kirkos</option>
-          <option value="kolfe">Kolfe</option>
-          <option value="lideta">Lideta</option>
-          <option value="nifas silk-lafto">Nifas Silk-Lafto</option>
-          <option value="akaki-kaliti">Akaki-Kaliti</option>
-          <option value="lemi kura">Lemi kura</option>
-          <option value="sheger city">Sheger City</option>
-        </select>
-        
-        <!-- Search Row: Area and Facility Name -->
-        <div class="search-row">
-          <!-- Area Dropdown (Populated Dynamically) -->
-          <div class="search-box">
-            <label class="label-area" for="area">
-              <i class="fa-solid fa-map-pin"></i> Select Area
-            </label>
-            <select id="area">
-              <option value="">-- Select Area --</option>
+      </div>
+      <div class="nav-tagline">Addis Ababa's Free Health Facility Finder for Medical Professionals</div>
+    </nav>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-glow-left"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-heart"></i> Completely Free · Built for Medical Professionals
+      </div>
+      <h1 class="hero-title">
+        Find the Right Health Facility<br>in Addis Ababa
+      </h1>
+      <p class="hero-subtitle">
+        A free directory built for doctors and health professionals — search, discover, and connect with facilities across all sub-cities
+      </p>
+
+      <div class="hero-search">
+        <div class="hero-search-bar">
+          <i class="fa-solid fa-magnifying-glass hero-search-icon"></i>
+          <input type="text" id="heroSearch" placeholder="Search by facility name, specialty, or keyword…" autocomplete="off" />
+          <button class="hero-search-btn" id="heroSearchBtn" aria-label="Search">
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+        <div class="hero-search-tags">
+          <span class="hero-tag" data-filter="general">🏥 General Hospitals</span>
+          <span class="hero-tag" data-filter="speciality">🏨 Specialty Centers</span>
+          <span class="hero-tag" data-filter="diagnostic">🔬 Diagnostic Centers</span>
+          <span class="hero-tag" data-filter="ambulance">🚑 Ambulance</span>
+          <span class="hero-tag" data-filter="homecare">🏡 Home Care</span>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="hero-stat-num">84+</span>
+          <span class="hero-stat-label">Facilities Listed</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">12</span>
+          <span class="hero-stat-label">Sub-Cities Covered</span>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">100%</span>
+          <span class="hero-stat-label">Free to Use</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+
+    <!-- ===== FILTER SECTION ===== -->
+    <section class="filter-section" id="filterSection">
+      <div class="section-header">
+        <h2><i class="fa-solid fa-sliders"></i> Advanced Filters</h2>
+        <p>Narrow your search — all fields are optional</p>
+      </div>
+
+      <form id="filterForm">
+        <div class="filter-grid">
+
+          <!-- Facility Type -->
+          <div class="filter-card">
+            <div class="filter-card-icon fci-navy"><i class="fa-solid fa-hospital"></i></div>
+            <label for="facilityType">Facility Type</label>
+            <select id="facilityType">
+              <option value="">All Types</option>
+              <option value="general">🏥 General Hospitals</option>
+              <option value="speciality">🏨 Specialty Centers</option>
+              <option value="diagnostic">🔬 Diagnostic Centers</option>
+              <option value="ambulance">🚑 Ambulance Services</option>
+              <option value="homecare">🏡 Home Care Services</option>
             </select>
           </div>
-          <!-- OR, Type in an area manually with datalist for suggestions -->
-          <div class="search-box">
-            <label class="label-area-search" for="areaSearch">
-              <i class="fa-solid fa-map-pin"></i> Or Enter Area
-            </label>
-            <input type="text" id="areaSearch" list="areaSuggestions" placeholder="Enter area..." />
-            <datalist id="areaSuggestions">
-              <!-- Options will be populated via JS -->
-            </datalist>
+
+          <!-- Specialty (conditional) -->
+          <div class="filter-card" id="specialtyGroup" style="display:none;">
+            <div class="filter-card-icon fci-teal"><i class="fa-solid fa-stethoscope"></i></div>
+            <label for="specialtyType">Specialty Category</label>
+            <select id="specialtyType">
+              <option value="">All Specialties</option>
+              <option value="multi speciality">Multi Speciality</option>
+              <option value="mch">MCH</option>
+              <option value="surgical center">Surgical Center</option>
+              <option value="pediatric">Pediatric</option>
+              <option value="internal medicine">Internal Medicine</option>
+              <option value="cardiac">Cardiac</option>
+              <option value="oncology">Oncology</option>
+              <option value="orthopedic">Orthopedic</option>
+              <option value="neurology and spine">Neurology and Spine</option>
+              <option value="psychiatry">Psychiatry</option>
+              <option value="psychological center">Psychological Centers</option>
+              <option value="eye center">Eye Center</option>
+              <option value="dental center">Dental Center</option>
+              <option value="dermatology and venerology">Dermatology and Venerology</option>
+              <option value="physiotherapy">Physiotherapy</option>
+              <option value="speech and language therapy">Speech and Language Therapy</option>
+              <option value="fertility and reproductive medicine">Fertility and Reproductive Medicine</option>
+              <option value="nutritional centers">Nutritional Centers</option>
+              <option value="ent">ENT</option>
+            </select>
           </div>
-          <!-- Facility Name Search (Optional) -->
-          <div class="search-box">
-            <label class="label-name-search" for="nameSearch">
-              <i class="fa-solid fa-magnifying-glass"></i> Facility Name
-            </label>
-            <input type="text" id="nameSearch" list="nameSuggestions" placeholder="Enter facility name or keyword..." />
-            <datalist id="nameSuggestions">
-              <!-- Options will be populated via JS -->
-            </datalist>
+
+          <!-- Sub-City -->
+          <div class="filter-card">
+            <div class="filter-card-icon fci-green"><i class="fa-solid fa-location-dot"></i></div>
+            <label for="subCity">Sub-City</label>
+            <select id="subCity">
+              <option value="">All Sub-Cities</option>
+              <option value="arada">Arada</option>
+              <option value="addis ketema">Addis Ketema</option>
+              <option value="yeka">Yeka</option>
+              <option value="bole">Bole</option>
+              <option value="gullele">Gullele</option>
+              <option value="kirkos">Kirkos</option>
+              <option value="kolfe">Kolfe</option>
+              <option value="lideta">Lideta</option>
+              <option value="nifas silk-lafto">Nifas Silk-Lafto</option>
+              <option value="akaki-kaliti">Akaki-Kaliti</option>
+              <option value="lemi kura">Lemi Kura</option>
+              <option value="sheger city">Sheger City</option>
+            </select>
+          </div>
+
+          <!-- Area Dropdown -->
+          <div class="filter-card">
+            <div class="filter-card-icon fci-orange"><i class="fa-solid fa-map-pin"></i></div>
+            <label for="area">Select Area</label>
+            <select id="area">
+              <option value="">All Areas</option>
+            </select>
+          </div>
+
+          <!-- Manual Area Entry -->
+          <div class="filter-card">
+            <div class="filter-card-icon fci-purple"><i class="fa-solid fa-keyboard"></i></div>
+            <label for="areaSearch">Or Type an Area</label>
+            <input type="text" id="areaSearch" list="areaSuggestions" placeholder="e.g. Bole, Sarbet, CMC…" />
+            <datalist id="areaSuggestions"></datalist>
+          </div>
+
+          <!-- Facility Name Search -->
+          <div class="filter-card">
+            <div class="filter-card-icon fci-teal2"><i class="fa-solid fa-magnifying-glass"></i></div>
+            <label for="nameSearch">Facility Name</label>
+            <input type="text" id="nameSearch" list="nameSuggestions" placeholder="Enter facility name or keyword…" />
+            <datalist id="nameSuggestions"></datalist>
+          </div>
+
+        </div><!-- /filter-grid -->
+
+        <div class="filter-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-magnifying-glass"></i> Search Facilities
+          </button>
+          <button type="button" class="btn btn-outline" id="resetButton">
+            <i class="fa-solid fa-rotate-left"></i> Reset Filters
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== RESULTS SECTION ===== -->
+    <section class="results-section" id="resultsSection">
+      <div class="results-header">
+        <h2><i class="fa-solid fa-list-ul"></i> Search Results</h2>
+        <span class="results-count" id="resultsCount" style="display:none;"></span>
+      </div>
+
+      <!-- Initial placeholder -->
+      <div class="results-initial" id="resultsInitial">
+        <div class="initial-state">
+          <i class="fa-solid fa-magnifying-glass-location initial-icon"></i>
+          <h3>Ready to Search</h3>
+          <p>Use the filters above or the hero search bar to find health facilities across Addis Ababa.</p>
+        </div>
+      </div>
+
+      <!-- Loading spinner -->
+      <div class="search-loading" id="searchLoading" style="display:none;">
+        <div class="spinner"></div>
+        <p>Searching facilities…</p>
+      </div>
+
+      <!-- Results cards -->
+      <div class="results-grid" id="resultsGrid"></div>
+    </section>
+
+    <!-- ===== SUBMIT MISSING FACILITY ===== -->
+    <section class="submit-section" id="submitSection">
+      <div class="submit-header">
+        <div class="submit-icon"><i class="fa-solid fa-circle-plus"></i></div>
+        <h2>Is a Facility Missing?</h2>
+        <p>Help us grow the directory — submit any missing institution using the template below</p>
+      </div>
+
+      <form class="submit-form" id="submitForm" novalidate>
+        <div class="submit-grid">
+          <div class="form-group">
+            <label for="sf-name"><i class="fa-solid fa-hospital"></i> Facility Name <span class="required">*</span></label>
+            <input type="text" id="sf-name" placeholder="e.g. St. Mary General Hospital" required />
+          </div>
+          <div class="form-group">
+            <label for="sf-type"><i class="fa-solid fa-tag"></i> Facility Type <span class="required">*</span></label>
+            <select id="sf-type" required>
+              <option value="">-- Select Type --</option>
+              <option value="General Hospital">General Hospital</option>
+              <option value="Specialty Center">Specialty Center</option>
+              <option value="Diagnostic Center">Diagnostic Center</option>
+              <option value="Ambulance Service">Ambulance Service</option>
+              <option value="Home Care Service">Home Care Service</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sf-specialty"><i class="fa-solid fa-stethoscope"></i> Specialty</label>
+            <input type="text" id="sf-specialty" placeholder="e.g. Cardiology, Pediatrics, General Medicine…" />
+          </div>
+          <div class="form-group">
+            <label for="sf-subcity"><i class="fa-solid fa-location-dot"></i> Sub-City <span class="required">*</span></label>
+            <select id="sf-subcity" required>
+              <option value="">-- Select Sub-City --</option>
+              <option value="Arada">Arada</option>
+              <option value="Addis Ketema">Addis Ketema</option>
+              <option value="Yeka">Yeka</option>
+              <option value="Bole">Bole</option>
+              <option value="Gullele">Gullele</option>
+              <option value="Kirkos">Kirkos</option>
+              <option value="Kolfe">Kolfe</option>
+              <option value="Lideta">Lideta</option>
+              <option value="Nifas Silk-Lafto">Nifas Silk-Lafto</option>
+              <option value="Akaki-Kaliti">Akaki-Kaliti</option>
+              <option value="Lemi Kura">Lemi Kura</option>
+              <option value="Sheger City">Sheger City</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="sf-area"><i class="fa-solid fa-map-pin"></i> Area / Neighborhood</label>
+            <input type="text" id="sf-area" placeholder="e.g. Bole, Kazanchis, Sarbet…" />
+          </div>
+          <div class="form-group">
+            <label for="sf-phone"><i class="fa-solid fa-phone"></i> Phone Number <span class="required">*</span></label>
+            <input type="tel" id="sf-phone" placeholder="e.g. +251911234567" required />
+          </div>
+          <div class="form-group form-group-full">
+            <label for="sf-telegram"><i class="fa-brands fa-telegram"></i> Telegram Channel / Website URL</label>
+            <input type="text" id="sf-telegram" placeholder="t.me/channelname  or  www.example.com" />
+          </div>
+          <div class="form-group form-group-full">
+            <label for="sf-notes"><i class="fa-solid fa-note-sticky"></i> Additional Notes</label>
+            <textarea id="sf-notes" rows="3" placeholder="Any additional information about the facility (services, working hours, special equipment, etc.)"></textarea>
           </div>
         </div>
-        
-        <button type="submit"><i class="fa-solid fa-search"></i> Search</button>
-        <button type="button" id="resetButton">Reset</button>
+        <button type="submit" class="btn btn-submit">
+          <i class="fa-solid fa-paper-plane"></i> Submit Facility
+        </button>
       </form>
+
+      <!-- Thank-you state -->
+      <div class="thank-you-message" id="thankYouMessage" style="display:none;">
+        <div class="thank-you-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <h3>Thank You for Your Contribution!</h3>
+        <p>Your submission has been received. We'll review it and add the facility to the directory shortly.</p>
+        <button class="btn btn-outline" id="submitAnotherBtn">
+          <i class="fa-solid fa-plus"></i> Submit Another
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== DIRECTORY GUIDELINES ===== -->
+    <section class="rules-section">
+      <div class="rules-content">
+        <h2><i class="fa-solid fa-circle-info"></i> Directory Guidelines</h2>
+        <ul class="rules-list">
+          <li><i class="fa-solid fa-circle-check"></i> This directory is entirely free for all users — doctors, health professionals, and the general public.</li>
+          <li><i class="fa-solid fa-circle-check"></i> Selecting a facility type narrows your search; leave it blank to search freely by name or keyword.</li>
+          <li><i class="fa-solid fa-circle-check"></i> Track real-time updates by joining the facility's Telegram channel or visiting their official website.</li>
+          <li><i class="fa-solid fa-circle-check"></i> For medical emergencies or health inquiries, call the national helpline <strong>9873</strong>.</li>
+          <li><i class="fa-solid fa-circle-check"></i> For feedback or to report incorrect information, contact us on Telegram <strong>@AntenehTir</strong> or call <strong>+251 912 412 707</strong>.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span class="footer-logo-icon"><i class="fa-solid fa-plus"></i></span>
+          <div>
+            <span class="footer-logo-name">Antex Digital Directory</span>
+            <span class="footer-logo-tagline">Addis Ababa's Free Health Facility Finder for Medical Professionals</span>
+          </div>
+        </div>
+        <p class="footer-description">
+          Antex Digital Directory is completely free for all users. We connect doctors and health professionals with health facilities across all sub-cities of Addis Ababa. For inquiries or feedback, contact us via phone or Telegram.
+        </p>
+      </div>
+
+      <div class="footer-contact">
+        <h3>Contact Us</h3>
+        <div class="footer-contact-item">
+          <i class="fa-solid fa-phone"></i>
+          <a href="tel:+251912412707">+251 912 412 707</a>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fa-brands fa-telegram"></i>
+          <a href="https://t.me/AntenehTir" target="_blank">@AntenehTir</a>
+        </div>
+        <div class="footer-contact-item">
+          <i class="fa-solid fa-envelope"></i>
+          <a href="mailto:antenehtirusew8@gmail.com">antenehtirusew8@gmail.com</a>
+        </div>
+      </div>
+
+      <div class="footer-info">
+        <h3>Directory Facts</h3>
+        <ul>
+          <li>Free for all users</li>
+          <li>84+ facilities listed</li>
+          <li>12 sub-cities covered</li>
+          <li>Updated regularly</li>
+          <li>Submit missing facilities</li>
+        </ul>
+      </div>
     </div>
-    
-    <!-- Results Section -->
-    <div class="results-section" id="resultsSection">
-      <h2>Search Results</h2>
-      <p>No results yet. Use the filters above to search.</p>
+
+    <div class="footer-bottom">
+      <p>© 2025 Antex Digital Directory. Antex Digital Directory is completely free for all users.</p>
+      <p>Built with ❤️ for the medical community of Addis Ababa</p>
     </div>
-    
-    <!-- Rules Section -->
-    <div class="rules">
-      <h2>Directory Rules</h2>
-      <ul>
-        <li>This directory is entirely free for any user.</li>
-        <li>Choosing the facility type is recommended to narrow your search (or leave blank for a free search by name).</li>
-        <li>You can keep track of real-time data of the desired center by joining Telegram or visiting the provided website; you can proceed with making an appointment using the provided contact information.</li>
-        <li>For any medical-related inquiry, please call our helpline <strong>9873</strong>.</li>
-        <li>If you have comments or feedback on this directory, please DM <strong>@Anteneh95</strong> on Telegram.</li>
-      </ul>
-      <p>Thank you!</p>
-    </div>
-  </div>
-  
-  <script src="script.js?v=1.2"></script>
+  </footer>
+
+  <script src="script.js?v=2.0"></script>
 </body>
 </html>
