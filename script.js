@@ -1971,6 +1971,7 @@ specialtyCategory: "orthopedic",
   // ============================================================
   function renderResults(results) {
     hideLoading();
+    resultsInitial.style.display = "none";
 
     if (results.length === 0) {
       resultsCount.style.display = "none";
@@ -1979,8 +1980,8 @@ specialtyCategory: "orthopedic",
           <i class="fa-solid fa-magnifying-glass-minus empty-state-icon"></i>
           <h3>No Facilities Found</h3>
           <p>Try adjusting your filters or search term. You can also submit a missing facility below.</p>
-          <a href="#submitSection" class="btn btn-primary" style="margin-top:8px;">
-            <i class="fa-solid fa-plus"></i> Submit a Missing Facility
+          <a href="#submitTabBtn" class="btn btn-primary" style="margin-top:8px;">
+            <i class="fa-solid fa-plus"></i> Register Your Facility
           </a>
         </div>`;
       return;
@@ -2191,7 +2192,7 @@ specialtyCategory: "orthopedic",
       return;
     }
 
-    const subject = encodeURIComponent("New Facility Submission — Antex MedDirectory: " + name);
+    const subject = encodeURIComponent("Facility Registration — Antex MedDirectory: " + name);
     const body = encodeURIComponent(
       "Facility Name: " + name + "\n" +
       "Type: " + type + "\n" +
@@ -2609,12 +2610,16 @@ specialtyCategory: "orthopedic",
     // Build corpus from facility data
     var corpus = [];
     facilities.forEach(function (f) {
-      corpus.push({ label: f.name,      category: "Facility" });
-      if (f.specialty)     corpus.push({ label: f.specialty,     category: "Specialty" });
-      if (f.subCity)       corpus.push({ label: f.subCity,       category: "Sub-City" });
+      corpus.push({ label: f.name, category: "Facility" });
+      if (f.specialty && typeof f.specialty === "string") corpus.push({ label: f.specialty, category: "Specialty" });
+      // subCity can be an array — flatten each entry individually
+      if (f.subCity) {
+        var subCities = Array.isArray(f.subCity) ? f.subCity : [f.subCity];
+        subCities.forEach(function (sc) { if (sc && typeof sc === "string") corpus.push({ label: sc, category: "Sub-City" }); });
+      }
       if (f.area) {
         var areas = Array.isArray(f.area) ? f.area : [f.area];
-        areas.forEach(function (a) { if (a) corpus.push({ label: a, category: "Area" }); });
+        areas.forEach(function (a) { if (a && typeof a === "string") corpus.push({ label: a, category: "Area" }); });
       }
     });
     // Deduplicate (case-insensitive)
