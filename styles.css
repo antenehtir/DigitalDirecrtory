@@ -188,11 +188,13 @@ ul { list-style: none; }
 
 /* Hero Search Bar */
 .hero-search { margin-bottom: 36px; }
+.hero-search-bar-wrap {
+  position: relative; max-width: 600px; margin: 0 auto 14px;
+}
 .hero-search-bar {
   display: flex; align-items: center;
   background: white; border-radius: var(--radius-full);
   padding: 6px 6px 6px 20px; gap: 12px;
-  max-width: 600px; margin: 0 auto 14px;
   animation: pulse-glow 2.6s ease-in-out infinite;
   transition: box-shadow 0.3s ease;
 }
@@ -217,7 +219,8 @@ ul { list-style: none; }
   box-shadow: 0 4px 14px rgba(27,152,224,0.42);
 }
 .hero-search-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(27,152,224,0.55); }
-.hero-search-btn i { color: white !important; }
+.hero-search-btn i,
+.hero-search-btn svg { color: white !important; stroke: white; }
 
 /* Quick Filter Tags */
 .hero-search-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
@@ -251,7 +254,7 @@ ul { list-style: none; }
   background: white;
   border-bottom: 1px solid var(--gray-100);
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 .stat-pills-scroll {
   display: flex;
@@ -843,7 +846,8 @@ ul { list-style: none; }
 .footer-bold { color: white; font-weight: 600; display: block; margin-bottom: 6px; }
 .footer-contact h3, .footer-info h3 { color: white; font-size: 0.9rem; font-weight: 600; margin-bottom: 16px; }
 .footer-contact-item { display: flex; align-items: center; gap: 10px; margin-bottom: 13px; font-size: 0.83rem; }
-.footer-contact-item i { color: var(--teal); width: 16px; flex-shrink: 0; }
+.footer-contact-item i,
+.footer-contact-item svg { color: var(--teal); width: 16px; height: 16px; flex-shrink: 0; }
 .footer-contact-item a { color: rgba(255,255,255,0.7); }
 .footer-contact-item a:hover { color: var(--teal); }
 .footer-info ul { display: flex; flex-direction: column; gap: 10px; }
@@ -912,7 +916,8 @@ ul { list-style: none; }
   transform: scale(1.12);
   box-shadow: 0 10px 32px rgba(27,152,224,0.65);
 }
-.float-call-btn i { color: white !important; }
+.float-call-btn i,
+.float-call-btn svg { color: white !important; stroke: white; }
 .float-call-tooltip {
   position: absolute; right: 68px; top: 50%; transform: translateY(-50%);
   background: var(--navy); color: white;
@@ -992,4 +997,114 @@ ul { list-style: none; }
   .stat-pills-scroll { padding: 12px 16px; }
   .float-call-btn { bottom: 16px; right: 16px; }
   .float-call-tooltip { display: none; }
+}
+
+/* ============================================
+   FILTER TOGGLE ROW + GLOBAL RESET
+   ============================================ */
+.filter-toggle-row {
+  display: flex; align-items: center;
+  gap: 0; position: relative;
+}
+.filter-toggle-row .filter-toggle-btn {
+  flex: 1;
+  border-radius: 0;
+}
+.filter-reset-btn {
+  flex-shrink: 0;
+  padding: 0 20px; height: 100%;
+  background: none; border: none; border-left: 1px solid var(--gray-100);
+  cursor: pointer; font-family: var(--font); font-size: 0.82rem; font-weight: 600;
+  color: var(--gray-600); transition: var(--transition);
+  white-space: nowrap;
+}
+.filter-reset-btn:hover { color: var(--teal); background: var(--gray-50); }
+
+/* ============================================
+   HERO AUTOCOMPLETE DROPDOWN
+   ============================================ */
+.hero-suggest-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0;
+  z-index: 200;
+  background: white; border-radius: var(--radius);
+  box-shadow: 0 12px 36px rgba(10,38,71,0.18);
+  border: 1px solid var(--gray-200);
+  max-height: 300px; overflow-y: auto;
+  margin-top: 6px;
+  animation: slideDown 0.18s ease;
+}
+/* wrapper for positioning */
+.hero-search-bar-wrap {
+  position: relative; max-width: 600px; margin: 0 auto 14px;
+}
+.hero-suggest-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; cursor: pointer; font-size: 0.86rem;
+  color: var(--gray-700); transition: background 0.15s;
+  border-bottom: 1px solid var(--gray-100);
+}
+.hero-suggest-item:last-child { border-bottom: none; }
+.hero-suggest-item:hover, .hero-suggest-item.active {
+  background: var(--teal-light); color: var(--teal-dark);
+}
+.hero-suggest-item i { color: var(--gray-400); font-size: 0.78rem; flex-shrink: 0; }
+.hero-suggest-category {
+  margin-left: auto; font-size: 0.7rem; font-weight: 600;
+  color: var(--gray-400); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+/* ============================================
+   ABOUT SECTION
+   ============================================ */
+.about-section { margin-bottom: 32px; animation: fadeInUp 0.4s ease; }
+.about-card {
+  background: white; border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg); border: 1px solid var(--gray-100);
+  padding: 48px 40px; max-width: 760px; margin: 0 auto;
+}
+.about-logo-wrap {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+}
+.about-logo-icon {
+  width: 52px; height: 52px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--teal), #2bbfff);
+  border-radius: 14px; display: flex; align-items: center; justify-content: center;
+  color: white; font-size: 1.3rem;
+  box-shadow: 0 4px 16px rgba(27,152,224,0.38);
+}
+.about-title { font-size: 1.5rem; font-weight: 800; color: var(--navy); margin-bottom: 2px; }
+.about-tagline { font-size: 0.78rem; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.07em; }
+.about-description {
+  font-size: 0.93rem; color: var(--gray-600); line-height: 1.8;
+  margin-bottom: 16px;
+}
+.about-description strong { color: var(--navy); }
+.about-badges { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.about-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 18px; border-radius: var(--radius-full);
+  font-size: 0.82rem; font-weight: 600;
+  transition: var(--transition); border: 1.5px solid transparent;
+}
+.about-badge-call {
+  background: #f0fdf4; color: #166534; border-color: #bbf7d0;
+}
+.about-badge-call:hover { background: #166534; color: white; border-color: #166534; transform: translateY(-2px); }
+.about-badge-telegram {
+  background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe;
+}
+.about-badge-telegram:hover { background: #0088cc; color: white; border-color: #0088cc; transform: translateY(-2px); }
+.about-badge-email {
+  background: var(--teal-light); color: var(--teal-dark); border-color: #bae6fd;
+}
+.about-badge-email:hover { background: var(--teal); color: white; border-color: var(--teal); transform: translateY(-2px); }
+
+/* ============================================
+   STAT PILLS MOBILE WRAP
+   ============================================ */
+@media (max-width: 520px) {
+  .stat-pills-scroll {
+    flex-wrap: wrap; overflow-x: visible;
+  }
+  .stat-pill { flex-shrink: 1; }
 }

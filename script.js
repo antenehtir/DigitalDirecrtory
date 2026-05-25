@@ -2135,6 +2135,7 @@ specialtyCategory: "orthopedic",
   heroSearch.addEventListener("keydown", function (e) {
     if (e.key === "Enter") { e.preventDefault(); triggerHeroSearch(); }
   });
+  heroSearch.addEventListener("search-submit", triggerHeroSearch);
 
   // ============================================================
   //  HERO QUICK-FILTER TAGS
@@ -2436,6 +2437,7 @@ specialtyCategory: "orthopedic",
   const mainTabsEl = document.getElementById("mainTabs");
   const resultsSectionEl  = document.getElementById("resultsSection");
   const nearMeSectionEl   = document.getElementById("nearmeSection");
+  const aboutSectionEl    = document.getElementById("aboutSection");
 
   function syncTabToType(type) {
     const tabMap = {
@@ -2454,14 +2456,25 @@ specialtyCategory: "orthopedic",
       t.setAttribute("aria-selected", String(isActive));
     });
 
-    // Show/hide Near Me vs results
+    // Show/hide panels
     if (tabKey === "nearme") {
       resultsSectionEl.style.display = "none";
       nearMeSectionEl.style.display  = "block";
+      if (aboutSectionEl) aboutSectionEl.style.display = "none";
+      history.pushState({ tab: tabKey }, "", "#" + tabKey);
+      return;
+    }
+    if (tabKey === "about") {
+      resultsSectionEl.style.display = "none";
+      nearMeSectionEl.style.display  = "none";
+      if (aboutSectionEl) aboutSectionEl.style.display = "block";
+      history.pushState({ tab: tabKey }, "", "#about");
       return;
     }
     resultsSectionEl.style.display = "block";
     nearMeSectionEl.style.display  = "none";
+    if (aboutSectionEl) aboutSectionEl.style.display = "none";
+    history.pushState({ tab: tabKey }, "", "#" + tabKey);
 
     if (!renderImmediately) return;
 
@@ -2501,6 +2514,122 @@ specialtyCategory: "orthopedic",
       activateTab(this.dataset.tab, true);
     });
   });
+
+  // Browser back/forward
+  window.addEventListener("popstate", function (e) {
+    if (e.state && e.state.tab) activateTab(e.state.tab, e.state.tab !== "nearme" && e.state.tab !== "about");
+  });
+
+  // ============================================================
+  //  GLOBAL RESET BUTTON
+  // ============================================================
+  (function () {
+    var resetBtn = document.getElementById("globalResetBtn");
+    if (!resetBtn) return;
+    resetBtn.addEventListener("click", function () {
+      // Clear all filter inputs
+      var ftEl    = document.getElementById("facilityType");
+      var spEl    = document.getElementById("specialtyType");
+      var scEl    = document.getElementById("subCity");
+      var arEl    = document.getElementById("area");
+      var asEl    = document.getElementById("areaSearch");
+      var nsEl    = document.getElementById("nameSearch");
+      var hsEl    = document.getElementById("heroSearch");
+      if (ftEl) { ftEl.value = ""; ftEl.dispatchEvent(new Event("change")); }
+      if (spEl) spEl.value = "";
+      if (scEl) scEl.value = "";
+      if (arEl) arEl.value = "";
+      if (asEl) asEl.value = "";
+      if (nsEl) nsEl.value = "";
+      if (hsEl) hsEl.value = "";
+      // Activate Facilities tab and show all
+      activateTab("facilities", true);
+    });
+  })();
+
+  // ============================================================
+  //  HERO SEARCH AUTOCOMPLETE
+  // ============================================================
+  (function () {
+    var heroInput   = document.getElementById("heroSearch");
+    var suggestBox  = document.getElementById("heroSuggest");
+    if (!heroInput || !suggestBox) return;
+
+    // Build corpus from facility data
+    var corpus = [];
+    facilities.forEach(function (f) {
+      corpus.push({ label: f.name,      category: "Facility" });
+      if (f.specialty)     corpus.push({ label: f.specialty,     category: "Specialty" });
+      if (f.subCity)       corpus.push({ label: f.subCity,       category: "Sub-City" });
+      if (f.area) {
+        var areas = Array.isArray(f.area) ? f.area : [f.area];
+        areas.forEach(function (a) { if (a) corpus.push({ label: a, category: "Area" }); });
+      }
+    });
+    // Deduplicate (case-insensitive)
+    var seen = {};
+    corpus = corpus.filter(function (item) {
+      var key = item.label.toLowerCase();
+      if (seen[key]) return false;
+      seen[key] = true;
+      return true;
+    });
+
+    var activeIdx = -1;
+
+    function showSuggestions(q) {
+      suggestBox.innerHTML = "";
+      activeIdx = -1;
+      if (q.length < 2) { suggestBox.style.display = "none"; return; }
+      var ql = q.toLowerCase();
+      var matches = corpus.filter(function (c) { return c.label.toLowerCase().indexOf(ql) !== -1; }).slice(0, 8);
+      if (!matches.length) { suggestBox.style.display = "none"; return; }
+      matches.forEach(function (m, i) {
+        var div = document.createElement("div");
+        div.className = "hero-suggest-item";
+        div.setAttribute("role", "option");
+        div.dataset.idx = i;
+        div.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>' +
+          '<span>' + m.label + '</span>' +
+          '<span class="hero-suggest-category">' + m.category + '</span>';
+        div.addEventListener("mousedown", function (e) {
+          e.preventDefault();
+          heroInput.value = m.label;
+          suggestBox.style.display = "none";
+          heroInput.dispatchEvent(new Event("search-submit"));
+        });
+        suggestBox.appendChild(div);
+      });
+      suggestBox.style.display = "block";
+    }
+
+    heroInput.addEventListener("input", function () { showSuggestions(this.value); });
+    heroInput.addEventListener("blur",  function () { setTimeout(function () { suggestBox.style.display = "none"; }, 180); });
+    heroInput.addEventListener("focus", function () { if (this.value.length >= 2) showSuggestions(this.value); });
+
+    heroInput.addEventListener("keydown", function (e) {
+      var items = suggestBox.querySelectorAll(".hero-suggest-item");
+      if (!items.length || suggestBox.style.display === "none") return;
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        activeIdx = Math.min(activeIdx + 1, items.length - 1);
+        items.forEach(function (el, i) { el.classList.toggle("active", i === activeIdx); });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        activeIdx = Math.max(activeIdx - 1, 0);
+        items.forEach(function (el, i) { el.classList.toggle("active", i === activeIdx); });
+      } else if (e.key === "Enter" && activeIdx >= 0) {
+        heroInput.value = corpus.filter(function (c) {
+          var ql = heroInput.value.toLowerCase();
+          return c.label.toLowerCase().indexOf(ql) !== -1;
+        })[activeIdx].label;
+        suggestBox.style.display = "none";
+        heroInput.dispatchEvent(new Event("search-submit"));
+      } else if (e.key === "Escape") {
+        suggestBox.style.display = "none";
+      }
+    });
+  })();
 
   // ============================================================
   //  BOTTOM TABS — Submit & Rules — v4.0
