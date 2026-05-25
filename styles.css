@@ -497,8 +497,10 @@ ul { list-style: none; }
 .type-diagnostic   { background: #faf5ff; color: #7c3aed; }
 .type-ambulance    { background: #fff7ed; color: #c2410c; }
 .type-homecare     { background: #f0fdf4; color: #166534; }
-.type-telemedicine { background: #f0f9ff; color: #0369a1; }
-.type-pharmacy     { background: #fdf4ff; color: #86198f; }
+.type-telemedicine  { background: #f0f9ff; color: #0369a1; }
+.type-pharmacy      { background: #fdf4ff; color: #86198f; }
+.type-medical-plaza { background: #fff8f1; color: #92400e; }
+.type-financing     { background: #f0fdf4; color: #065f46; }
 
 .result-card-subcity {
   display: inline-flex; align-items: center; gap: 5px;
@@ -800,6 +802,50 @@ ul { list-style: none; }
   background: var(--navy); color: white;
   border-color: var(--navy); transform: translateY(-1px);
 }
+
+/* WhatsApp button */
+.action-whatsapp {
+  background: #25d366; color: white; border-color: #25d366;
+}
+.action-whatsapp:hover { background: #1ebe5d; border-color: #1ebe5d; transform: translateY(-1px); }
+.action-whatsapp i, .action-whatsapp { color: white !important; }
+
+/* Booking button */
+.action-booking {
+  background: var(--teal); color: white; border-color: var(--teal);
+}
+.action-booking:hover { background: var(--teal-dark); border-color: var(--teal-dark); transform: translateY(-1px); }
+.action-booking i, .action-booking { color: white !important; }
+
+/* App download buttons */
+.result-card-apps {
+  display: flex; gap: 8px; flex-wrap: wrap; width: 100%;
+}
+.action-app {
+  background: var(--navy); color: white; border-color: var(--navy);
+  flex: 1; justify-content: center; min-width: 120px;
+}
+.action-app:hover { background: #0f3460; border-color: #0f3460; transform: translateY(-1px); }
+.action-app i, .action-app { color: white !important; }
+
+/* Social links row */
+.result-card-social {
+  display: flex; gap: 8px; align-items: center;
+  padding: 6px 0 2px;
+  border-top: 1px solid var(--gray-100);
+  width: 100%;
+}
+.social-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  font-size: 0.8rem; transition: var(--transition);
+  text-decoration: none;
+}
+.social-facebook  { background: #1877f2; color: white !important; }
+.social-instagram { background: linear-gradient(45deg, #f09433,#e6683c,#dc2743,#cc2366,#bc1888); color: white !important; }
+.social-linkedin  { background: #0a66c2; color: white !important; }
+.social-tiktok    { background: #010101; color: white !important; }
+.social-link:hover { transform: translateY(-2px) scale(1.1); opacity: 0.9; }
 
 /* Modal overlay */
 .modal-overlay {

@@ -355,7 +355,7 @@ document.addEventListener("DOMContentLoaded", function () {
 },
 {
       id: 23,
-      name: "American Medical Center",
+      name: "American Medical & MCH Center",
       facilityType: "speciality",
       specialty: "Internal Medicine (Gastroenterology, Cardiology, Infectious disease, Endocrinology, Haematology), and Paediatrics, Consultation (Nutritional, Psychiatry, Travel Medicine)",
       specialtyCategory: "multi speciality",
@@ -363,11 +363,17 @@ document.addEventListener("DOMContentLoaded", function () {
       subCity: "lemi kura",
       area: ["sunshine real estate meri lokie"],
       location: "CMC inside sunshine real estate compound (Meri lokie), Lemi kura sub-city",
-      map: "https://maps.app.goo.gl/pkWy8XdWjSMeK9Xt9",
-      contact: "8551 / +251949648401 / +251116678004/ +251116678020",
+      map: "https://www.google.com/maps/place/American+Medical+Center/@9.031014,38.8490357,17z",
+      contact: "8551 / +251116678004 / +251116678020 / +251949648401",
       telegram: "https://t.me/AmericanMedicalCenterEthiopia",
-      website: "http://www.amcethiopia.com/",
+      website: "https://amcethiopia.com/",
       email: "ethiopiaamc@gmail.com",
+      whatsapp: "https://api.whatsapp.com/send/?phone=%2B251949648401",
+      facebook: "https://web.facebook.com/AmericanMedicalCenterEthiopia",
+      instagram: "https://www.instagram.com/american_medicalcenter/",
+      tiktok: "https://www.tiktok.com/@american_medicalcenter",
+      linkedin: "https://www.linkedin.com/company/american-medical-center-et",
+      booking: "https://amcethiopia.com/book-an-appointment-american-medical-center-ethiopia.html",
       availability: "24/7"
 },
 {    
@@ -392,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
       name: "Samaritan Surgical Center",
       facilityType: "speciality",
       specialty: "Comprehensive Surgical service, ENT",
-specialServices: "Laparoscopic Surgery, Plastic and reconstructive surgery, Dialysis",
+      specialServices: "Laparoscopic Surgery, Plastic and reconstructive surgery, Dialysis",
       specialtyCategory: "surgical center",
       subCity: "lemi kura",
       area: "Sunshine real estate meri lokie",
@@ -402,6 +408,10 @@ specialServices: "Laparoscopic Surgery, Plastic and reconstructive surgery, Dial
       telegram: "https://t.me/samaritansscethiopia",
       website: "https://www.samaritansc.com/",
       email: "Samaritanscc@gmail.com",
+      instagram: "https://www.instagram.com/samaritansurgical/",
+      linkedin: "https://www.linkedin.com/company/samaritansurgical",
+      tiktok: "https://www.tiktok.com/@samaritan_surgical_cent",
+      booking: "https://drsamuelhailu.com/booking/",
       availability: "24/7"
     },
     {
@@ -1082,8 +1092,12 @@ specialtyCategory: "orthopedic",
   ],
   contact: "+251974788888 / +251940155606 / +251957040103",
   telegram: "https://t.me/axon_ssc_official_telegram_group",
-  website: "https://www.ethiopiastroke.com/",
+  website: "https://ethiopiastroke.com/",
   email: "info@ethiopiastroke.com",
+  tiktok: "https://www.tiktok.com/@axon.stroke.spine",
+  facebook: "https://web.facebook.com/profile.php?id=100092109993264",
+  instagram: "https://www.instagram.com/axon_stroke_spine_center",
+  linkedin: "https://www.linkedin.com/company/axon-stroke-spine-center-official",
   availability: "24/7"
 },
 {
@@ -1590,8 +1604,136 @@ specialtyCategory: "orthopedic",
   website: "https://www.abrihot.com/",
   email: "info@abrihot.com",
   availability: "Mon—Fri: 9:00 am – 6:00 pm, Sat: 9:00 am – 12:00 pm, Sun: Emergency only"
+},
+{
+  id: 85,
+  name: "Habari Medical Plaza",
+  facilityType: "medical_plaza",
+  specialty: "Internal Medicine, Gastroenterology, Cardiology, Oncology, Pulmonology, Emergency Medicine, Dermatology, Pediatrics, ENT, Dental, Ophthalmology, OBGYN, Psychiatry, Telemedicine",
+  specialServices: "24/7 CT, Ultrasound, X-Ray & Scope, 24/7 Ophthalmology & ENT, 24/7 Helpline 9873 answered by doctors, Advanced Laboratory",
+  specialtyCategory: "centers",
+  subCity: "yeka",
+  area: ["NOC building yeka", "civil service college"],
+  location: "NOC Building, next to NOC Gas Station, near Civil Service College, Yeka Sub-City, Addis Ababa",
+  map: "https://maps.app.goo.gl/Zwk7DqL4GqZTrxbv6",
+  contact: "+251961588888 / 9873",
+  telegram: "https://t.me/HabariDocdigitalhealth",
+  website: "https://habarihealth.com/",
+  email: "plaza@habarihealth.com",
+  whatsapp: "https://wa.me/251963838485",
+  facebook: "https://web.facebook.com/HabariDoc",
+  instagram: "https://www.instagram.com/habari_9873/",
+  tiktok: "https://www.tiktok.com/@habarimedicalplaza",
+  linkedin: "https://www.linkedin.com/company/habaridoc/",
+  booking: "https://habarihealth.com/",
+  accentColor: "#af0405",
+  monogram: "HMP",
+  featured: true,
+  emergency: true,
+  notes: "2-storey parking available · Restaurant on-site",
+  availability: "Emergency: 24/7 · Specialty OPD: Mon–Fri 8am–5pm · Sat 8am–12pm"
+},
+{
+  id: 86,
+  name: "American Medical Laboratories",
+  facilityType: "diagnostic",
+  specialty: "Clinical Chemistry, Hematology, Microbiology, Serology, Molecular Diagnostics, Pathology, Allergy Test, TB Screening, NIFT",
+  specialServices: "24/7 Sample Collection, Home Visit Sample Collection, Rapid Test Results, Online Result Portal",
+  specialtyCategory: "centers",
+  subCity: "yeka",
+  area: ["NOC building yeka", "habari medical plaza"],
+  location: "Inside Habari Medical Plaza, NOC Building, near Civil Service College, Yeka Sub-City, Addis Ababa",
+  map: "https://maps.app.goo.gl/VwRVsbi8fvfE1rXP8",
+  contact: "+251937000710 / 9873",
+  telegram: "https://t.me/aaml2026",
+  website: "",
+  email: "amclabratory2012@gmail.com",
+  accentColor: "#0d7a5f",
+  monogram: "AML",
+  emergency: true,
+  notes: "24/7 advanced laboratory service",
+  availability: "24/7"
+},
+{
+  id: 87,
+  name: "HabariDOC",
+  facilityType: "telemedicine",
+  specialty: "Video Consultations, Specialist Access, Electronic Health Records, Prescription Management, Follow-Up Care",
+  specialServices: "Available on iOS & Android, Multi-specialist access, Private & secure consultations",
+  specialtyCategory: "telemedicine",
+  subCity: "",
+  area: [],
+  location: "Online — Available across Ethiopia",
+  map: "",
+  contact: "+251961588888 / 9873",
+  telegram: "https://t.me/HabariDocdigitalhealth",
+  website: "https://habaridoc.com/",
+  email: "info@habaridoc.com",
+  whatsapp: "https://wa.me/251963838485",
+  facebook: "https://web.facebook.com/HabariDoc",
+  instagram: "https://instagram.com/habaridoc",
+  tiktok: "https://www.tiktok.com/@habarimedicalplaza",
+  linkedin: "https://www.linkedin.com/company/habaridoc/",
+  booking: "https://habaridoc.com/",
+  ios_app: "https://apps.apple.com/za/app/habaridoc/id6474964053",
+  android_app: "https://play.google.com/store/apps/details?id=com.GlobalHealthcareConsultancy.HabariDOC",
+  accentColor: "#af0405",
+  monogram: "HD",
+  notes: "Available on App Store & Google Play",
+  availability: "24/7"
+},
+{
+  id: 88,
+  name: "Habari Pharmacy",
+  facilityType: "pharmacy",
+  specialty: "Prescription Medications, OTC Products, Medication Delivery, Pharmacy Consultation, Refill Reminders",
+  specialServices: "Home delivery across Addis Ababa, App available on iOS & Android",
+  specialtyCategory: "online_pharmacy",
+  subCity: "",
+  area: [],
+  location: "Online — Delivery across Addis Ababa",
+  map: "",
+  contact: "+251961588888 / 9873",
+  telegram: "",
+  website: "https://habaripharmacy.com/",
+  email: "info@habaridoc.com",
+  whatsapp: "https://wa.me/251963838485",
+  booking: "https://habaripharmacy.com/",
+  ios_app: "https://apps.apple.com/us/app/habari-pharmacy/id6747916313",
+  android_app: "https://play.google.com/store/apps/details?id=com.habaripharmacy.com",
+  accentColor: "#af0405",
+  monogram: "Rx",
+  notes: "Prescription medication delivery",
+  availability: "24/7"
+},
+{
+  id: 89,
+  name: "Wastina",
+  facilityType: "financing",
+  specialty: "Healthcare Financing, Diaspora Sponsorship, Family Health Plans, Remote Coverage, Elderly Care Support",
+  specialServices: "Sponsor from anywhere in the world, Covers all network centers",
+  specialtyCategory: "financing",
+  subCity: "",
+  area: [],
+  location: "Online — Available worldwide for Ethiopian diaspora",
+  map: "",
+  contact: "+251116678004 / +251116678007 / 8551",
+  telegram: "",
+  website: "https://mywastina.com/",
+  email: "Support@mywastina.com",
+  whatsapp: "https://wa.me/251963838485",
+  facebook: "https://web.facebook.com/mywastina/",
+  instagram: "https://www.instagram.com/mywastina/",
+  tiktok: "https://www.tiktok.com/@mywastina",
+  linkedin: "https://www.linkedin.com/company/mywastina/",
+  bookingLabel: "Sponsor Your Loved Ones",
+  booking: "https://mywastina.com/",
+  accentColor: "#62a8a1",
+  monogram: "WS",
+  notes: "Healthcare financing for the Ethiopian diaspora",
+  availability: "Support available 24/7"
 }
-];	
+];
 
   // ============================================================
   //  DOM REFERENCES — v2.0
@@ -1644,14 +1786,16 @@ specialtyCategory: "orthopedic",
   // ============================================================
   function getFacilityTypeInfo(type) {
     switch (type) {
-      case "general":      return { icon: "fa-solid fa-hospital",       label: "General Hospital",    cls: "type-general",      emoji: "🏥" };
-      case "speciality":   return { icon: "fa-solid fa-stethoscope",    label: "Specialty Center",    cls: "type-speciality",   emoji: "🏨" };
-      case "diagnostic":   return { icon: "fa-solid fa-microscope",     label: "Diagnostic Center",   cls: "type-diagnostic",   emoji: "🔬" };
-      case "ambulance":    return { icon: "fa-solid fa-truck-medical",  label: "Ambulance Service",   cls: "type-ambulance",    emoji: "🚑" };
-      case "homecare":     return { icon: "fa-solid fa-house-medical",  label: "Home Care",           cls: "type-homecare",     emoji: "🏡" };
-      case "telemedicine": return { icon: "fa-solid fa-laptop-medical", label: "Telemedicine",        cls: "type-telemedicine", emoji: "💻" };
-      case "pharmacy":     return { icon: "fa-solid fa-pills",          label: "Online Pharmacy",     cls: "type-pharmacy",     emoji: "💊" };
-      default:             return { icon: "fa-solid fa-hospital",       label: type,                  cls: "type-general",      emoji: "🏥" };
+      case "general":       return { icon: "fa-solid fa-hospital",          label: "General Hospital",       cls: "type-general",        emoji: "🏥" };
+      case "speciality":    return { icon: "fa-solid fa-stethoscope",       label: "Specialty Center",       cls: "type-speciality",     emoji: "🏨" };
+      case "diagnostic":    return { icon: "fa-solid fa-microscope",        label: "Diagnostic Center",      cls: "type-diagnostic",     emoji: "🔬" };
+      case "ambulance":     return { icon: "fa-solid fa-truck-medical",     label: "Ambulance Service",      cls: "type-ambulance",      emoji: "🚑" };
+      case "homecare":      return { icon: "fa-solid fa-house-medical",     label: "Home Care",              cls: "type-homecare",       emoji: "🏡" };
+      case "telemedicine":  return { icon: "fa-solid fa-laptop-medical",    label: "Telemedicine",           cls: "type-telemedicine",   emoji: "💻" };
+      case "pharmacy":      return { icon: "fa-solid fa-pills",             label: "Online Pharmacy",        cls: "type-pharmacy",       emoji: "💊" };
+      case "medical_plaza": return { icon: "fa-solid fa-building-columns",  label: "Medical Plaza",          cls: "type-medical-plaza",  emoji: "🏛️" };
+      case "financing":     return { icon: "fa-solid fa-credit-card",       label: "Healthcare Financing",   cls: "type-financing",      emoji: "💳" };
+      default:              return { icon: "fa-solid fa-hospital",          label: type,                     cls: "type-general",        emoji: "🏥" };
     }
   }
 
@@ -1876,9 +2020,21 @@ specialtyCategory: "orthopedic",
 
           <div class="result-card-actions">
             ${firstPhone ? `<a href="tel:${firstPhone}" class="action-btn action-call"><i class="fa-solid fa-phone"></i> Call</a>` : ""}
+            ${facility.whatsapp ? `<a href="${facility.whatsapp}" target="_blank" class="action-btn action-whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ""}
             ${facility.telegram ? `<a href="${facility.telegram}" target="_blank" class="action-btn action-telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>` : ""}
+            ${facility.booking ? `<a href="${facility.booking}" target="_blank" class="action-btn action-booking"><i class="fa-solid fa-calendar-check"></i> ${facility.bookingLabel || "Book"}</a>` : ""}
             ${facility.website ? `<a href="${ensureHttp(facility.website)}" target="_blank" class="action-btn action-website"><i class="fa-solid fa-globe"></i> Website</a>` : ""}
             ${firstMap ? `<a href="${firstMap}" target="_blank" class="action-btn action-map"><i class="fa-solid fa-map-location-dot"></i> Map</a>` : ""}
+            ${(facility.ios_app || facility.android_app) ? `<div class="result-card-apps">
+              ${facility.ios_app ? `<a href="${facility.ios_app}" target="_blank" class="action-btn action-app"><i class="fa-brands fa-apple"></i> App Store</a>` : ""}
+              ${facility.android_app ? `<a href="${facility.android_app}" target="_blank" class="action-btn action-app"><i class="fa-brands fa-google-play"></i> Google Play</a>` : ""}
+            </div>` : ""}
+            ${(facility.facebook || facility.instagram || facility.linkedin || facility.tiktok) ? `<div class="result-card-social">
+              ${facility.facebook ? `<a href="${facility.facebook}" target="_blank" class="social-link social-facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>` : ""}
+              ${facility.instagram ? `<a href="${facility.instagram}" target="_blank" class="social-link social-instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>` : ""}
+              ${facility.linkedin ? `<a href="${facility.linkedin}" target="_blank" class="social-link social-linkedin" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>` : ""}
+              ${facility.tiktok ? `<a href="${facility.tiktok}" target="_blank" class="social-link social-tiktok" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>` : ""}
+            </div>` : ""}
             <button class="action-btn action-correction" type="button" onclick="openCorrectionModal(${JSON.stringify(facility.name)})">
               <i class="fa-solid fa-pen-to-square"></i> Request Correction
             </button>
