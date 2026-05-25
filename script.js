@@ -1978,13 +1978,21 @@ specialtyCategory: "orthopedic",
         .map(p => `<a href="tel:${p.trim().replace(/\s/g,'')}">${p.trim()}</a>`)
         .join(" / ");
 
+      const avatarGrad = getFacilityGradient(facility.name, facility.accentColor);
+      const avatarInitials = getFacilityInitials(facility.name);
+
       html += `
         <div class="result-card">
           <div class="result-card-header">
-            <span class="result-card-type ${typeInfo.cls}">
-              <i class="${typeInfo.icon}"></i> ${typeInfo.label}
-            </span>
-            ${subCities ? `<span class="result-card-subcity"><i class="fa-solid fa-location-dot"></i> ${subCities}</span>` : ""}
+            <div class="grad-avatar" style="background:${avatarGrad}">${facility.monogram || avatarInitials}</div>
+            <div class="result-card-header-meta">
+              <div class="result-card-badges">
+                <span class="result-card-type ${typeInfo.cls}">
+                  <i class="${typeInfo.icon}"></i> ${typeInfo.label}
+                </span>
+                ${subCities ? `<span class="result-card-subcity"><i class="fa-solid fa-location-dot"></i> ${subCities}</span>` : ""}
+              </div>
+            </div>
           </div>
 
           <div class="result-card-body">
@@ -2169,11 +2177,13 @@ specialtyCategory: "orthopedic",
     }
 
     function buildCard(facility) {
-      const info    = getFacilityTypeInfo(facility.facilityType);
-      const subCity = getSubCityDisplay(facility.subCity);
+      const info     = getFacilityTypeInfo(facility.facilityType);
+      const subCity  = getSubCityDisplay(facility.subCity);
       const safeName = facility.name.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      const grad     = getFacilityGradient(facility.name, facility.accentColor);
+      const initials = facility.monogram || getFacilityInitials(facility.name);
       return `<div class="ticker-card" data-name="${safeName}" tabindex="0" role="button" aria-label="Search ${safeName}">
-        <span class="ticker-emoji">${info.emoji}</span>
+        <div class="grad-avatar" style="background:${grad}">${initials}</div>
         <div class="ticker-card-info">
           <span class="ticker-name">${facility.name}</span>
           <div class="ticker-badges">
@@ -2282,4 +2292,337 @@ specialtyCategory: "orthopedic",
     modalThankYou.style.display  = "flex";
   });
 
+  // ============================================================
+  //  GRADIENT AVATAR HELPERS — v4.0
+  // ============================================================
+  const GRAD_PALETTE = [
+    ["#0A2647","#1B98E0"],
+    ["#1B98E0","#06b6d4"],
+    ["#0d7a5f","#34d399"],
+    ["#4f46e5","#818cf8"],
+    ["#7c3aed","#c084fc"],
+    ["#be123c","#fb7185"],
+    ["#92400e","#f59e0b"],
+    ["#065f46","#6ee7b7"],
+  ];
+
+  function getFacilityInitials(name) {
+    if (!name) return "?";
+    return name.split(/\s+/).filter(Boolean).slice(0, 2)
+      .map(w => w[0]).join("").toUpperCase() || "?";
+  }
+
+  function getFacilityGradient(name, accentColor) {
+    if (accentColor) {
+      return "linear-gradient(135deg, " + accentColor + ", " + accentColor + "99)";
+    }
+    const hash = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+    const [c1, c2] = GRAD_PALETTE[hash % GRAD_PALETTE.length];
+    const angle = (hash * 7 + 45) % 360;
+    return "linear-gradient(" + angle + "deg, " + c1 + ", " + c2 + ")";
+  }
+
+  // ============================================================
+  //  STAT PILLS — v4.0
+  // ============================================================
+  function buildStatPills() {
+    const container = document.getElementById("statPillsScroll");
+    if (!container) return;
+
+    const typeDefs = [
+      { key: "telemedicine",  label: "Telemedicine",      emoji: "💻" },
+      { key: "pharmacy",      label: "Online Pharmacy",   emoji: "💊" },
+      { key: "medical_plaza", label: "Medical Plaza",     emoji: "🏛️" },
+      { key: "financing",     label: "Financing",         emoji: "💳" },
+      { key: "general",       label: "General Hospitals", emoji: "🏥" },
+      { key: "speciality",    label: "Specialty Centers", emoji: "🏨" },
+      { key: "diagnostic",    label: "Diagnostics",       emoji: "🔬" },
+      { key: "ambulance",     label: "Ambulance",         emoji: "🚑" },
+      { key: "homecare",      label: "Home Care",         emoji: "🏡" },
+    ];
+
+    // All Facilities pill
+    const allPill = document.createElement("button");
+    allPill.className = "stat-pill";
+    allPill.dataset.type = "";
+    allPill.innerHTML = `📋 All Facilities <span class="stat-pill-count">${facilities.length}</span>`;
+    container.appendChild(allPill);
+
+    typeDefs.forEach(def => {
+      const count = facilities.filter(f => f.facilityType === def.key).length;
+      if (count === 0) return;
+      const pill = document.createElement("button");
+      pill.className = "stat-pill";
+      pill.dataset.type = def.key;
+      pill.innerHTML = `${def.emoji} ${def.label} <span class="stat-pill-count">${count}</span>`;
+      container.appendChild(pill);
+    });
+
+    // Wire click
+    container.querySelectorAll(".stat-pill").forEach(pill => {
+      pill.addEventListener("click", function () {
+        container.querySelectorAll(".stat-pill").forEach(p => p.classList.remove("active"));
+        this.classList.add("active");
+
+        const type = this.dataset.type;
+        // Set the filter dropdown
+        const ftEl = document.getElementById("facilityType");
+        if (ftEl) { ftEl.value = type; ftEl.dispatchEvent(new Event("change")); }
+        // Also sync with main tabs if matching
+        syncTabToType(type);
+        // Open filter and trigger search
+        openFilterBody();
+        document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => {
+          const filtered = type ? facilities.filter(f => f.facilityType === type) : facilities;
+          renderResults(filtered);
+        }, 180);
+      });
+    });
+  }
+
+  // ============================================================
+  //  COLLAPSIBLE FILTER — v4.0
+  // ============================================================
+  const filterToggleBtn  = document.getElementById("filterToggleBtn");
+  const filterBody       = document.getElementById("filterBody");
+  const filterToggleIcon = document.getElementById("filterToggleIcon");
+
+  function openFilterBody() {
+    filterBody.style.display = "block";
+    filterToggleIcon.classList.add("open");
+    filterToggleBtn.setAttribute("aria-expanded", "true");
+  }
+  function closeFilterBody() {
+    filterBody.style.display = "none";
+    filterToggleIcon.classList.remove("open");
+    filterToggleBtn.setAttribute("aria-expanded", "false");
+  }
+
+  filterToggleBtn.addEventListener("click", function () {
+    if (filterBody.style.display === "none") { openFilterBody(); }
+    else { closeFilterBody(); }
+  });
+
+  // ============================================================
+  //  MAIN TABS — v4.0
+  // ============================================================
+  const mainTabsEl = document.getElementById("mainTabs");
+  const resultsSectionEl  = document.getElementById("resultsSection");
+  const nearMeSectionEl   = document.getElementById("nearmeSection");
+
+  function syncTabToType(type) {
+    const tabMap = {
+      "telemedicine": "telemedicine",
+      "pharmacy":     "pharmacy",
+      "financing":    "financing",
+    };
+    const tabKey = tabMap[type] || "facilities";
+    activateTab(tabKey, false);
+  }
+
+  function activateTab(tabKey, renderImmediately) {
+    mainTabsEl.querySelectorAll(".main-tab").forEach(t => {
+      const isActive = t.dataset.tab === tabKey;
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", String(isActive));
+    });
+
+    // Show/hide Near Me vs results
+    if (tabKey === "nearme") {
+      resultsSectionEl.style.display = "none";
+      nearMeSectionEl.style.display  = "block";
+      return;
+    }
+    resultsSectionEl.style.display = "block";
+    nearMeSectionEl.style.display  = "none";
+
+    if (!renderImmediately) return;
+
+    const titleEl = document.getElementById("resultsTitle");
+    let filtered;
+    if (tabKey === "facilities") {
+      filtered = facilities;
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-list-ul"></i> All Facilities';
+    } else if (tabKey === "telemedicine") {
+      filtered = facilities.filter(f => f.facilityType === "telemedicine");
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-laptop-medical"></i> Telemedicine Services';
+    } else if (tabKey === "pharmacy") {
+      filtered = facilities.filter(f => f.facilityType === "pharmacy");
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-pills"></i> Online Pharmacies';
+    } else if (tabKey === "financing") {
+      filtered = facilities.filter(f => f.facilityType === "financing");
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-credit-card"></i> Healthcare Financing';
+    } else {
+      filtered = facilities;
+    }
+
+    // Sync dropdown
+    const ftEl = document.getElementById("facilityType");
+    if (ftEl) {
+      const typeMap = { telemedicine:"telemedicine", pharmacy:"pharmacy", financing:"financing" };
+      ftEl.value = typeMap[tabKey] || "";
+      ftEl.dispatchEvent(new Event("change"));
+    }
+
+    showLoading();
+    resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    setTimeout(() => renderResults(filtered), 280);
+  }
+
+  mainTabsEl.querySelectorAll(".main-tab").forEach(tab => {
+    tab.addEventListener("click", function () {
+      activateTab(this.dataset.tab, true);
+    });
+  });
+
+  // ============================================================
+  //  BOTTOM TABS — Submit & Rules — v4.0
+  // ============================================================
+  function setupBottomTab(btnId, bodyId, iconId) {
+    const btn  = document.getElementById(btnId);
+    const body = document.getElementById(bodyId);
+    const icon = document.getElementById(iconId);
+    if (!btn || !body || !icon) return;
+    btn.addEventListener("click", function () {
+      const open = body.style.display !== "none";
+      if (open) {
+        body.style.display = "none";
+        icon.classList.remove("open");
+        btn.setAttribute("aria-expanded", "false");
+      } else {
+        body.style.display = "block";
+        icon.classList.add("open");
+        btn.setAttribute("aria-expanded", "true");
+        setTimeout(() => body.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
+      }
+    });
+  }
+  setupBottomTab("submitTabBtn", "submitTabBody", "submitTabIcon");
+  setupBottomTab("rulesTabBtn",  "rulesTabBody",  "rulesTabIcon");
+
+  // ============================================================
+  //  NEAR ME — v4.0
+  // ============================================================
+  // Approximate sub-city centers in Addis Ababa (lat, lng)
+  const subCityCoords = {
+    "arada":           [9.0300, 38.7565],
+    "addis ketema":    [9.0200, 38.7300],
+    "yeka":            [9.0200, 38.8200],
+    "bole":            [8.9950, 38.8100],
+    "gullele":         [9.0750, 38.7500],
+    "kirkos":          [9.0050, 38.7820],
+    "kolfe":           [8.9800, 38.7300],
+    "lideta":          [8.9900, 38.7500],
+    "nifas silk-lafto":[8.9600, 38.7800],
+    "akaki-kaliti":    [8.9200, 38.8000],
+    "lemi kura":       [9.0400, 38.8400],
+    "sheger city":     [8.8950, 38.6500],
+  };
+
+  let leafletMap = null;
+
+  function haversineKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function getFacilityCoords(facility) {
+    const sc = (Array.isArray(facility.subCity) ? facility.subCity[0] : facility.subCity || "").toLowerCase().trim();
+    return subCityCoords[sc] || null;
+  }
+
+  function initNearMe(userLat, userLng) {
+    // Sort facilities by distance to user
+    const withDist = facilities.map(f => {
+      const coords = getFacilityCoords(f);
+      const dist   = coords ? haversineKm(userLat, userLng, coords[0], coords[1]) : 999;
+      return { ...f, _dist: dist, _coords: coords };
+    }).sort((a, b) => a._dist - b._dist);
+
+    // Build/update Leaflet map
+    const mapEl = document.getElementById("nearMeMap");
+    mapEl.style.display = "block";
+
+    if (!window.L) {
+      mapEl.innerHTML = '<p style="text-align:center;padding:40px;color:#475569;">Map unavailable — Leaflet failed to load.</p>';
+    } else {
+      if (!leafletMap) {
+        leafletMap = L.map("nearMeMap").setView([userLat, userLng], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+          maxZoom: 18
+        }).addTo(leafletMap);
+      } else {
+        leafletMap.setView([userLat, userLng], 13);
+      }
+
+      // User pin
+      const userIcon = L.divIcon({
+        className: "",
+        html: '<div style="width:14px;height:14px;background:#1B98E0;border:3px solid white;border-radius:50%;box-shadow:0 0 0 4px rgba(27,152,224,0.3)"></div>',
+        iconSize: [14,14], iconAnchor: [7,7]
+      });
+      L.marker([userLat, userLng], { icon: userIcon }).addTo(leafletMap).bindPopup("<b>You are here</b>");
+
+      // Facility pins (top 20)
+      withDist.slice(0, 20).forEach(f => {
+        if (!f._coords) return;
+        const info = getFacilityTypeInfo(f.facilityType);
+        const facIcon = L.divIcon({
+          className: "",
+          html: `<div style="width:32px;height:32px;background:${getFacilityGradient(f.name,f.accentColor)};border:2px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,0.28)">${f.monogram||getFacilityInitials(f.name)}</div>`,
+          iconSize: [32,32], iconAnchor: [16,16]
+        });
+        L.marker(f._coords, { icon: facIcon }).addTo(leafletMap)
+          .bindPopup(`<b>${f.name}</b><br>${info.emoji} ${info.label}<br>${f.availability || ""}`);
+      });
+    }
+
+    // Show nearby cards
+    const nearGrid = document.getElementById("nearMeGrid");
+    renderResults(withDist.filter(f => f._coords && f._dist < 10));
+    // Move the rendered cards into nearGrid instead of resultsGrid
+    const rg = document.getElementById("resultsGrid");
+    nearGrid.innerHTML = rg.innerHTML;
+    rg.innerHTML = "";
+  }
+
+  const nearMeBtn    = document.getElementById("nearMeBtn");
+  const nearMeDenied = document.getElementById("nearMeDenied");
+
+  if (nearMeBtn) {
+    nearMeBtn.addEventListener("click", function () {
+      this.disabled = true;
+      this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating…';
+      if (!navigator.geolocation) {
+        nearMeDenied.style.display = "flex";
+        this.style.display = "none";
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          nearMeBtn.style.display = "none";
+          document.getElementById("nearmeHero").style.paddingBottom = "28px";
+          initNearMe(pos.coords.latitude, pos.coords.longitude);
+        },
+        () => {
+          nearMeDenied.style.display = "flex";
+          nearMeBtn.disabled = false;
+          nearMeBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Use My Location';
+        },
+        { timeout: 10000 }
+      );
+    });
+  }
+
+  // ============================================================
+  //  INIT — Run all v4 setup
+  // ============================================================
+  buildStatPills();
+
 });
+
