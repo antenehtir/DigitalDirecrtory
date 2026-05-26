@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=4.5" />
+  <link rel="stylesheet" href="styles.css?v=4.6" />
 </head>
 <body class="page-fade">
 
@@ -160,17 +160,6 @@
     </div>
   </section>
 
-  <!-- ===== STAT PILLS ===== -->
-  <section class="stat-pills-section">
-    <div class="stat-pills-nav">
-      <button class="stat-pills-arrow stat-pills-left" id="pillsArrowLeft" aria-label="Scroll categories left">&#8249;</button>
-      <div class="stat-pills-scroll" id="statPillsScroll">
-        <!-- populated by JS -->
-      </div>
-      <button class="stat-pills-arrow stat-pills-right" id="pillsArrowRight" aria-label="Scroll categories right">&#8250;</button>
-    </div>
-  </section>
-
   <!-- ===== TICKER ===== -->
   <section class="ticker-section">
     <div class="ticker-header">
@@ -309,8 +298,17 @@
       </div>
     </section>
 
-    <!-- ===== MAIN TABS ===== -->
-    <nav class="main-tabs" id="mainTabs" role="tablist" aria-label="Facility categories">
+    <!-- ===== UNIFIED TABS (replaces both stat pills bar and old main tabs) ===== -->
+    <div class="unified-tabs-section" id="unifiedTabsSection">
+      <button class="unified-tab-arrow" id="unifiedTabLeft" aria-label="Scroll categories left">&#8249;</button>
+      <div class="unified-tabs-scroll" id="unifiedTabsScroll" role="tablist" aria-label="Facility categories">
+        <!-- populated by buildUnifiedTabs() in JS -->
+      </div>
+      <button class="unified-tab-arrow" id="unifiedTabRight" aria-label="Scroll categories right">&#8250;</button>
+    </div>
+
+    <!-- Legacy main-tabs kept hidden — JS uses it internally for activateTab() -->
+    <nav class="main-tabs" id="mainTabs" style="display:none;" role="tablist" aria-hidden="true">
       <button class="main-tab active" data-tab="facilities" role="tab" aria-selected="true">
         <span class="tab-emoji">🏥</span><span>Facilities</span>
       </button>
@@ -331,6 +329,11 @@
     <!-- Specialty sub-type chips — injected by JS when Specialty Centers is active -->
     <div id="specialtySubTabs" class="specialty-sub-tabs" style="display:none;" role="navigation" aria-label="Filter by specialty type">
       <!-- populated by buildSpecialtySubTabs() -->
+    </div>
+
+    <!-- Clear Filter pill — shown when any category filter is active -->
+    <div class="clear-filter-row" id="clearFilterRow" style="display:none;">
+      <button class="clear-filter-btn" id="clearFilterBtn">✕ Clear Filter</button>
     </div>
 
     <!-- ===== RESULTS SECTION ===== -->
@@ -395,7 +398,7 @@
           <strong>Antex MedDirectory</strong> is a completely free, community-powered health facility directory built for <strong>Addis Ababa</strong>. Whether you're a doctor, nurse, or patient, find the right facility — fast.
         </p>
         <p class="about-description">
-          We list hospitals, specialty centers, diagnostic labs, telemedicine services, pharmacies, ambulance providers, home care services, medical plazas, and healthcare financing — all in one place. No sign-up. No fees. Forever free.
+          We list hospitals, specialty centers, diagnostic labs, telemedicine services, pharmacies, ambulance providers, home care services, medical plazas, and healthcare financing — all in one place. No sign-up. No fees. Always free.
         </p>
         <div class="about-badges">
           <a href="tel:+251912412707" class="about-badge about-badge-call">
@@ -508,12 +511,11 @@
         <div class="bottom-tab-body" id="rulesTabBody" style="display:none;">
           <div class="rules-content">
             <ul class="rules-list">
-              <li><i class="fa-solid fa-circle-check"></i> Antex MedDirectory is completely free for all users — forever.</li>
-              <li><i class="fa-solid fa-circle-check"></i> Selecting a facility type narrows your search. Leave blank for a free name search.</li>
+              <li><i class="fa-solid fa-circle-check"></i> Antex MedDirectory is completely free for all users.</li>
+              <li><i class="fa-solid fa-circle-check"></i> Select a facility type to narrow your search, or leave blank to browse all.</li>
               <li><i class="fa-solid fa-circle-check"></i> Track real-time updates by joining a facility's Telegram or visiting their website.</li>
-              <li><i class="fa-solid fa-circle-check"></i> For medical inquiries call the national helpline: <strong>9873</strong></li>
-              <li><i class="fa-solid fa-circle-check"></i> To register a new facility or request a correction, use the tabs above.</li>
-              <li><i class="fa-solid fa-circle-check"></i> For feedback contact: <strong>@AntenehTir</strong> on Telegram or call <strong>+251 912 412 707</strong></li>
+              <li><i class="fa-solid fa-circle-check"></i> To register a missing facility or request a correction, use the options below.</li>
+              <li><i class="fa-solid fa-circle-check"></i> For feedback: <strong>@AntenehTir</strong> on Telegram or <a href="mailto:antenehtirusew8@gmail.com" style="color:var(--teal-dark);">antenehtirusew8@gmail.com</a></li>
             </ul>
           </div>
         </div>
@@ -602,8 +604,8 @@
           </div>
         </div>
         <p class="footer-description">
-          <strong class="footer-bold">Antex MedDirectory is completely free for all users — forever.</strong>
-          We connect doctors and health professionals with health facilities across all sub-cities of Addis Ababa. For inquiries or feedback, contact us via phone or Telegram.
+          <strong class="footer-bold">Antex MedDirectory is completely free for all users.</strong>
+          We connect doctors and health professionals with health facilities across all sub-cities of Addis Ababa. For feedback, reach us via Telegram or email.
         </p>
       </div>
 
@@ -626,7 +628,7 @@
       <div class="footer-info">
         <h3>Directory Facts</h3>
         <ul>
-          <li>Free for all users — forever</li>
+          <li>Free for all users</li>
           <li>89+ facilities listed</li>
           <li>12 sub-cities covered</li>
           <li>Updated regularly</li>
@@ -707,11 +709,15 @@
         </div>
         <div class="form-group">
           <label for="corr-issue"><i class="fa-solid fa-triangle-exclamation"></i> What Needs Correction? <span class="required">*</span></label>
-          <input type="text" id="corr-issue" required placeholder="e.g. Wrong phone number, incorrect address…" />
+          <textarea id="corr-issue" rows="2" required placeholder="e.g. Wrong phone number, incorrect address…"></textarea>
         </div>
         <div class="form-group">
           <label for="corr-correct"><i class="fa-solid fa-circle-check"></i> Correct Information <span class="required">*</span></label>
           <textarea id="corr-correct" rows="3" required placeholder="Please provide the accurate information here…"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="corr-notes"><i class="fa-solid fa-note-sticky"></i> Additional Notes</label>
+          <textarea id="corr-notes" rows="2" placeholder="Optional — any other relevant info"></textarea>
         </div>
         <div class="form-group">
           <label for="corr-name"><i class="fa-solid fa-user"></i> Your Name</label>
@@ -738,14 +744,8 @@
     </div>
   </div>
 
-  <!-- ===== FLOATING CALL BUTTON ===== -->
-  <a href="tel:+251912412707" class="float-call-btn" aria-label="Call Antex MedDirectory">
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
-    <span class="float-call-tooltip">Call Antex MedDirectory</span>
-  </a>
-
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=4.5"></script>
+  <script src="script.js?v=4.6"></script>
 </body>
 </html>

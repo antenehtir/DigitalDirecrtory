@@ -2238,12 +2238,13 @@ specialtyCategory: "orthopedic",
     filterForm.reset();
     specialtyGroupEl.style.display = "none";
     hideSpecialtySubTabs();
+    hideClearFilter();
     populateAreaOptions();
     showInitial();
     // Clear any active hero tag highlight
     document.querySelectorAll(".hero-tag").forEach(t => t.classList.remove("active"));
-    // Clear stat pill active state
-    document.querySelectorAll(".stat-pill").forEach(function(p) { p.classList.remove("active"); });
+    // Reset unified tabs to "All Facilities"
+    setUnifiedTabActive("all");
   });
 
   // ============================================================
@@ -2469,6 +2470,8 @@ specialtyCategory: "orthopedic",
     const facility = document.getElementById("corr-facility").value;
     const issue    = document.getElementById("corr-issue").value.trim();
     const correct  = document.getElementById("corr-correct").value.trim();
+    const notesEl  = document.getElementById("corr-notes");
+    const notes    = notesEl ? notesEl.value.trim() : "";
     const name     = document.getElementById("corr-name").value.trim();
     const contact  = document.getElementById("corr-contact").value.trim();
 
@@ -2480,15 +2483,22 @@ specialtyCategory: "orthopedic",
     const subject = encodeURIComponent("Correction Request — " + facility + " — Antex MedDirectory");
     const body    = encodeURIComponent(
       "Facility Name: " + facility + "\n" +
-      "What Needs Correction: " + issue + "\n" +
-      "Correct Information: " + correct + "\n" +
-      "Reporter Name: " + (name || "Not provided") + "\n" +
-      "Reporter Contact: " + (contact || "Not provided")
+      "What needs correction: " + issue + "\n" +
+      "Correct information: " + correct + "\n" +
+      "Additional notes: " + (notes || "___________") + "\n" +
+      "Submitted by: " + (name || "___________") + "\n" +
+      "Contact: " + (contact || "_______________")
     );
 
-    window.location.href = "mailto:antenehtirusew8@gmail.com?subject=" + subject + "&body=" + body;
+    // Open mailto via a temporary link (more reliable across browsers)
+    var mailLink = document.createElement("a");
+    mailLink.href = "mailto:antenehtirusew8@gmail.com?subject=" + subject + "&body=" + body;
+    mailLink.style.display = "none";
+    document.body.appendChild(mailLink);
+    mailLink.click();
+    setTimeout(function() { document.body.removeChild(mailLink); }, 100);
 
-    // Show thank-you
+    // Show green thank-you state
     correctionForm.style.display = "none";
     modalThankYou.style.display  = "flex";
   });
@@ -2551,70 +2561,127 @@ specialtyCategory: "orthopedic",
   }
 
   // ============================================================
-  //  STAT PILLS — v4.0
+  //  UNIFIED TABS — v4.6 (replaces both stat pills and main tabs)
   // ============================================================
-  function buildStatPills() {
-    const container = document.getElementById("statPillsScroll");
+
+  function setUnifiedTabActive(key) {
+    var container = document.getElementById("unifiedTabsScroll");
+    if (!container) return;
+    container.querySelectorAll(".unified-tab-btn").forEach(function(t) {
+      var active = t.dataset.key === key;
+      t.classList.toggle("active", active);
+      t.setAttribute("aria-selected", String(active));
+    });
+  }
+
+  function showClearFilter() {
+    var row = document.getElementById("clearFilterRow");
+    if (row) row.style.display = "flex";
+  }
+
+  function hideClearFilter() {
+    var row = document.getElementById("clearFilterRow");
+    if (row) row.style.display = "none";
+  }
+
+  function handleUnifiedTabClick(key) {
+    setUnifiedTabActive(key);
+
+    // Near Me — open the category wheel
+    if (key === "nearme") {
+      if (typeof openNearMeWheel === "function") {
+        openNearMeWheel();
+      } else {
+        activateTab("nearme", false);
+        var nm = document.getElementById("nearmeSection");
+        if (nm) nm.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+      return;
+    }
+
+    // Show results section
+    if (resultsSectionEl) resultsSectionEl.style.display = "block";
+    if (nearMeSectionEl)  nearMeSectionEl.style.display  = "none";
+    if (aboutSectionEl)   aboutSectionEl.style.display   = "none";
+    history.pushState({ tab: key }, "", "#" + key);
+
+    hideSpecialtySubTabs();
+
+    var titleEl = document.getElementById("resultsTitle");
+
+    if (key === "all") {
+      hideClearFilter();
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-list-ul"></i> All Facilities';
+      showLoading();
+      if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(function() { renderResults(facilities); closeFilterBody(); }, 280);
+      return;
+    }
+
+    showClearFilter();
+    if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Specialty Centers — show sub-tabs
+    if (key === "speciality") {
+      buildSpecialtySubTabs();
+      closeFilterBody();
+      return;
+    }
+
+    // All other categories — filter directly
+    var filterMap = {
+      "general":      { fn: function(f) { return f.facilityType === "general"; },      title: "🏥 General Hospitals" },
+      "diagnostic":   { fn: function(f) { return f.facilityType === "diagnostic"; },   title: "🔬 Diagnostic Centers" },
+      "ambulance":    { fn: function(f) { return f.facilityType === "ambulance"; },     title: "🚑 Ambulance Services" },
+      "homecare":     { fn: function(f) { return f.facilityType === "homecare"; },      title: "🏡 Home Care Services" },
+      "telemedicine": { fn: function(f) { return f.facilityType === "telemedicine"; },  title: "💻 Telemedicine Services" },
+      "pharmacy":     { fn: function(f) { return f.facilityType === "pharmacy"; },      title: "💊 Online Pharmacies" },
+      "financing":    { fn: function(f) { return f.facilityType === "financing"; },     title: "💳 Healthcare Financing" },
+    };
+
+    var info = filterMap[key];
+    if (!info) return;
+
+    var filtered = facilities.filter(info.fn);
+    if (titleEl) titleEl.innerHTML = info.title;
+    showLoading();
+    setTimeout(function() { renderResults(filtered); closeFilterBody(); }, 280);
+  }
+
+  function buildUnifiedTabs() {
+    var container = document.getElementById("unifiedTabsScroll");
     if (!container) return;
 
-    const typeDefs = [
-      { key: "general",       label: "General Hospitals",      emoji: "🏥" },
-      { key: "speciality",    label: "Specialty Centers",      emoji: "🏨" },
-      { key: "diagnostic",    label: "Diagnostic Centers",     emoji: "🔬" },
-      { key: "ambulance",     label: "Ambulance",              emoji: "🚑" },
-      { key: "homecare",      label: "Home Care",              emoji: "🏡" },
-      { key: "telemedicine",  label: "Telemedicine",           emoji: "💻" },
-      { key: "pharmacy",      label: "Online Pharmacy",        emoji: "💊" },
-      { key: "financing",     label: "Health Care Financing",  emoji: "💳" },
+    var defs = [
+      { key: "all",          label: "All Facilities",         emoji: "📋", count: facilities.length },
+      { key: "general",      label: "General Hospitals",      emoji: "🏥", count: facilities.filter(function(f){return f.facilityType==="general";}).length },
+      { key: "speciality",   label: "Specialty Centers",      emoji: "🏨", count: facilities.filter(function(f){return f.facilityType==="speciality"||f.facilityType==="medical_plaza";}).length },
+      { key: "diagnostic",   label: "Diagnostic Centers",     emoji: "🔬", count: facilities.filter(function(f){return f.facilityType==="diagnostic";}).length },
+      { key: "ambulance",    label: "Ambulance",              emoji: "🚑", count: facilities.filter(function(f){return f.facilityType==="ambulance";}).length },
+      { key: "homecare",     label: "Home Care",              emoji: "🏡", count: facilities.filter(function(f){return f.facilityType==="homecare";}).length },
+      { key: "telemedicine", label: "Telemedicine",           emoji: "💻", count: facilities.filter(function(f){return f.facilityType==="telemedicine";}).length },
+      { key: "pharmacy",     label: "Pharmacy",               emoji: "💊", count: facilities.filter(function(f){return f.facilityType==="pharmacy";}).length },
+      { key: "financing",    label: "Health Care Financing",  emoji: "💳", count: facilities.filter(function(f){return f.facilityType==="financing";}).length },
+      { key: "nearme",       label: "Near Me",                emoji: "📍", count: null },
     ];
 
-    // All Facilities pill
-    const allPill = document.createElement("button");
-    allPill.className = "stat-pill";
-    allPill.dataset.type = "";
-    allPill.innerHTML = `📋 All Facilities <span class="stat-pill-count">${facilities.length}</span>`;
-    container.appendChild(allPill);
-
-    typeDefs.forEach(def => {
-      // Specialty Centers count includes medical_plaza sub-type
-      const count = def.key === "speciality"
-        ? facilities.filter(f => f.facilityType === "speciality" || f.facilityType === "medical_plaza").length
-        : facilities.filter(f => f.facilityType === def.key).length;
-      if (count === 0) return;
-      const pill = document.createElement("button");
-      pill.className = "stat-pill";
-      pill.dataset.type = def.key;
-      pill.innerHTML = `${def.emoji} ${def.label} <span class="stat-pill-count">${count}</span>`;
-      container.appendChild(pill);
-    });
-
-    // Wire click
-    container.querySelectorAll(".stat-pill").forEach(pill => {
-      pill.addEventListener("click", function () {
-        container.querySelectorAll(".stat-pill").forEach(p => p.classList.remove("active"));
-        this.classList.add("active");
-
-        const type = this.dataset.type;
-        // Set the filter dropdown and reset sub-filter
-        const ftEl = document.getElementById("facilityType");
-        if (ftEl) { ftEl.value = type; ftEl.dispatchEvent(new Event("change")); }
-        if (specialtyTypeEl) specialtyTypeEl.value = "";
-        // Also sync with main tabs if matching
-        syncTabToType(type);
-        document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
-        if (type === "speciality") {
-          // Show specialty sub-tabs; don't render cards until user picks a type
-          buildSpecialtySubTabs();
-          closeFilterBody();
-        } else {
-          hideSpecialtySubTabs();
-          setTimeout(() => {
-            const filtered = type ? facilities.filter(f => f.facilityType === type) : facilities;
-            renderResults(filtered);
-            closeFilterBody();
-          }, 180);
-        }
-      });
+    defs.forEach(function(def) {
+      // Skip empty categories (except All and Near Me)
+      if (def.key !== "all" && def.key !== "nearme" && def.count === 0) return;
+      var btn = document.createElement("button");
+      btn.className = "unified-tab-btn" + (def.key === "all" ? " active" : "");
+      btn.dataset.key = def.key;
+      btn.setAttribute("role", "tab");
+      btn.setAttribute("aria-selected", def.key === "all" ? "true" : "false");
+      var countHtml = def.count !== null
+        ? ' <span class="unified-tab-count">' + def.count + '</span>'
+        : "";
+      btn.innerHTML =
+        '<span class="unified-tab-emoji">' + def.emoji + '</span>' +
+        ' <span class="unified-tab-label">' + def.label + '</span>' +
+        countHtml;
+      btn.addEventListener("click", function() { handleUnifiedTabClick(def.key); });
+      container.appendChild(btn);
     });
   }
 
@@ -2650,21 +2717,43 @@ specialtyCategory: "orthopedic",
   const aboutSectionEl    = document.getElementById("aboutSection");
 
   function syncTabToType(type) {
-    const tabMap = {
+    // Map facility type to unified tab key
+    var unifiedKeyMap = {
       "telemedicine": "telemedicine",
       "pharmacy":     "pharmacy",
       "financing":    "financing",
+      "speciality":   "speciality",
+      "medical_plaza":"speciality",
+      "general":      "general",
+      "diagnostic":   "diagnostic",
+      "ambulance":    "ambulance",
+      "homecare":     "homecare",
     };
-    const tabKey = tabMap[type] || "facilities";
-    activateTab(tabKey, false);
+    var unifiedKey = unifiedKeyMap[type] || "all";
+    setUnifiedTabActive(unifiedKey);
+    // Also activate legacy tab for section switching
+    var legacyTabMap = { "telemedicine": "telemedicine", "pharmacy": "pharmacy", "financing": "financing" };
+    activateTab(legacyTabMap[type] || "facilities", false);
   }
 
   function activateTab(tabKey, renderImmediately) {
-    mainTabsEl.querySelectorAll(".main-tab").forEach(t => {
-      const isActive = t.dataset.tab === tabKey;
-      t.classList.toggle("active", isActive);
-      t.setAttribute("aria-selected", String(isActive));
-    });
+    // Keep hidden legacy main-tabs in sync (for JS compatibility)
+    if (mainTabsEl) {
+      mainTabsEl.querySelectorAll(".main-tab").forEach(function(t) {
+        const isActive = t.dataset.tab === tabKey;
+        t.classList.toggle("active", isActive);
+        t.setAttribute("aria-selected", String(isActive));
+      });
+    }
+    // Sync unified tabs visual state
+    var unifiedKeyMap = {
+      "facilities": "all",
+      "telemedicine": "telemedicine",
+      "pharmacy": "pharmacy",
+      "financing": "financing",
+      "nearme": "nearme",
+    };
+    setUnifiedTabActive(unifiedKeyMap[tabKey] || tabKey);
 
     // Show/hide panels
     if (tabKey === "nearme") {
@@ -2719,17 +2808,19 @@ specialtyCategory: "orthopedic",
     setTimeout(() => renderResults(filtered), 280);
   }
 
-  mainTabsEl.querySelectorAll(".main-tab").forEach(tab => {
-    tab.addEventListener("click", function () {
-      const key = this.dataset.tab;
-      // Near Me tab → open the category wheel first
-      if (key === "nearme" && typeof openNearMeWheel === "function") {
-        openNearMeWheel();
-        return;
-      }
-      activateTab(key, true);
+  // Legacy main-tabs click wiring (hidden, kept for JS compatibility)
+  if (mainTabsEl) {
+    mainTabsEl.querySelectorAll(".main-tab").forEach(function(tab) {
+      tab.addEventListener("click", function () {
+        const key = this.dataset.tab;
+        if (key === "nearme" && typeof openNearMeWheel === "function") {
+          openNearMeWheel();
+          return;
+        }
+        activateTab(key, true);
+      });
     });
-  });
+  }
 
   // Browser back/forward
   window.addEventListener("popstate", function (e) {
@@ -3224,23 +3315,34 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  INIT — Run all v4 setup
+  //  INIT — v4.6
   // ============================================================
-  buildStatPills();
+  buildUnifiedTabs();
 
   // ============================================================
-  //  STAT PILLS ARROWS — v4.3
+  //  UNIFIED TABS ARROWS — v4.6
   // ============================================================
   (function () {
-    var leftBtn = document.getElementById("pillsArrowLeft");
-    var rightBtn = document.getElementById("pillsArrowRight");
-    var scroll   = document.getElementById("statPillsScroll");
+    var leftBtn  = document.getElementById("unifiedTabLeft");
+    var rightBtn = document.getElementById("unifiedTabRight");
+    var scroll   = document.getElementById("unifiedTabsScroll");
     if (!leftBtn || !rightBtn || !scroll) return;
     leftBtn.addEventListener("click", function () {
-      scroll.scrollBy({ left: -200, behavior: "smooth" });
+      scroll.scrollBy({ left: -220, behavior: "smooth" });
     });
     rightBtn.addEventListener("click", function () {
-      scroll.scrollBy({ left: 200, behavior: "smooth" });
+      scroll.scrollBy({ left: 220, behavior: "smooth" });
+    });
+  })();
+
+  // ============================================================
+  //  CLEAR FILTER BUTTON
+  // ============================================================
+  (function () {
+    var clearBtn = document.getElementById("clearFilterBtn");
+    if (!clearBtn) return;
+    clearBtn.addEventListener("click", function () {
+      handleUnifiedTabClick("all");
     });
   })();
 

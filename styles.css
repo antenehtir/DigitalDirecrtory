@@ -1616,3 +1616,114 @@ ul { list-style: none; }
 @media (max-width: 520px) {
   .stat-pills-scroll { padding: 10px 14px; }
 }
+
+/* ============================================
+   UNIFIED TABS (replaces stat pills + main tabs)
+   ============================================ */
+.unified-tabs-section {
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: visible;
+  position: relative;
+}
+.unified-tab-arrow {
+  flex-shrink: 0;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: var(--teal); color: white;
+  font-size: 1.35rem; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(27,152,224,0.3);
+  transition: background 0.2s, transform 0.2s, opacity 0.2s;
+  margin: 6px;
+  font-family: inherit;
+  z-index: 2;
+}
+.unified-tab-arrow:hover { background: var(--teal-dark); transform: scale(1.1); }
+.unified-tab-arrow:active { transform: scale(0.95); }
+.unified-tabs-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 4px;
+  padding: 6px 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  flex: 1; min-width: 0;
+}
+.unified-tabs-scroll::-webkit-scrollbar { display: none; }
+.unified-tab-btn {
+  flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--radius-lg);
+  border: none; background: none; cursor: pointer;
+  font-family: var(--font); font-size: 0.81rem; font-weight: 600;
+  color: var(--gray-600); transition: var(--transition);
+  white-space: nowrap;
+}
+.unified-tab-btn:hover { background: var(--gray-50); color: var(--navy); }
+.unified-tab-btn.active {
+  background: linear-gradient(135deg, var(--teal), #2bbfff);
+  color: white;
+  box-shadow: 0 4px 14px rgba(27,152,224,0.35);
+}
+.unified-tab-emoji { font-size: 1rem; line-height: 1; pointer-events: none; }
+.unified-tab-label { pointer-events: none; }
+.unified-tab-count {
+  background: rgba(10,38,71,0.08);
+  color: inherit; font-size: 0.7rem; font-weight: 700;
+  padding: 1px 6px; border-radius: var(--radius-full);
+  pointer-events: none;
+}
+.unified-tab-btn.active .unified-tab-count { background: rgba(255,255,255,0.25); }
+
+/* Hide arrows on mobile */
+@media (max-width: 768px) {
+  .unified-tab-arrow { display: none; }
+  .unified-tabs-section {
+    border-radius: var(--radius-lg);
+    position: relative;
+  }
+  .unified-tabs-section::after {
+    content: '';
+    position: absolute; top: 0; right: 0; bottom: 0; width: 40px;
+    background: linear-gradient(to right, transparent, white 85%);
+    pointer-events: none; border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  }
+  .unified-tabs-scroll { padding: 6px 12px; }
+}
+@media (max-width: 520px) {
+  .unified-tab-btn { padding: 8px 11px; font-size: 0.75rem; gap: 4px; }
+  .unified-tab-emoji { font-size: 0.9rem; }
+}
+
+/* ============================================
+   CLEAR FILTER ROW
+   ============================================ */
+.clear-filter-row {
+  display: flex; justify-content: flex-start;
+  padding: 0 0 14px;
+  margin-top: -4px;
+  animation: fadeIn 0.2s ease;
+}
+.clear-filter-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 14px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--teal); background: transparent;
+  color: var(--teal); font-family: var(--font);
+  font-size: 0.77rem; font-weight: 600; cursor: pointer;
+  transition: var(--transition);
+}
+.clear-filter-btn:hover {
+  background: var(--teal); color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(27,152,224,0.3);
+}
+
+/* Hide float-call-btn (removed from HTML but keep rule safe) */
+.float-call-btn { display: none !important; }
