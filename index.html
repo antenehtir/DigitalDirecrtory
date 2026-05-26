@@ -19,7 +19,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=4.2" />
+  <link rel="stylesheet" href="styles.css?v=4.3" />
 </head>
 <body class="page-fade">
 
@@ -133,7 +133,7 @@
         <div class="hero-search-tags">
           <span class="hero-tag" data-filter="telemedicine">💻 Telemedicine</span>
           <span class="hero-tag" data-filter="pharmacy">💊 Online Pharmacy</span>
-          <span class="hero-tag" data-filter="medical_plaza">🏛️ Medical Plaza</span>
+          <span class="hero-tag" data-filter="speciality" data-specialty="medical_plaza">🏛️ Medical Plaza</span>
           <span class="hero-tag" data-filter="financing">💳 Financing</span>
           <span class="hero-tag" data-filter="general">🏥 General Hospitals</span>
           <span class="hero-tag" data-filter="speciality">🏨 Specialty Centers</span>
@@ -164,8 +164,12 @@
 
   <!-- ===== STAT PILLS ===== -->
   <section class="stat-pills-section">
-    <div class="stat-pills-scroll" id="statPillsScroll">
-      <!-- populated by JS -->
+    <div class="stat-pills-nav">
+      <button class="stat-pills-arrow stat-pills-left" id="pillsArrowLeft" aria-label="Scroll categories left">&#8249;</button>
+      <div class="stat-pills-scroll" id="statPillsScroll">
+        <!-- populated by JS -->
+      </div>
+      <button class="stat-pills-arrow stat-pills-right" id="pillsArrowRight" aria-label="Scroll categories right">&#8250;</button>
     </div>
   </section>
 
@@ -208,7 +212,6 @@
                   <option value="">All Types</option>
                   <option value="telemedicine">💻 Telemedicine Services</option>
                   <option value="pharmacy">💊 Online Pharmacy</option>
-                  <option value="medical_plaza">🏛️ Medical Plaza</option>
                   <option value="financing">💳 Healthcare Financing</option>
                   <option value="general">🏥 General Hospitals</option>
                   <option value="speciality">🏨 Specialty Centers</option>
@@ -223,7 +226,8 @@
                 <div class="filter-card-icon fci-teal"><i class="fa-solid fa-stethoscope"></i></div>
                 <label for="specialtyType">Specialty Category</label>
                 <select id="specialtyType">
-                  <option value="">All Specialties</option>
+                  <option value="">All Specialty Types</option>
+                  <option value="medical_plaza">🏛️ Medical Plaza</option>
                   <option value="multi speciality">Multi Speciality</option>
                   <option value="mch">MCH</option>
                   <option value="surgical center">Surgical Center</option>
@@ -634,6 +638,46 @@
     </div>
   </footer>
 
+  <!-- ===== NEAR ME CATEGORY WHEEL ===== -->
+  <div id="nearMeWheelOverlay" class="nw-overlay" style="display:none;" role="dialog" aria-modal="true" aria-label="Select facility type to find nearby">
+    <div class="nw-box">
+      <button class="nw-close" id="nwClose" aria-label="Close">&times;</button>
+      <p class="nw-hint">Select a category, then tap <strong>Locate Me</strong></p>
+
+      <div class="nw-container" id="nwContainer">
+        <!-- Center Locate Me button -->
+        <button class="nw-center-btn" id="nwGoBtn">
+          <i class="fa-solid fa-location-crosshairs"></i>
+          <span>Locate Me</span>
+        </button>
+
+        <!-- 5 radial items (positioned by JS) -->
+        <button class="nw-item" data-cat="general">
+          <span class="nw-item-emoji">🏥</span>
+          <span class="nw-item-label">General<br>Hospital</span>
+        </button>
+        <button class="nw-item" data-cat="speciality">
+          <span class="nw-item-emoji">🏨</span>
+          <span class="nw-item-label">Specialty<br>Center</span>
+        </button>
+        <button class="nw-item" data-cat="pharmacy">
+          <span class="nw-item-emoji">💊</span>
+          <span class="nw-item-label">Online<br>Pharmacy</span>
+        </button>
+        <button class="nw-item" data-cat="ambulance">
+          <span class="nw-item-emoji">🚑</span>
+          <span class="nw-item-label">Ambulance</span>
+        </button>
+        <button class="nw-item" data-cat="homecare">
+          <span class="nw-item-emoji">🏡</span>
+          <span class="nw-item-label">Home<br>Care</span>
+        </button>
+      </div>
+
+      <p class="nw-all-note">Or tap <strong>Locate Me</strong> without selecting to find all nearby facilities</p>
+    </div>
+  </div>
+
   <!-- ===== CORRECTION MODAL ===== -->
   <div class="modal-overlay" id="correctionModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-box">
@@ -688,6 +732,6 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=4.2.1"></script>
+  <script src="script.js?v=4.3"></script>
 </body>
 </html>

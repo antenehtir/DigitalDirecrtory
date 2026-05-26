@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", function () {
   //  SITE CONFIG — flip hasNewNews to true to show red dot
   // ============================================================
   var hasNewNews = false;
+  var openNearMeWheel = null;
+  var _nearMeCategoryFilter = "";
 
   // Sample Facilities Data – add your full facility objects as needed.
   const facilities = [
@@ -1910,7 +1912,13 @@ specialtyCategory: "orthopedic",
                           ? specialtyTypeEl.value.toLowerCase().trim() : "";
 
     return facilities.filter(f => {
-      if (facilityType && f.facilityType !== facilityType) return false;
+      if (facilityType) {
+        if (facilityType === "speciality") {
+          if (f.facilityType !== "speciality" && f.facilityType !== "medical_plaza") return false;
+        } else {
+          if (f.facilityType !== facilityType) return false;
+        }
+      }
       if (nameSearch && !f.name.toLowerCase().includes(nameSearch)) return false;
 
       if (subCity) {
@@ -1935,10 +1943,15 @@ specialtyCategory: "orthopedic",
       }
 
       if (facilityType === "speciality" && specialtyType) {
-        if (Array.isArray(f.specialtyCategory)) {
-          if (!f.specialtyCategory.some(c => c.trim().toLowerCase() === specialtyType)) return false;
+        if (specialtyType === "medical_plaza") {
+          if (f.facilityType !== "medical_plaza") return false;
         } else {
-          if (!f.specialtyCategory || f.specialtyCategory.trim().toLowerCase() !== specialtyType) return false;
+          if (f.facilityType !== "speciality") return false;
+          if (Array.isArray(f.specialtyCategory)) {
+            if (!f.specialtyCategory.some(c => c.trim().toLowerCase() === specialtyType)) return false;
+          } else {
+            if (!f.specialtyCategory || f.specialtyCategory.trim().toLowerCase() !== specialtyType) return false;
+          }
         }
       }
       return true;
@@ -1967,11 +1980,160 @@ specialtyCategory: "orthopedic",
   }
 
   // ============================================================
+  //  PAGINATION STATE
+  // ============================================================
+  var _allResults = [];
+  var _curPage    = 1;
+  const PAGE_SIZE = 10;
+
+  // ============================================================
+  //  BUILD SINGLE FACILITY CARD HTML
+  // ============================================================
+  function buildFacilityCard(facility) {
+    const typeInfo = getFacilityTypeInfo(facility.facilityType);
+    const subCities = Array.isArray(facility.subCity)
+      ? [...new Set(facility.subCity)].map(capitalize).join(", ")
+      : capitalize(facility.subCity || "");
+    const locationText = Array.isArray(facility.location)
+      ? facility.location.join("<br>")
+      : (facility.location || "");
+    const firstMap = Array.isArray(facility.map) ? facility.map[0] : facility.map;
+    const phones = facility.contact ? facility.contact.split("/") : [];
+    const firstPhone = phones.length ? phones[0].trim().replace(/\s/g, "") : "";
+    const allPhoneLinks = phones
+      .map(p => `<a href="tel:${p.trim().replace(/\s/g,'')}">${p.trim()}</a>`)
+      .join(" / ");
+    const avatarGrad     = getFacilityGradient(facility.name, facility.accentColor);
+    const avatarInitials = getFacilityInitials(facility.name);
+
+    return `
+      <div class="result-card">
+        <div class="result-card-header">
+          <div class="grad-avatar" style="background:${avatarGrad}">${facility.monogram || avatarInitials}</div>
+          <div class="result-card-header-meta">
+            <div class="result-card-badges">
+              <span class="result-card-type ${typeInfo.cls}">
+                <i class="${typeInfo.icon}"></i> ${typeInfo.label}
+              </span>
+              ${subCities ? `<span class="result-card-subcity"><i class="fa-solid fa-location-dot"></i> ${subCities}</span>` : ""}
+            </div>
+          </div>
+        </div>
+        <div class="result-card-body">
+          <h3 class="result-card-name">${facility.name}</h3>
+          <div class="result-card-detail">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>${facility.specialty}</span>
+          </div>
+          ${facility.specialServices ? `
+          <div class="result-card-detail">
+            <i class="fa-solid fa-star"></i>
+            <span><strong>Special services:</strong> ${facility.specialServices}</span>
+          </div>` : ""}
+          <div class="result-card-detail">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>${locationText}</span>
+          </div>
+          ${facility.availability ? `
+          <div class="result-card-detail">
+            <i class="fa-solid fa-clock"></i>
+            <span>${facility.availability}</span>
+          </div>` : ""}
+          <div class="result-card-detail">
+            <i class="fa-solid fa-phone"></i>
+            <span>${allPhoneLinks}</span>
+          </div>
+        </div>
+        <div class="result-card-actions">
+          ${firstPhone ? `<a href="tel:${firstPhone}" class="action-btn action-call"><i class="fa-solid fa-phone"></i> Call</a>` : ""}
+          ${facility.whatsapp ? `<a href="${facility.whatsapp}" target="_blank" class="action-btn action-whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ""}
+          ${facility.telegram ? `<a href="${facility.telegram}" target="_blank" class="action-btn action-telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>` : ""}
+          ${facility.booking ? `<a href="${facility.booking}" target="_blank" class="action-btn action-booking"><i class="fa-solid fa-calendar-check"></i> ${facility.bookingLabel || "Book"}</a>` : ""}
+          ${facility.website ? `<a href="${ensureHttp(facility.website)}" target="_blank" class="action-btn action-website"><i class="fa-solid fa-globe"></i> Website</a>` : ""}
+          ${firstMap ? `<a href="${firstMap}" target="_blank" class="action-btn action-map"><i class="fa-solid fa-map-location-dot"></i> Map</a>` : ""}
+          ${(facility.ios_app || facility.android_app) ? `<div class="result-card-apps">
+            ${facility.ios_app ? `<a href="${facility.ios_app}" target="_blank" class="action-btn action-app"><i class="fa-brands fa-apple"></i> App Store</a>` : ""}
+            ${facility.android_app ? `<a href="${facility.android_app}" target="_blank" class="action-btn action-app"><i class="fa-brands fa-google-play"></i> Google Play</a>` : ""}
+          </div>` : ""}
+          ${(facility.facebook || facility.instagram || facility.linkedin || facility.tiktok) ? `<div class="result-card-social">
+            ${facility.facebook ? `<a href="${facility.facebook}" target="_blank" class="social-link social-facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>` : ""}
+            ${facility.instagram ? `<a href="${facility.instagram}" target="_blank" class="social-link social-instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>` : ""}
+            ${facility.linkedin ? `<a href="${facility.linkedin}" target="_blank" class="social-link social-linkedin" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>` : ""}
+            ${facility.tiktok ? `<a href="${facility.tiktok}" target="_blank" class="social-link social-tiktok" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>` : ""}
+          </div>` : ""}
+          <button class="action-btn action-correction" type="button" onclick="openCorrectionModal(${JSON.stringify(facility.name)})">
+            <i class="fa-solid fa-pen-to-square"></i> Request Correction
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // ============================================================
+  //  RENDER ONE PAGE OF CARDS (append mode = Show More)
+  // ============================================================
+  function renderPage(append) {
+    const start     = (_curPage - 1) * PAGE_SIZE;
+    const end       = _curPage * PAGE_SIZE;
+    const pageItems = _allResults.slice(start, end);
+
+    // Remove any existing show-more/less wrap
+    const existingWrap = document.getElementById("showMoreWrap");
+    if (existingWrap) existingWrap.remove();
+
+    if (!append) resultsGrid.innerHTML = "";
+
+    let html = "";
+    pageItems.forEach(f => { html += buildFacilityCard(f); });
+    resultsGrid.insertAdjacentHTML("beforeend", html);
+
+    const total = _allResults.length;
+    const shown = Math.min(end, total);
+
+    // Add Show More / Show Less button if needed
+    if (total > PAGE_SIZE) {
+      const wrap = document.createElement("div");
+      wrap.className = "show-more-wrap";
+      wrap.id = "showMoreWrap";
+
+      if (shown < total) {
+        const remaining = total - shown;
+        const btn = document.createElement("button");
+        btn.className = "show-more-btn btn";
+        btn.textContent = "Show More (" + remaining + " remaining)";
+        btn.addEventListener("click", function () {
+          _curPage++;
+          renderPage(true);
+          // Scroll the first new card into view smoothly
+          const cards = resultsGrid.querySelectorAll(".result-card");
+          if (cards[start]) cards[start].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+        wrap.appendChild(btn);
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "show-more-btn show-less-btn btn";
+        btn.textContent = "Show Less";
+        btn.addEventListener("click", function () {
+          _curPage = 1;
+          renderPage(false);
+          resultsGrid.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+        wrap.appendChild(btn);
+      }
+
+      resultsGrid.insertAdjacentElement("afterend", wrap);
+    }
+  }
+
+  // ============================================================
   //  RENDER RESULT CARDS
   // ============================================================
   function renderResults(results) {
     hideLoading();
     resultsInitial.style.display = "none";
+
+    // Clear any stale show-more wrap
+    const staleWrap = document.getElementById("showMoreWrap");
+    if (staleWrap) staleWrap.remove();
 
     if (results.length === 0) {
       resultsCount.style.display = "none";
@@ -1990,103 +2152,9 @@ specialtyCategory: "orthopedic",
     resultsCount.textContent = results.length + " result" + (results.length !== 1 ? "s" : "") + " found";
     resultsCount.style.display = "inline-flex";
 
-    let html = "";
-    results.forEach(facility => {
-      const typeInfo = getFacilityTypeInfo(facility.facilityType);
-
-      // Sub-city display
-      const subCities = Array.isArray(facility.subCity)
-        ? [...new Set(facility.subCity)].map(capitalize).join(", ")
-        : capitalize(facility.subCity || "");
-
-      // Location display
-      const locationText = Array.isArray(facility.location)
-        ? facility.location.join("<br>")
-        : (facility.location || "");
-
-      // Map link (first branch)
-      const firstMap = Array.isArray(facility.map) ? facility.map[0] : facility.map;
-
-      // Phone links
-      const phones = facility.contact ? facility.contact.split("/") : [];
-      const firstPhone = phones.length ? phones[0].trim().replace(/\s/g, "") : "";
-      const allPhoneLinks = phones
-        .map(p => `<a href="tel:${p.trim().replace(/\s/g,'')}">${p.trim()}</a>`)
-        .join(" / ");
-
-      const avatarGrad = getFacilityGradient(facility.name, facility.accentColor);
-      const avatarInitials = getFacilityInitials(facility.name);
-
-      html += `
-        <div class="result-card">
-          <div class="result-card-header">
-            <div class="grad-avatar" style="background:${avatarGrad}">${facility.monogram || avatarInitials}</div>
-            <div class="result-card-header-meta">
-              <div class="result-card-badges">
-                <span class="result-card-type ${typeInfo.cls}">
-                  <i class="${typeInfo.icon}"></i> ${typeInfo.label}
-                </span>
-                ${subCities ? `<span class="result-card-subcity"><i class="fa-solid fa-location-dot"></i> ${subCities}</span>` : ""}
-              </div>
-            </div>
-          </div>
-
-          <div class="result-card-body">
-            <h3 class="result-card-name">${facility.name}</h3>
-
-            <div class="result-card-detail">
-              <i class="fa-solid fa-stethoscope"></i>
-              <span>${facility.specialty}</span>
-            </div>
-
-            ${facility.specialServices ? `
-            <div class="result-card-detail">
-              <i class="fa-solid fa-star"></i>
-              <span><strong>Special services:</strong> ${facility.specialServices}</span>
-            </div>` : ""}
-
-            <div class="result-card-detail">
-              <i class="fa-solid fa-location-dot"></i>
-              <span>${locationText}</span>
-            </div>
-
-            ${facility.availability ? `
-            <div class="result-card-detail">
-              <i class="fa-solid fa-clock"></i>
-              <span>${facility.availability}</span>
-            </div>` : ""}
-
-            <div class="result-card-detail">
-              <i class="fa-solid fa-phone"></i>
-              <span>${allPhoneLinks}</span>
-            </div>
-          </div>
-
-          <div class="result-card-actions">
-            ${firstPhone ? `<a href="tel:${firstPhone}" class="action-btn action-call"><i class="fa-solid fa-phone"></i> Call</a>` : ""}
-            ${facility.whatsapp ? `<a href="${facility.whatsapp}" target="_blank" class="action-btn action-whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ""}
-            ${facility.telegram ? `<a href="${facility.telegram}" target="_blank" class="action-btn action-telegram"><i class="fa-brands fa-telegram"></i> Telegram</a>` : ""}
-            ${facility.booking ? `<a href="${facility.booking}" target="_blank" class="action-btn action-booking"><i class="fa-solid fa-calendar-check"></i> ${facility.bookingLabel || "Book"}</a>` : ""}
-            ${facility.website ? `<a href="${ensureHttp(facility.website)}" target="_blank" class="action-btn action-website"><i class="fa-solid fa-globe"></i> Website</a>` : ""}
-            ${firstMap ? `<a href="${firstMap}" target="_blank" class="action-btn action-map"><i class="fa-solid fa-map-location-dot"></i> Map</a>` : ""}
-            ${(facility.ios_app || facility.android_app) ? `<div class="result-card-apps">
-              ${facility.ios_app ? `<a href="${facility.ios_app}" target="_blank" class="action-btn action-app"><i class="fa-brands fa-apple"></i> App Store</a>` : ""}
-              ${facility.android_app ? `<a href="${facility.android_app}" target="_blank" class="action-btn action-app"><i class="fa-brands fa-google-play"></i> Google Play</a>` : ""}
-            </div>` : ""}
-            ${(facility.facebook || facility.instagram || facility.linkedin || facility.tiktok) ? `<div class="result-card-social">
-              ${facility.facebook ? `<a href="${facility.facebook}" target="_blank" class="social-link social-facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>` : ""}
-              ${facility.instagram ? `<a href="${facility.instagram}" target="_blank" class="social-link social-instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>` : ""}
-              ${facility.linkedin ? `<a href="${facility.linkedin}" target="_blank" class="social-link social-linkedin" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>` : ""}
-              ${facility.tiktok ? `<a href="${facility.tiktok}" target="_blank" class="social-link social-tiktok" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>` : ""}
-            </div>` : ""}
-            <button class="action-btn action-correction" type="button" onclick="openCorrectionModal(${JSON.stringify(facility.name)})">
-              <i class="fa-solid fa-pen-to-square"></i> Request Correction
-            </button>
-          </div>
-        </div>`;
-    });
-
-    resultsGrid.innerHTML = html;
+    _allResults = results;
+    _curPage    = 1;
+    renderPage(false);
   }
 
   // ============================================================
@@ -2152,10 +2220,12 @@ specialtyCategory: "orthopedic",
       document.querySelectorAll(".hero-tag").forEach(t => t.classList.remove("active"));
       this.classList.add("active");
 
-      // Set facility type and trigger search
-      const filter = this.dataset.filter;
+      // Set facility type (and optional specialty sub-type) then trigger search
+      const filter      = this.dataset.filter;
+      const specialtyVal = this.dataset.specialty || "";
       facilityTypeEl.value = filter;
       facilityTypeEl.dispatchEvent(new Event("change"));
+      if (specialtyVal && specialtyTypeEl) specialtyTypeEl.value = specialtyVal;
 
       // Open collapsed filter if needed
       const fb = document.getElementById("filterBody");
@@ -2365,7 +2435,6 @@ specialtyCategory: "orthopedic",
     const typeDefs = [
       { key: "general",       label: "General Hospitals",      emoji: "🏥" },
       { key: "speciality",    label: "Specialty Centers",      emoji: "🏨" },
-      { key: "medical_plaza", label: "Medical Plaza",          emoji: "🏛️" },
       { key: "diagnostic",    label: "Diagnostic Centers",     emoji: "🔬" },
       { key: "ambulance",     label: "Ambulance",              emoji: "🚑" },
       { key: "homecare",      label: "Home Care",              emoji: "🏡" },
@@ -2382,7 +2451,10 @@ specialtyCategory: "orthopedic",
     container.appendChild(allPill);
 
     typeDefs.forEach(def => {
-      const count = facilities.filter(f => f.facilityType === def.key).length;
+      // Specialty Centers count includes medical_plaza sub-type
+      const count = def.key === "speciality"
+        ? facilities.filter(f => f.facilityType === "speciality" || f.facilityType === "medical_plaza").length
+        : facilities.filter(f => f.facilityType === def.key).length;
       if (count === 0) return;
       const pill = document.createElement("button");
       pill.className = "stat-pill";
@@ -2398,16 +2470,24 @@ specialtyCategory: "orthopedic",
         this.classList.add("active");
 
         const type = this.dataset.type;
-        // Set the filter dropdown
+        // Set the filter dropdown and reset sub-filter
         const ftEl = document.getElementById("facilityType");
         if (ftEl) { ftEl.value = type; ftEl.dispatchEvent(new Event("change")); }
+        if (specialtyTypeEl) specialtyTypeEl.value = "";
         // Also sync with main tabs if matching
         syncTabToType(type);
         // Open filter and trigger search
         openFilterBody();
         document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
         setTimeout(() => {
-          const filtered = type ? facilities.filter(f => f.facilityType === type) : facilities;
+          let filtered;
+          if (!type) {
+            filtered = facilities;
+          } else if (type === "speciality") {
+            filtered = facilities.filter(f => f.facilityType === "speciality" || f.facilityType === "medical_plaza");
+          } else {
+            filtered = facilities.filter(f => f.facilityType === type);
+          }
           renderResults(filtered);
         }, 180);
       });
@@ -2517,7 +2597,13 @@ specialtyCategory: "orthopedic",
 
   mainTabsEl.querySelectorAll(".main-tab").forEach(tab => {
     tab.addEventListener("click", function () {
-      activateTab(this.dataset.tab, true);
+      const key = this.dataset.tab;
+      // Near Me tab → open the category wheel first
+      if (key === "nearme" && typeof openNearMeWheel === "function") {
+        openNearMeWheel();
+        return;
+      }
+      activateTab(key, true);
     });
   });
 
@@ -2751,8 +2837,18 @@ specialtyCategory: "orthopedic",
   }
 
   function initNearMe(userLat, userLng) {
-    // Sort facilities by distance to user
-    const withDist = facilities.map(f => {
+    // Filter by category wheel selection if set
+    const facilityPool = _nearMeCategoryFilter
+      ? facilities.filter(f => {
+          if (_nearMeCategoryFilter === "speciality") {
+            return f.facilityType === "speciality" || f.facilityType === "medical_plaza";
+          }
+          return f.facilityType === _nearMeCategoryFilter;
+        })
+      : facilities;
+
+    // Sort filtered facilities by distance to user
+    const withDist = facilityPool.map(f => {
       const coords = getFacilityCoords(f);
       const dist   = coords ? haversineKm(userLat, userLng, coords[0], coords[1]) : 999;
       return { ...f, _dist: dist, _coords: coords };
@@ -2846,18 +2942,106 @@ specialtyCategory: "orthopedic",
   }
 
   // ============================================================
+  //  NEAR ME CATEGORY WHEEL — v4.3
+  // ============================================================
+  (function () {
+    var overlay   = document.getElementById("nearMeWheelOverlay");
+    var nwBox     = overlay ? overlay.querySelector(".nw-box") : null;
+    var container = document.getElementById("nwContainer");
+    var goBtn     = document.getElementById("nwGoBtn");
+    var closeBtn  = document.getElementById("nwClose");
+    if (!overlay || !container || !goBtn || !closeBtn) return;
+
+    var items = container.querySelectorAll(".nw-item");
+
+    // Five evenly-spread angles (top → clockwise)
+    var angles = [-90, -18, 54, 126, 198];
+
+    function positionItems() {
+      var r = container.offsetWidth <= 300 ? 110 : 130;
+      items.forEach(function (item, i) {
+        var rad = angles[i] * Math.PI / 180;
+        var tx  = Math.round(Math.cos(rad) * r);
+        var ty  = Math.round(Math.sin(rad) * r);
+        item.style.setProperty("--tx",  tx + "px");
+        item.style.setProperty("--ty",  ty + "px");
+        item.style.setProperty("--tx0", "0px");
+        item.style.setProperty("--ty0", "0px");
+      });
+    }
+
+    function openWheel() {
+      positionItems();
+      _nearMeCategoryFilter = "";
+      items.forEach(function (item, i) {
+        item.classList.remove("selected");
+        item.style.animationDelay = (i * 0.055) + "s";
+      });
+      overlay.style.display = "flex";
+      document.body.style.overflow = "hidden";
+      // Small delay so display:flex is painted before adding the open class
+      setTimeout(function () { container.classList.add("open"); }, 30);
+    }
+
+    function closeWheel() {
+      container.classList.remove("open");
+      overlay.style.display = "none";
+      document.body.style.overflow = "";
+      items.forEach(function (item) { item.classList.remove("selected"); });
+    }
+
+    // Close on X button, backdrop click, or Escape
+    closeBtn.addEventListener("click", closeWheel);
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeWheel();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && overlay.style.display === "flex") closeWheel();
+    });
+
+    // Category item selection
+    items.forEach(function (item) {
+      item.addEventListener("click", function () {
+        items.forEach(function (i) { i.classList.remove("selected"); });
+        this.classList.add("selected");
+        _nearMeCategoryFilter = this.dataset.cat || "";
+      });
+    });
+
+    // "Locate Me" center button — close wheel, activate nearme, trigger GPS
+    goBtn.addEventListener("click", function () {
+      closeWheel();
+      activateTab("nearme", false);         // show nearme panel without re-triggering wheel
+      var nearMeSec = document.getElementById("nearmeSection");
+      if (nearMeSec) nearMeSec.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(function () {
+        var nearMeBtn = document.getElementById("nearMeBtn");
+        if (nearMeBtn && !nearMeBtn.disabled && nearMeBtn.style.display !== "none") {
+          nearMeBtn.click();
+        }
+      }, 350);
+    });
+
+    // Expose to the rest of DOMContentLoaded scope
+    openNearMeWheel = openWheel;
+  })();
+
+  // ============================================================
   //  HERO NEAR ME BUTTON
   // ============================================================
   (function () {
     var heroNearMeBtn = document.getElementById("heroNearMeBtn");
     if (!heroNearMeBtn) return;
     heroNearMeBtn.addEventListener("click", function () {
-      // Activate the Near Me tab to show the nearme section
+      // Open the category wheel first (if available)
+      if (typeof openNearMeWheel === "function") {
+        openNearMeWheel();
+        return;
+      }
+      // Fallback: activate Near Me tab directly
       activateTab("nearme", true);
-      // Scroll to nearme section
       var nearMeSec = document.getElementById("nearmeSection");
       if (nearMeSec) nearMeSec.scrollIntoView({ behavior: "smooth", block: "start" });
-      // Auto-trigger the GPS button after a short delay
       setTimeout(function () {
         var nearMeBtn = document.getElementById("nearMeBtn");
         if (nearMeBtn && !nearMeBtn.disabled && nearMeBtn.style.display !== "none") {
@@ -2871,6 +3055,22 @@ specialtyCategory: "orthopedic",
   //  INIT — Run all v4 setup
   // ============================================================
   buildStatPills();
+
+  // ============================================================
+  //  STAT PILLS ARROWS — v4.3
+  // ============================================================
+  (function () {
+    var leftBtn = document.getElementById("pillsArrowLeft");
+    var rightBtn = document.getElementById("pillsArrowRight");
+    var scroll   = document.getElementById("statPillsScroll");
+    if (!leftBtn || !rightBtn || !scroll) return;
+    leftBtn.addEventListener("click", function () {
+      scroll.scrollBy({ left: -200, behavior: "smooth" });
+    });
+    rightBtn.addEventListener("click", function () {
+      scroll.scrollBy({ left: 200, behavior: "smooth" });
+    });
+  })();
 
   // Show ALL facilities immediately on load (no "ready to search" empty state)
   renderResults(facilities);
