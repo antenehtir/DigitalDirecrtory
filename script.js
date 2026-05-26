@@ -1895,7 +1895,16 @@ specialtyCategory: "orthopedic",
   //  SPECIALTY CARD TOGGLE
   // ============================================================
   facilityTypeEl.addEventListener("change", function () {
-    specialtyGroupEl.style.display = this.value === "speciality" ? "flex" : "none";
+    if (this.value === "speciality") {
+      specialtyGroupEl.style.display = "flex";
+      // Trigger fade-in animation
+      specialtyGroupEl.classList.remove("specialty-appear");
+      void specialtyGroupEl.offsetWidth; // force reflow so animation restarts
+      specialtyGroupEl.classList.add("specialty-appear");
+      setTimeout(function () { specialtyGroupEl.classList.remove("specialty-appear"); }, 300);
+    } else {
+      specialtyGroupEl.style.display = "none";
+    }
   });
 
   // ============================================================
@@ -2167,10 +2176,11 @@ specialtyCategory: "orthopedic",
     // Scroll to results section
     document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
 
-    // Small delay so spinner is visible, then render
+    // Small delay so spinner is visible, then render + auto-collapse filter
     setTimeout(() => {
       const filtered = runFilter();
       renderResults(filtered);
+      closeFilterBody();
     }, 380);
   });
 
@@ -2476,8 +2486,6 @@ specialtyCategory: "orthopedic",
         if (specialtyTypeEl) specialtyTypeEl.value = "";
         // Also sync with main tabs if matching
         syncTabToType(type);
-        // Open filter and trigger search
-        openFilterBody();
         document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
         setTimeout(() => {
           let filtered;
@@ -2489,6 +2497,8 @@ specialtyCategory: "orthopedic",
             filtered = facilities.filter(f => f.facilityType === type);
           }
           renderResults(filtered);
+          // Keep filter collapsed — pills are a quick-access shortcut
+          closeFilterBody();
         }, 180);
       });
     });

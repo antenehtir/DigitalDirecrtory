@@ -606,6 +606,15 @@ ul { list-style: none; }
 }
 .filter-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
+/* Specialty sub-dropdown fade-in animation */
+@keyframes specialtySlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#specialtyGroup.specialty-appear {
+  animation: specialtySlideIn 0.22s ease forwards;
+}
+
 /* ============================================
    MAIN TABS
    ============================================ */
