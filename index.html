@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=4.8" />
+  <link rel="stylesheet" href="styles.css?v=4.9" />
 </head>
 <body class="page-fade">
 
@@ -698,53 +698,52 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 id="modalTitle"><i class="fa-solid fa-pen-to-square"></i> Request a Correction</h3>
-        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+        <button class="modal-close" onclick="window.closeCorrectionModal()" aria-label="Close">&times;</button>
       </div>
 
-      <form class="modal-form" id="correctionForm">
+      <div class="modal-form" id="correctionForm">
         <div class="form-group">
-          <label for="corr-facility"><i class="fa-solid fa-hospital"></i> Facility Name</label>
-          <input type="text" id="corr-facility" readonly />
+          <label for="corrFacilityName"><i class="fa-solid fa-hospital"></i> Facility Name</label>
+          <input type="text" id="corrFacilityName" readonly />
         </div>
         <div class="form-group">
-          <label for="corr-issue"><i class="fa-solid fa-triangle-exclamation"></i> What Needs Correction? <span class="required">*</span></label>
-          <textarea id="corr-issue" rows="2" required placeholder="e.g. Wrong phone number, incorrect address…"></textarea>
+          <label for="corrWhatNeeds"><i class="fa-solid fa-triangle-exclamation"></i> What Needs Correction? <span class="required">*</span></label>
+          <textarea id="corrWhatNeeds" rows="2" placeholder="e.g. Wrong phone number, incorrect address…"></textarea>
         </div>
         <div class="form-group">
-          <label for="corr-correct"><i class="fa-solid fa-circle-check"></i> Correct Information <span class="required">*</span></label>
-          <textarea id="corr-correct" rows="3" required placeholder="Please provide the accurate information here…"></textarea>
+          <label for="corrCorrectInfo"><i class="fa-solid fa-circle-check"></i> Correct Information <span class="required">*</span></label>
+          <textarea id="corrCorrectInfo" rows="3" placeholder="Please provide the accurate information here…"></textarea>
         </div>
         <div class="form-group">
-          <label for="corr-notes"><i class="fa-solid fa-note-sticky"></i> Additional Notes</label>
-          <textarea id="corr-notes" rows="2" placeholder="Optional — any other relevant info"></textarea>
+          <label for="corrNotes"><i class="fa-solid fa-note-sticky"></i> Additional Notes</label>
+          <textarea id="corrNotes" rows="2" placeholder="Optional — any other relevant info"></textarea>
         </div>
         <div class="form-group">
-          <label for="corr-name"><i class="fa-solid fa-user"></i> Your Name</label>
-          <input type="text" id="corr-name" placeholder="Optional" />
+          <label for="corrName"><i class="fa-solid fa-user"></i> Your Name</label>
+          <input type="text" id="corrName" placeholder="Optional" />
         </div>
         <div class="form-group">
-          <label for="corr-contact"><i class="fa-solid fa-phone"></i> Your Contact (Phone / Email)</label>
-          <input type="text" id="corr-contact" placeholder="Optional" />
+          <label for="corrContact"><i class="fa-solid fa-phone"></i> Your Contact (Phone / Email)</label>
+          <input type="text" id="corrContact" placeholder="Optional" />
         </div>
-        <div class="modal-actions">
-          <button type="submit" class="btn btn-primary">
+        <div class="modal-thank-you" id="corrThankYou" style="display:none;">
+          <i class="fa-solid fa-circle-check"></i>
+          <h4>Thank you! Your correction has been submitted.</h4>
+          <p>We'll review and update the listing as soon as possible.</p>
+        </div>
+        <div class="modal-actions" id="corrModalActions">
+          <button type="button" class="btn btn-primary" onclick="window.submitCorrection()">
             <i class="fa-solid fa-paper-plane"></i> Send Correction
           </button>
-          <button type="button" class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+          <button type="button" class="btn btn-outline" onclick="window.closeCorrectionModal()">Cancel</button>
         </div>
-      </form>
-
-      <div class="modal-thank-you" id="modalThankYou" style="display:none;">
-        <i class="fa-solid fa-circle-check"></i>
-        <h4>Thank you! Your correction has been submitted.</h4>
-        <p>We'll review and update the listing as soon as possible.</p>
-        <button class="btn btn-outline" id="modalCloseAfterSubmit">Close</button>
       </div>
+
     </div>
   </div>
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=4.8"></script>
+  <script src="script.js?v=4.9"></script>
 </body>
 </html>

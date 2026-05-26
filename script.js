@@ -1,3 +1,62 @@
+// ============================================================
+//  CORRECTION MODAL — window-scope functions (v4.9)
+//  Defined before DOMContentLoaded so inline onclicks work
+//  immediately on first click without timing issues.
+// ============================================================
+window.openCorrectionModal = function(facilityName) {
+  var modal = document.getElementById('correctionModal');
+  if (!modal) return;
+  document.getElementById('corrFacilityName').value = facilityName || '';
+  document.getElementById('corrWhatNeeds').value    = '';
+  document.getElementById('corrCorrectInfo').value  = '';
+  document.getElementById('corrNotes').value        = '';
+  document.getElementById('corrName').value         = '';
+  document.getElementById('corrContact').value      = '';
+  document.getElementById('corrThankYou').style.display = 'none';
+  var actions = document.getElementById('corrModalActions');
+  if (actions) actions.style.display = '';
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(function() {
+    var f = document.getElementById('corrWhatNeeds');
+    if (f) f.focus();
+  }, 60);
+};
+
+window.closeCorrectionModal = function() {
+  var modal = document.getElementById('correctionModal');
+  if (!modal) return;
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+};
+
+window.submitCorrection = function() {
+  var name    = (document.getElementById('corrFacilityName').value || '');
+  var what    = (document.getElementById('corrWhatNeeds').value    || '').trim();
+  var correct = (document.getElementById('corrCorrectInfo').value  || '').trim();
+  var notes   = (document.getElementById('corrNotes').value        || '').trim();
+  var by      = (document.getElementById('corrName').value         || '').trim();
+  var contact = (document.getElementById('corrContact').value      || '').trim();
+  if (!what || !correct) {
+    alert('Please fill in the required fields (marked with *).');
+    return;
+  }
+  var subject = encodeURIComponent('Correction Request — ' + name + ' — Antex MedDirectory');
+  var body = encodeURIComponent(
+    'Facility Name: '        + name    + '\n' +
+    'What needs correction: '+ what    + '\n' +
+    'Correct information: '  + correct + '\n' +
+    'Additional notes: '     + (notes   || 'N/A') + '\n' +
+    'Submitted by: '         + (by      || 'Anonymous') + '\n' +
+    'Contact: '              + (contact || 'N/A')
+  );
+  window.open('mailto:antenehtirusew8@gmail.com?subject=' + subject + '&body=' + body);
+  document.getElementById('corrThankYou').style.display = 'flex';
+  var actions = document.getElementById('corrModalActions');
+  if (actions) actions.style.display = 'none';
+  setTimeout(function() { window.closeCorrectionModal(); }, 3000);
+};
+
 document.addEventListener("DOMContentLoaded", function () {
   // ============================================================
   //  SITE CONFIG — flip hasNewNews to true to show red dot
@@ -2117,7 +2176,7 @@ specialtyCategory: "orthopedic",
             ${facility.twitter   ? `<a href="${facility.twitter}"   target="_blank" class="social-link social-twitter"   title="Twitter/X">${socialSvg('twitter')}</a>` : ""}
             ${facility.youtube   ? `<a href="${facility.youtube}"   target="_blank" class="social-link social-youtube"   title="YouTube">${socialSvg('youtube')}</a>` : ""}
           </div>` : ""}
-          <button class="action-btn action-correction" type="button" onclick="openCorrectionModal(${JSON.stringify(facility.name)})">
+          <button class="action-btn action-correction" type="button" onclick="window.openCorrectionModal(${JSON.stringify(facility.name)})">
             <i class="fa-solid fa-pen-to-square"></i> Request Correction
           </button>
         </div>
@@ -2416,14 +2475,22 @@ specialtyCategory: "orthopedic",
   buildTicker();
 
   // ============================================================
-  //  CORRECTION MODAL
+  //  CORRECTION MODAL — close-on-backdrop + Escape key
+  //  (openCorrectionModal / closeCorrectionModal / submitCorrection
+  //   are defined at window scope BEFORE DOMContentLoaded above)
   // ============================================================
-  const correctionModal  = document.getElementById("correctionModal");
-  const correctionForm   = document.getElementById("correctionForm");
-  const modalThankYou    = document.getElementById("modalThankYou");
-  const modalClose       = document.getElementById("modalClose");
-  const modalCancelBtn   = document.getElementById("modalCancelBtn");
-  const modalCloseAfter  = document.getElementById("modalCloseAfterSubmit");
+  (function() {
+    var modal = document.getElementById('correctionModal');
+    if (!modal) return;
+    // Close on backdrop click
+    modal.addEventListener('click', function(e) {
+      if (e.target === this) window.closeCorrectionModal();
+    });
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.style.display === 'flex') window.closeCorrectionModal();
+    });
+  })();
 
   // Expose specialty sub-tab function globally (for any inline onclick usage)
   window.selectSpecialtyType = function(val) {
@@ -2432,77 +2499,6 @@ specialtyCategory: "orthopedic",
     var chip = subTabs.querySelector('[data-specialty="' + val + '"]');
     if (chip) chip.click();
   };
-
-  // Exposed globally so onclick in result cards can call it
-  window.openCorrectionModal = function (facilityName) {
-    document.getElementById("corr-facility").value = facilityName;
-    correctionForm.style.display  = "flex";
-    modalThankYou.style.display   = "none";
-    correctionModal.style.display = "flex";
-    document.body.style.overflow  = "hidden";
-    // Focus first editable field
-    setTimeout(() => document.getElementById("corr-issue").focus(), 50);
-  };
-
-  function closeCorrectionModal() {
-    correctionModal.style.display = "none";
-    document.body.style.overflow  = "";
-    correctionForm.reset();
-    correctionForm.style.display  = "flex";
-    modalThankYou.style.display   = "none";
-  }
-
-  modalClose.addEventListener("click", closeCorrectionModal);
-  modalCancelBtn.addEventListener("click", closeCorrectionModal);
-  modalCloseAfter.addEventListener("click", closeCorrectionModal);
-
-  // Close on backdrop click
-  correctionModal.addEventListener("click", function (e) {
-    if (e.target === this) closeCorrectionModal();
-  });
-
-  // Close on Escape key
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && correctionModal.style.display === "flex") closeCorrectionModal();
-  });
-
-  correctionForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const facility = document.getElementById("corr-facility").value;
-    const issue    = document.getElementById("corr-issue").value.trim();
-    const correct  = document.getElementById("corr-correct").value.trim();
-    const notesEl  = document.getElementById("corr-notes");
-    const notes    = notesEl ? notesEl.value.trim() : "";
-    const name     = document.getElementById("corr-name").value.trim();
-    const contact  = document.getElementById("corr-contact").value.trim();
-
-    if (!issue || !correct) {
-      alert("Please fill in the required fields.");
-      return;
-    }
-
-    const subject = encodeURIComponent("Correction Request — " + facility + " — Antex MedDirectory");
-    const body    = encodeURIComponent(
-      "Facility Name: " + facility + "\n" +
-      "What needs correction: " + issue + "\n" +
-      "Correct information: " + correct + "\n" +
-      "Additional notes: " + (notes || "___________") + "\n" +
-      "Submitted by: " + (name || "___________") + "\n" +
-      "Contact: " + (contact || "_______________")
-    );
-
-    // Open mailto via a temporary link (more reliable across browsers)
-    var mailLink = document.createElement("a");
-    mailLink.href = "mailto:antenehtirusew8@gmail.com?subject=" + subject + "&body=" + body;
-    mailLink.style.display = "none";
-    document.body.appendChild(mailLink);
-    mailLink.click();
-    setTimeout(function() { document.body.removeChild(mailLink); }, 100);
-
-    // Show green thank-you state
-    correctionForm.style.display = "none";
-    modalThankYou.style.display  = "flex";
-  });
 
   // ============================================================
   //  SPECIALTY SUB-TABS — shown when Specialty Centers pill is clicked
