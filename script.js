@@ -2061,7 +2061,7 @@ specialtyCategory: "orthopedic",
     const avatarInitials = getFacilityInitials(facility.name);
 
     return `
-      <div class="result-card">
+      <div class="result-card" data-type="${facility.facilityType}">
         <div class="result-card-header">
           <div class="grad-avatar" style="background:${avatarGrad}">${facility.monogram || avatarInitials}</div>
           <div class="result-card-header-meta">
@@ -2220,12 +2220,12 @@ specialtyCategory: "orthopedic",
     e.preventDefault();
     showLoading();
 
-    // Small delay so spinner is visible, then render + auto-collapse filter
-    // Scroll AFTER render so layout is stable and we land at the top of results
+    // Small delay so spinner is visible, then render + close dropdown + scroll
     setTimeout(() => {
       const filtered = runFilter();
       renderResults(filtered);
-      closeFilterBody();
+      closeFilterDropdown();
+      updateFilterBadge();
       var rs = document.getElementById("resultsSection");
       if (rs) rs.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 380);
@@ -2245,6 +2245,8 @@ specialtyCategory: "orthopedic",
     document.querySelectorAll(".hero-tag").forEach(t => t.classList.remove("active"));
     // Reset unified tabs to "All Facilities"
     setUnifiedTabActive("all");
+    // Update badge (will show 0)
+    updateFilterBadge();
   });
 
   // ============================================================
@@ -2253,17 +2255,9 @@ specialtyCategory: "orthopedic",
   function triggerHeroSearch() {
     const val = heroSearch.value.trim();
     if (val) nameSearchEl.value = val;
-    // Open collapsed filter if needed
-    const fb = document.getElementById("filterBody");
-    const fi = document.getElementById("filterToggleIcon");
-    const ftb = document.getElementById("filterToggleBtn");
-    if (fb && fb.style.display === "none") {
-      fb.style.display = "block";
-      if (fi) fi.classList.add("open");
-      if (ftb) ftb.setAttribute("aria-expanded", "true");
-    }
-    document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
-    setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 350);
+    // Close dropdown if open, then trigger filter search
+    closeFilterDropdown();
+    setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 120);
   }
 
   heroSearchBtn.addEventListener("click", triggerHeroSearch);
@@ -2288,17 +2282,8 @@ specialtyCategory: "orthopedic",
       facilityTypeEl.dispatchEvent(new Event("change"));
       if (specialtyVal && specialtyTypeEl) specialtyTypeEl.value = specialtyVal;
 
-      // Open collapsed filter if needed
-      const fb = document.getElementById("filterBody");
-      const fi = document.getElementById("filterToggleIcon");
-      const ftb = document.getElementById("filterToggleBtn");
-      if (fb && fb.style.display === "none") {
-        fb.style.display = "block";
-        if (fi) fi.classList.add("open");
-        if (ftb) ftb.setAttribute("aria-expanded", "true");
-      }
-      document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
-      setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 350);
+      closeFilterDropdown();
+      setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 200);
     });
   });
 
@@ -2350,7 +2335,7 @@ specialtyCategory: "orthopedic",
   });
 
   // ============================================================
-  //  TICKER — build from live facility data
+  //  TICKER — build from live facility data, shuffle on load + 30s
   // ============================================================
   function buildTicker() {
     const track = document.getElementById("tickerTrack");
@@ -2379,37 +2364,53 @@ specialtyCategory: "orthopedic",
       </div>`;
     }
 
-    // Build cards + duplicate for seamless infinite loop
-    const cardsHTML = facilities.map(buildCard).join("");
-    track.innerHTML = cardsHTML + cardsHTML;
-
-    // Set animation duration dynamically (~280px per card at 80px/s)
-    const totalPx   = facilities.length * 280;
-    const speed     = 80; // px per second
-    track.style.animationDuration = Math.round(totalPx / speed) + "s";
-
-    // Click handler: open filter, pre-fill name search, trigger search
-    track.querySelectorAll(".ticker-card").forEach(card => {
-      function activate() {
-        const facilityName = card.dataset.name;
-        document.getElementById("nameSearch").value = facilityName;
-        // Ensure the collapsible filter body is open
-        const fb = document.getElementById("filterBody");
-        const fi = document.getElementById("filterToggleIcon");
-        const ftb = document.getElementById("filterToggleBtn");
-        if (fb && fb.style.display === "none") {
-          fb.style.display = "block";
-          if (fi) fi.classList.add("open");
-          if (ftb) ftb.setAttribute("aria-expanded", "true");
-        }
-        document.getElementById("filterSection").scrollIntoView({ behavior: "smooth" });
-        setTimeout(() => filterForm.dispatchEvent(new Event("submit")), 420);
+    // Fisher-Yates shuffle
+    function shuffleFacilities(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
       }
-      card.addEventListener("click", activate);
-      card.addEventListener("keydown", function (e) {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+      return a;
+    }
+
+    function bindTickerCards() {
+      track.querySelectorAll(".ticker-card").forEach(function(card) {
+        function activate() {
+          var facilityName = card.dataset.name;
+          document.getElementById("nameSearch").value = facilityName;
+          closeFilterDropdown();
+          setTimeout(function() { filterForm.dispatchEvent(new Event("submit")); }, 200);
+        }
+        card.addEventListener("click", activate);
+        card.addEventListener("keydown", function(e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); }
+        });
       });
-    });
+    }
+
+    function rebuildTicker() {
+      var shuffled = shuffleFacilities(facilities);
+      var cardsHTML = shuffled.map(buildCard).join("");
+      // Pause, rebuild, restart animation
+      track.style.animationPlayState = "paused";
+      track.innerHTML = cardsHTML + cardsHTML;
+      var totalPx = shuffled.length * 280;
+      var speed   = 80;
+      var dur     = Math.round(totalPx / speed) + "s";
+      track.style.animation = "none";
+      track.offsetHeight; // force reflow
+      track.style.animation = "";
+      track.style.animationDuration = dur;
+      track.style.animationPlayState = "running";
+      bindTickerCards();
+    }
+
+    // Build immediately (shuffled)
+    rebuildTicker();
+
+    // Re-shuffle silently every 30 seconds
+    setInterval(rebuildTicker, 30000);
   }
 
   buildTicker();
@@ -2699,27 +2700,114 @@ specialtyCategory: "orthopedic",
   }
 
   // ============================================================
-  //  COLLAPSIBLE FILTER — v4.0
+  //  FILTER DROPDOWN — v4.8 (replaces collapsible filter section)
   // ============================================================
-  const filterToggleBtn  = document.getElementById("filterToggleBtn");
-  const filterBody       = document.getElementById("filterBody");
-  const filterToggleIcon = document.getElementById("filterToggleIcon");
+  var _filterDropdownEl  = document.getElementById("filterDropdown");
+  var _filterBackdropEl  = document.getElementById("filterBackdrop");
+  var _heroFilterBtnEl   = document.getElementById("heroFilterBtn");
+  var _filterCloseBtnEl  = document.getElementById("filterDropdownClose");
 
-  function openFilterBody() {
-    filterBody.style.display = "block";
-    filterToggleIcon.classList.add("open");
-    filterToggleBtn.setAttribute("aria-expanded", "true");
-  }
-  function closeFilterBody() {
-    filterBody.style.display = "none";
-    filterToggleIcon.classList.remove("open");
-    filterToggleBtn.setAttribute("aria-expanded", "false");
+  function positionFilterDropdown() {
+    if (!_filterDropdownEl || window.innerWidth <= 640) return;
+    var wrap = document.querySelector(".hero-search-bar-wrap");
+    if (!wrap) return;
+    var rect = wrap.getBoundingClientRect();
+    _filterDropdownEl.style.position = "fixed";
+    _filterDropdownEl.style.top      = (rect.bottom + 8) + "px";
+    _filterDropdownEl.style.left     = rect.left + "px";
+    _filterDropdownEl.style.width    = rect.width + "px";
+    _filterDropdownEl.style.maxHeight = Math.min(520, window.innerHeight - rect.bottom - 20) + "px";
+    _filterDropdownEl.style.right    = "auto";
+    _filterDropdownEl.style.bottom   = "auto";
   }
 
-  filterToggleBtn.addEventListener("click", function () {
-    if (filterBody.style.display === "none") { openFilterBody(); }
-    else { closeFilterBody(); }
+  function openFilterDropdown() {
+    if (!_filterDropdownEl) return;
+    positionFilterDropdown();
+    _filterDropdownEl.style.display = "block";
+    if (_filterBackdropEl) {
+      _filterBackdropEl.style.display = "block";
+      setTimeout(function() { _filterBackdropEl.classList.add("visible"); }, 10);
+    }
+    setTimeout(function() { _filterDropdownEl.classList.add("is-open"); }, 10);
+    if (_heroFilterBtnEl) _heroFilterBtnEl.setAttribute("aria-expanded", "true");
+  }
+
+  function closeFilterDropdown() {
+    if (!_filterDropdownEl) return;
+    _filterDropdownEl.classList.remove("is-open");
+    if (_heroFilterBtnEl) _heroFilterBtnEl.setAttribute("aria-expanded", "false");
+    if (_filterBackdropEl) {
+      _filterBackdropEl.classList.remove("visible");
+      setTimeout(function() {
+        if (!_filterDropdownEl.classList.contains("is-open")) {
+          _filterBackdropEl.style.display = "none";
+        }
+      }, 280);
+    }
+    setTimeout(function() {
+      if (!_filterDropdownEl.classList.contains("is-open")) {
+        _filterDropdownEl.style.display = "none";
+      }
+    }, 280);
+  }
+
+  // Backward-compat aliases (called by handleUnifiedTabClick, activateTab, etc.)
+  function openFilterBody()  { openFilterDropdown(); }
+  function closeFilterBody() { closeFilterDropdown(); }
+
+  if (_heroFilterBtnEl) {
+    _heroFilterBtnEl.addEventListener("click", function(e) {
+      e.stopPropagation();
+      if (_filterDropdownEl && _filterDropdownEl.classList.contains("is-open")) {
+        closeFilterDropdown();
+      } else {
+        openFilterDropdown();
+      }
+    });
+  }
+  if (_filterCloseBtnEl) {
+    _filterCloseBtnEl.addEventListener("click", closeFilterDropdown);
+  }
+  if (_filterBackdropEl) {
+    _filterBackdropEl.addEventListener("click", closeFilterDropdown);
+  }
+
+  // Close dropdown on outside click
+  document.addEventListener("click", function(e) {
+    if (!_filterDropdownEl || !_filterDropdownEl.classList.contains("is-open")) return;
+    var combined = document.querySelector(".hero-search-combined");
+    if (combined && combined.contains(e.target)) return;
+    if (_filterDropdownEl.contains(e.target)) return;
+    closeFilterDropdown();
   });
+
+  // Reposition on resize
+  window.addEventListener("resize", function() {
+    if (_filterDropdownEl && _filterDropdownEl.classList.contains("is-open")) {
+      positionFilterDropdown();
+    }
+  });
+
+  // ============================================================
+  //  FILTER BADGE — count active filters
+  // ============================================================
+  function updateFilterBadge() {
+    var count = 0;
+    if (facilityTypeEl  && facilityTypeEl.value)          count++;
+    if (specialtyTypeEl && specialtyTypeEl.value)          count++;
+    if (subCityEl       && subCityEl.value)                count++;
+    if (areaEl          && areaEl.value)                   count++;
+    if (areaSearchEl    && areaSearchEl.value.trim())      count++;
+    if (nameSearchEl    && nameSearchEl.value.trim())      count++;
+    var badge = document.getElementById("filterBadge");
+    var btn   = document.getElementById("heroFilterBtn");
+    if (badge) {
+      if (count > 0) { badge.textContent = count; badge.style.display = "inline-flex"; }
+      else { badge.style.display = "none"; }
+    }
+    if (btn) btn.classList.toggle("has-filters", count > 0);
+  }
 
   // ============================================================
   //  MAIN TABS — v4.0
@@ -2857,7 +2945,7 @@ specialtyCategory: "orthopedic",
     // Collect main page sections to hide when a panel is active
     // NOTE: .header is NOT hidden — tabs live inside it and it stays visible
     var mainSections = Array.prototype.slice.call(
-      document.querySelectorAll(".hero, .stat-pills-section, .ticker-section, .main-content, .followup-section, .footer")
+      document.querySelectorAll(".hero, .tabs-section-outer, .ticker-section, .main-content, .followup-section, .footer")
     );
     // Also the floating call button
     var floatBtn = document.querySelector(".float-call-btn");
