@@ -1,60 +1,25 @@
 // ============================================================
-//  CORRECTION MODAL — window-scope functions (v4.9)
-//  Defined before DOMContentLoaded so inline onclicks work
-//  immediately on first click without timing issues.
+//  CORRECTION MODAL — window-scope (v5.1 fresh)
+//  Defined before DOMContentLoaded so inline onclicks fire
+//  immediately without any timing issues.
 // ============================================================
-window.openCorrectionModal = function(facilityName) {
-  var modal = document.getElementById('correctionModal');
-  if (!modal) return;
-  document.getElementById('corrFacilityName').value = facilityName || '';
-  document.getElementById('corrWhatNeeds').value    = '';
-  document.getElementById('corrCorrectInfo').value  = '';
-  document.getElementById('corrNotes').value        = '';
-  document.getElementById('corrName').value         = '';
-  document.getElementById('corrContact').value      = '';
-  document.getElementById('corrThankYou').style.display = 'none';
-  var actions = document.getElementById('corrModalActions');
-  if (actions) actions.style.display = '';
-  modal.style.display = 'flex';
+window.openCorr = function(name) {
+  var m = document.getElementById('corrModal');
+  if (!m) return;
+  document.getElementById('cFacility').value = name || '';
+  document.getElementById('cWhat').value = '';
+  document.getElementById('cCorrect').value = '';
+  document.getElementById('cNotes').value = '';
+  document.getElementById('cName').value = '';
+  document.getElementById('cContact').value = '';
+  document.getElementById('cThanks').style.display = 'none';
+  m.style.display = 'flex';
   document.body.style.overflow = 'hidden';
-  setTimeout(function() {
-    var f = document.getElementById('corrWhatNeeds');
-    if (f) f.focus();
-  }, 60);
 };
-
-window.closeCorrectionModal = function() {
-  var modal = document.getElementById('correctionModal');
-  if (!modal) return;
-  modal.style.display = 'none';
+window.closeCorr = function() {
+  var m = document.getElementById('corrModal');
+  if (m) m.style.display = 'none';
   document.body.style.overflow = '';
-};
-
-window.submitCorrection = function() {
-  var name    = (document.getElementById('corrFacilityName').value || '');
-  var what    = (document.getElementById('corrWhatNeeds').value    || '').trim();
-  var correct = (document.getElementById('corrCorrectInfo').value  || '').trim();
-  var notes   = (document.getElementById('corrNotes').value        || '').trim();
-  var by      = (document.getElementById('corrName').value         || '').trim();
-  var contact = (document.getElementById('corrContact').value      || '').trim();
-  if (!what || !correct) {
-    alert('Please fill in the required fields (marked with *).');
-    return;
-  }
-  var subject = encodeURIComponent('Correction Request — ' + name + ' — Antex MedDirectory');
-  var body = encodeURIComponent(
-    'Facility Name: '        + name    + '\n' +
-    'What needs correction: '+ what    + '\n' +
-    'Correct information: '  + correct + '\n' +
-    'Additional notes: '     + (notes   || 'N/A') + '\n' +
-    'Submitted by: '         + (by      || 'Anonymous') + '\n' +
-    'Contact: '              + (contact || 'N/A')
-  );
-  window.open('mailto:antenehtirusew8@gmail.com?subject=' + subject + '&body=' + body);
-  document.getElementById('corrThankYou').style.display = 'flex';
-  var actions = document.getElementById('corrModalActions');
-  if (actions) actions.style.display = 'none';
-  setTimeout(function() { window.closeCorrectionModal(); }, 3000);
 };
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -2176,7 +2141,7 @@ specialtyCategory: "orthopedic",
             ${facility.twitter   ? `<a href="${facility.twitter}"   target="_blank" class="social-link social-twitter"   title="Twitter/X">${socialSvg('twitter')}</a>` : ""}
             ${facility.youtube   ? `<a href="${facility.youtube}"   target="_blank" class="social-link social-youtube"   title="YouTube">${socialSvg('youtube')}</a>` : ""}
           </div>` : ""}
-          <button class="action-btn action-correction" type="button" onclick="window.openCorrectionModal(${JSON.stringify(facility.name)})">
+          <button class="action-btn action-correction" type="button" onclick="window.openCorr(${JSON.stringify(facility.name)})">
             <i class="fa-solid fa-pen-to-square"></i> Request Correction
           </button>
         </div>
@@ -2203,6 +2168,27 @@ specialtyCategory: "orthopedic",
 
     const total = _allResults.length;
     const shown = Math.min(end, total);
+
+    // Helper: create the inline Reset button
+    function makeInlineReset() {
+      var resetBtn = document.createElement("button");
+      resetBtn.className = "show-more-reset-btn";
+      resetBtn.innerHTML = "↺ Reset";
+      resetBtn.addEventListener("click", function () {
+        filterForm.reset();
+        specialtyGroupEl.style.display = "none";
+        hideSpecialtySubTabs();
+        hideClearFilter();
+        populateAreaOptions();
+        document.querySelectorAll(".hero-tag").forEach(function(t) { t.classList.remove("active"); });
+        setUnifiedTabActive("all");
+        updateFilterBadge();
+        renderResults(facilities);
+        var rs = document.getElementById("resultsSection");
+        if (rs) rs.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return resetBtn;
+    }
 
     // Add Show More / Show Less button if needed
     if (total > PAGE_SIZE) {
@@ -2235,6 +2221,7 @@ specialtyCategory: "orthopedic",
         wrap.appendChild(btn);
       }
 
+      wrap.appendChild(makeInlineReset());
       resultsGrid.insertAdjacentElement("afterend", wrap);
     }
   }
@@ -2475,21 +2462,42 @@ specialtyCategory: "orthopedic",
   buildTicker();
 
   // ============================================================
-  //  CORRECTION MODAL — close-on-backdrop + Escape key
-  //  (openCorrectionModal / closeCorrectionModal / submitCorrection
-  //   are defined at window scope BEFORE DOMContentLoaded above)
+  //  CORRECTION MODAL v5.1 — wire up #corrModal
+  //  (openCorr / closeCorr defined at window scope above)
   // ============================================================
   (function() {
-    var modal = document.getElementById('correctionModal');
-    if (!modal) return;
-    // Close on backdrop click
-    modal.addEventListener('click', function(e) {
-      if (e.target === this) window.closeCorrectionModal();
-    });
-    // Close on Escape key
+    var m = document.getElementById('corrModal');
+    var closeBtn = document.getElementById('corrClose');
+    var submitBtn = document.getElementById('cSubmit');
+    if (closeBtn) closeBtn.onclick = window.closeCorr;
+    if (m) m.onclick = function(e) { if (e.target === m) window.closeCorr(); };
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal.style.display === 'flex') window.closeCorrectionModal();
+      if (e.key === 'Escape' && m && m.style.display === 'flex') window.closeCorr();
     });
+    if (submitBtn) submitBtn.onclick = function() {
+      var what    = (document.getElementById('cWhat').value    || '').trim();
+      var correct = (document.getElementById('cCorrect').value || '').trim();
+      if (!what || !correct) {
+        alert('Please fill in the required fields marked with *');
+        return;
+      }
+      var name    = document.getElementById('cFacility').value;
+      var notes   = document.getElementById('cNotes').value;
+      var by      = document.getElementById('cName').value;
+      var contact = document.getElementById('cContact').value;
+      var sub = encodeURIComponent('Correction Request — ' + name + ' — Antex MedDirectory');
+      var bod = encodeURIComponent(
+        'Facility: ' + name +
+        '\nWhat needs correction: ' + what +
+        '\nCorrect info: ' + correct +
+        '\nNotes: ' + (notes || 'N/A') +
+        '\nSubmitted by: ' + (by || 'Anonymous') +
+        '\nContact: ' + (contact || 'N/A')
+      );
+      window.open('mailto:antenehtirusew8@gmail.com?subject=' + sub + '&body=' + bod);
+      document.getElementById('cThanks').style.display = 'block';
+      setTimeout(window.closeCorr, 3000);
+    };
   })();
 
   // Expose specialty sub-tab function globally (for any inline onclick usage)
