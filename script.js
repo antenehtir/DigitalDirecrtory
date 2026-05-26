@@ -2220,14 +2220,14 @@ specialtyCategory: "orthopedic",
     e.preventDefault();
     showLoading();
 
-    // Scroll to results section
-    document.getElementById("resultsSection").scrollIntoView({ behavior: "smooth", block: "start" });
-
     // Small delay so spinner is visible, then render + auto-collapse filter
+    // Scroll AFTER render so layout is stable and we land at the top of results
     setTimeout(() => {
       const filtered = runFilter();
       renderResults(filtered);
       closeFilterBody();
+      var rs = document.getElementById("resultsSection");
+      if (rs) rs.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 380);
   });
 
@@ -2545,7 +2545,11 @@ specialtyCategory: "orthopedic",
           var found = SPECIALTY_TYPES.find(function(s) { return s.value === specialtyVal; });
           titleEl.innerHTML = "<i class=\"fa-solid fa-stethoscope\"></i> " + (found ? found.emoji + " " + found.label : "All Specialty Centers");
         }
-        setTimeout(function() { renderResults(filtered); }, 100);
+        setTimeout(function() {
+          renderResults(filtered);
+          var rs = document.getElementById("resultsSection");
+          if (rs) rs.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
       });
       subTabs.appendChild(chip);
     });
@@ -2613,18 +2617,23 @@ specialtyCategory: "orthopedic",
       hideClearFilter();
       if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-list-ul"></i> All Facilities';
       showLoading();
-      if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
-      setTimeout(function() { renderResults(facilities); closeFilterBody(); }, 280);
+      setTimeout(function() {
+        renderResults(facilities);
+        closeFilterBody();
+        if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 280);
       return;
     }
 
     showClearFilter();
-    if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
 
     // Specialty Centers — show sub-tabs
     if (key === "speciality") {
       buildSpecialtySubTabs();
       closeFilterBody();
+      setTimeout(function() {
+        if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 200);
       return;
     }
 
@@ -2645,7 +2654,11 @@ specialtyCategory: "orthopedic",
     var filtered = facilities.filter(info.fn);
     if (titleEl) titleEl.innerHTML = info.title;
     showLoading();
-    setTimeout(function() { renderResults(filtered); closeFilterBody(); }, 280);
+    setTimeout(function() {
+      renderResults(filtered);
+      closeFilterBody();
+      if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 280);
   }
 
   function buildUnifiedTabs() {
@@ -2804,8 +2817,10 @@ specialtyCategory: "orthopedic",
     }
 
     showLoading();
-    resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(() => renderResults(filtered), 280);
+    setTimeout(() => {
+      renderResults(filtered);
+      if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 280);
   }
 
   // Legacy main-tabs click wiring (hidden, kept for JS compatibility)
