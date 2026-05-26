@@ -12,14 +12,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        integrity="sha512-pb3JZjHk9WbKQ3lqC1QX9u+46eL8v+0RF9F1e6UpK6+6SywRzBOs4ug+vOLfEIjK5oUro+gIkg4z1r9Bf5lGwg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" referrerpolicy="no-referrer" />
 
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=4.3" />
+  <link rel="stylesheet" href="styles.css?v=4.5" />
 </head>
 <body class="page-fade">
 
@@ -314,21 +312,26 @@
     <!-- ===== MAIN TABS ===== -->
     <nav class="main-tabs" id="mainTabs" role="tablist" aria-label="Facility categories">
       <button class="main-tab active" data-tab="facilities" role="tab" aria-selected="true">
-        <i class="fa-solid fa-list-ul"></i> <span>Facilities</span>
+        <span class="tab-emoji">🏥</span><span>Facilities</span>
       </button>
       <button class="main-tab" data-tab="telemedicine" role="tab" aria-selected="false">
-        <i class="fa-solid fa-laptop-medical"></i> <span>Telemedicine</span>
+        <span class="tab-emoji">💻</span><span>Telemedicine</span>
       </button>
       <button class="main-tab" data-tab="pharmacy" role="tab" aria-selected="false">
-        <i class="fa-solid fa-pills"></i> <span>Pharmacy</span>
+        <span class="tab-emoji">💊</span><span>Pharmacy</span>
       </button>
       <button class="main-tab" data-tab="financing" role="tab" aria-selected="false">
-        <i class="fa-solid fa-credit-card"></i> <span>Health Care Financing</span>
+        <span class="tab-emoji">💳</span><span>Financing</span>
       </button>
       <button class="main-tab" data-tab="nearme" role="tab" aria-selected="false">
-        <i class="fa-solid fa-location-dot"></i><span>Near Me</span>
+        <span class="tab-emoji">📍</span><span>Near Me</span>
       </button>
     </nav>
+
+    <!-- Specialty sub-type chips — injected by JS when Specialty Centers is active -->
+    <div id="specialtySubTabs" class="specialty-sub-tabs" style="display:none;" role="navigation" aria-label="Filter by specialty type">
+      <!-- populated by buildSpecialtySubTabs() -->
+    </div>
 
     <!-- ===== RESULTS SECTION ===== -->
     <section class="results-section" id="resultsSection">
@@ -674,6 +677,17 @@
         </button>
       </div>
 
+      <!-- Specialty drill-down list (shown when Specialty Center category is tapped) -->
+      <div id="nwSpecialtyList" class="nw-specialty-list" style="display:none;">
+        <div class="nw-specialty-header">
+          <button class="nw-specialty-back" id="nwSpecialtyBack">← Back</button>
+          <span class="nw-specialty-title">🏨 Pick a Specialty</span>
+        </div>
+        <div class="nw-specialty-scroll" id="nwSpecialtyScroll">
+          <!-- items injected by JS -->
+        </div>
+      </div>
+
       <p class="nw-all-note">Or tap <strong>Locate Me</strong> without selecting to find all nearby facilities</p>
     </div>
   </div>
@@ -732,6 +746,6 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=4.3"></script>
+  <script src="script.js?v=4.5"></script>
 </body>
 </html>
