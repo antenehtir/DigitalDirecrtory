@@ -2539,7 +2539,8 @@ specialtyCategory: "orthopedic",
     var subTabs = document.getElementById("specialtySubTabs");
     if (!subTabs) return;
     subTabs.innerHTML = "";
-    subTabs.style.display = "flex";
+    var wrap = document.getElementById("specialtySubTabsWrap");
+    if (wrap) wrap.style.display = "flex";
 
     SPECIALTY_TYPES.forEach(function(st) {
       var chip = document.createElement("button");
@@ -2565,14 +2566,28 @@ specialtyCategory: "orthopedic",
       subTabs.appendChild(chip);
     });
 
+    // Wire scroll arrow buttons
+    var leftBtn  = document.getElementById("specTabLeft");
+    var rightBtn = document.getElementById("specTabRight");
+    if (leftBtn && rightBtn) {
+      function updateSpecArrows() {
+        leftBtn.disabled  = subTabs.scrollLeft <= 0;
+        rightBtn.disabled = subTabs.scrollLeft >= subTabs.scrollWidth - subTabs.clientWidth - 1;
+      }
+      leftBtn.onclick  = function() { subTabs.scrollBy({ left: -200, behavior: "smooth" }); };
+      rightBtn.onclick = function() { subTabs.scrollBy({ left: 200, behavior: "smooth" }); };
+      subTabs.addEventListener("scroll", updateSpecArrows);
+      updateSpecArrows();
+    }
+
     // Auto-click "All Specialty Centers" chip to show results immediately
     var allChip = subTabs.querySelector('[data-specialty=""]');
     if (allChip) allChip.click();
   }
 
   function hideSpecialtySubTabs() {
-    var subTabs = document.getElementById("specialtySubTabs");
-    if (subTabs) subTabs.style.display = "none";
+    var wrap = document.getElementById("specialtySubTabsWrap");
+    if (wrap) wrap.style.display = "none";
   }
 
   // ============================================================

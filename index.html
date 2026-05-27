@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=7.1" />
+  <link rel="stylesheet" href="styles.css?v=7.2" />
 </head>
 <body class="page-fade">
 
@@ -322,8 +322,12 @@
     </nav>
 
     <!-- Specialty sub-type chips -->
-    <div id="specialtySubTabs" class="specialty-sub-tabs" style="display:none;" role="navigation" aria-label="Filter by specialty type">
-      <!-- populated by buildSpecialtySubTabs() -->
+    <div class="specialty-sub-tabs-nav" id="specialtySubTabsWrap" style="display:none;">
+      <button class="spec-tab-arrow" id="specTabLeft" aria-label="Scroll specialties left">&#8249;</button>
+      <div id="specialtySubTabs" class="specialty-sub-tabs" role="navigation" aria-label="Filter by specialty type">
+        <!-- populated by buildSpecialtySubTabs() -->
+      </div>
+      <button class="spec-tab-arrow" id="specTabRight" aria-label="Scroll specialties right">&#8250;</button>
     </div>
 
     <!-- Clear Filter pill -->
@@ -732,6 +736,6 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=7.1"></script>
+  <script src="script.js?v=7.2"></script>
 </body>
 </html>
