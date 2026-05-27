@@ -2580,9 +2580,18 @@ specialtyCategory: "orthopedic",
       updateSpecArrows();
     }
 
-    // Auto-click "All Specialty Centers" chip to show results immediately
-    var allChip = subTabs.querySelector('[data-specialty=""]');
-    if (allChip) allChip.click();
+    // Activate "All Specialty Centers" and render results WITHOUT scrolling to them
+    (function() {
+      var allChip = subTabs.querySelector('[data-specialty=""]');
+      if (allChip) {
+        subTabs.querySelectorAll(".specialty-chip").forEach(function(c) { c.classList.remove("active"); });
+        allChip.classList.add("active");
+        var filtered = filterBySpecialtyType("");
+        var titleEl = document.getElementById("resultsTitle");
+        if (titleEl) titleEl.innerHTML = "<i class=\"fa-solid fa-stethoscope\"></i> 🏨 All Specialty Centers";
+        setTimeout(function() { renderResults(filtered); }, 100);
+      }
+    })();
   }
 
   function hideSpecialtySubTabs() {
@@ -2658,7 +2667,8 @@ specialtyCategory: "orthopedic",
       buildSpecialtySubTabs();
       closeFilterBody();
       setTimeout(function() {
-        if (resultsSectionEl) resultsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        var tabsZone = document.getElementById("tabsStickyZone");
+        if (tabsZone) tabsZone.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
       return;
     }
@@ -3490,14 +3500,13 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  HERO SEARCH HINTS — v7.1
+  //  HERO SEARCH HINTS — v7.3
   // ============================================================
   (function() {
     document.querySelectorAll('.hero-hint-tag').forEach(function(btn) {
       btn.addEventListener('click', function() {
-        heroSearch.value = btn.dataset.hint;
-        heroSearch.focus();
-        triggerHeroSearch();
+        var key = btn.dataset.key;
+        if (key) handleUnifiedTabClick(key);
       });
     });
   })();

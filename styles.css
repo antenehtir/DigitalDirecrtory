@@ -886,7 +886,7 @@ ul { list-style: none; }
 }
 .spec-tab-arrow:hover  { background: var(--teal-dark); transform: scale(1.1); }
 .spec-tab-arrow:active { transform: scale(0.95); }
-.spec-tab-arrow:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+.spec-tab-arrow:disabled { opacity: 0; cursor: default; pointer-events: none; }
 
 .specialty-sub-tabs {
   display: flex;

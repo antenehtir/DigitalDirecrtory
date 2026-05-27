@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=7.2" />
+  <link rel="stylesheet" href="styles.css?v=7.3" />
 </head>
 <body class="page-fade">
 
@@ -136,13 +136,14 @@
             📍 Health Facility Near Me
           </button>
         </div>
-        <div class="hero-search-hints" aria-label="Quick search suggestions">
-          <button class="hero-hint-tag" data-hint="General Hospital">🏥 General Hospital</button>
-          <button class="hero-hint-tag" data-hint="Diagnostics">🔬 Diagnostics</button>
-          <button class="hero-hint-tag" data-hint="Telemedicine">💻 Telemedicine</button>
-          <button class="hero-hint-tag" data-hint="Bole">📍 Bole</button>
-          <button class="hero-hint-tag" data-hint="Dental">🦷 Dental</button>
-          <button class="hero-hint-tag" data-hint="Neurology">🧠 Neurology</button>
+        <div class="hero-search-hints" aria-label="Quick filter by facility type">
+          <button class="hero-hint-tag" data-key="general">🏥 General Hospital</button>
+          <button class="hero-hint-tag" data-key="speciality">🏨 Specialty Centers</button>
+          <button class="hero-hint-tag" data-key="homecare">🏡 Home Care</button>
+          <button class="hero-hint-tag" data-key="pharmacy">💊 Pharmacy</button>
+          <button class="hero-hint-tag" data-key="diagnostic">🔬 Diagnostics</button>
+          <button class="hero-hint-tag" data-key="ambulance">🚑 Ambulance</button>
+          <button class="hero-hint-tag" data-key="telemedicine">💻 Telemedicine</button>
         </div>
       </div>
 
@@ -736,6 +737,6 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=7.2"></script>
+  <script src="script.js?v=7.3"></script>
 </body>
 </html>
