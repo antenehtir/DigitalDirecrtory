@@ -14,6 +14,12 @@ window.openCorr = function(name) {
   document.getElementById('cContact').value = '';
   document.getElementById('cThanks').style.display = 'none';
   m.style.display = 'flex';
+  var inner = m.querySelector('div');
+  if (inner) {
+    inner.classList.remove('corr-anim');
+    void inner.offsetWidth;
+    inner.classList.add('corr-anim');
+  }
   document.body.style.overflow = 'hidden';
 };
 window.closeCorr = function() {
@@ -3451,6 +3457,21 @@ specialtyCategory: "orthopedic",
     clearBtn.addEventListener("click", function () {
       handleUnifiedTabClick("all");
     });
+  })();
+
+  // ============================================================
+  //  STICKY TABS SHADOW — v6.0
+  // ============================================================
+  (function() {
+    var stickyZone = document.getElementById("tabsStickyZone");
+    var statsBar = document.querySelector(".stats-bar");
+    if (!stickyZone) return;
+    function update() {
+      var statsBottom = statsBar ? statsBar.getBoundingClientRect().bottom : 0;
+      stickyZone.classList.toggle("is-sticky", statsBottom <= 64);
+    }
+    window.addEventListener("scroll", update, { passive: true });
+    update();
   })();
 
   // Show ALL facilities immediately on load (no "ready to search" empty state)

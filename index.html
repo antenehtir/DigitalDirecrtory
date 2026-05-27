@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=5.1" />
+  <link rel="stylesheet" href="styles.css?v=6.0" />
 </head>
 <body class="page-fade">
 
@@ -138,24 +138,28 @@
         </div>
       </div>
 
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <span class="hero-stat-num">89+</span>
-          <span class="hero-stat-label">Facilities Listed</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <span class="hero-stat-num">12</span>
-          <span class="hero-stat-label">Sub-Cities Covered</span>
-        </div>
-        <div class="hero-stat-divider"></div>
-        <div class="hero-stat">
-          <span class="hero-stat-num">100%</span>
-          <span class="hero-stat-label">Free to Use</span>
-        </div>
-      </div>
     </div>
   </section>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar">
+    <div class="stats-bar-inner">
+      <div class="stats-bar-stat">
+        <span class="stats-bar-num">89+</span>
+        <span class="stats-bar-label">Facilities Listed</span>
+      </div>
+      <div class="stats-bar-divider"></div>
+      <div class="stats-bar-stat">
+        <span class="stats-bar-num">12</span>
+        <span class="stats-bar-label">Sub-Cities Covered</span>
+      </div>
+      <div class="stats-bar-divider"></div>
+      <div class="stats-bar-stat">
+        <span class="stats-bar-num">100%</span>
+        <span class="stats-bar-label">Free to Use</span>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== FILTER BACKDROP (mobile overlay) ===== -->
   <div id="filterBackdrop" class="filter-backdrop"></div>
@@ -278,6 +282,7 @@
   </div>
 
   <!-- ===== TABS AREA (immediately below hero, above ticker) ===== -->
+  <div class="tabs-sticky-zone" id="tabsStickyZone">
   <div class="tabs-section-outer">
 
     <!-- Unified Category Tabs -->
@@ -318,7 +323,8 @@
       <button class="clear-filter-btn" id="clearFilterBtn">✕ Clear Filter</button>
     </div>
 
-  </div>
+  </div><!-- /tabs-section-outer -->
+  </div><!-- /tabs-sticky-zone -->
 
   <!-- ===== MAIN CONTENT ===== -->
   <main class="main-content">
@@ -718,6 +724,6 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=5.1"></script>
+  <script src="script.js?v=6.0"></script>
 </body>
 </html>

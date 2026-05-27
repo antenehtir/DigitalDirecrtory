@@ -33,7 +33,7 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-full: 9999px;
-  --transition: all 0.25s ease;
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --font: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -235,7 +235,7 @@ ul { list-style: none; }
 .hero {
   position: relative;
   min-height: 620px;
-  background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 42%, var(--navy-light) 72%, #1a5d96 100%);
+  background: linear-gradient(135deg, #071a30 0%, var(--navy) 35%, #0d5a96 68%, #1B98E0 100%);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
   padding: 64px 24px 80px;
@@ -316,8 +316,9 @@ ul { list-style: none; }
   display: flex; align-items: center;
   background: white; border-radius: var(--radius-full);
   padding: 6px 6px 6px 20px; gap: 12px;
+  min-height: 56px;
   animation: pulse-glow 2.6s ease-in-out infinite;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .hero-search-bar:focus-within {
   animation: none;
@@ -400,12 +401,45 @@ ul { list-style: none; }
 }
 .hero-tag.active { background: var(--teal); border-color: var(--teal); color: white; }
 
-/* Hero Stats */
-.hero-stats { display: flex; gap: 36px; justify-content: center; flex-wrap: wrap; }
-.hero-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.hero-stat-num { font-size: 2.25rem; font-weight: 800; color: var(--teal); line-height: 1; }
-.hero-stat-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.06em; }
-.hero-stat-divider { width: 1px; background: rgba(255,255,255,0.15); align-self: stretch; }
+/* ============================================
+   STATS BAR (standalone white strip below hero)
+   ============================================ */
+.stats-bar {
+  background: white;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 32px 24px;
+  position: relative; z-index: 5;
+}
+.stats-bar-inner {
+  max-width: 760px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.stats-bar-stat {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 0 52px; flex: 0 0 auto; text-align: center;
+}
+.stats-bar-num {
+  font-size: 2.625rem; font-weight: 800; color: var(--teal);
+  line-height: 1; letter-spacing: -0.03em;
+}
+.stats-bar-label {
+  font-size: 0.7rem; font-weight: 700; color: var(--gray-400);
+  text-transform: uppercase; letter-spacing: 0.12em;
+}
+.stats-bar-divider {
+  width: 1px; height: 52px; background: var(--gray-200); flex-shrink: 0;
+}
+@media (max-width: 768px) {
+  .stats-bar-stat { padding: 0 28px; }
+  .stats-bar-num { font-size: 2rem; }
+  .stats-bar-divider { height: 38px; }
+}
+@media (max-width: 480px) {
+  .stats-bar { padding: 24px 16px; }
+  .stats-bar-stat { padding: 0 18px; }
+  .stats-bar-num { font-size: 1.75rem; }
+  .stats-bar-label { font-size: 0.62rem; letter-spacing: 0.08em; }
+}
 
 /* ============================================
    STAT PILLS SECTION
@@ -471,7 +505,7 @@ ul { list-style: none; }
   background: white; color: var(--gray-700);
   font-size: 0.8rem; font-weight: 600;
   white-space: nowrap; cursor: pointer; flex-shrink: 0;
-  transition: var(--transition);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
 }
 .stat-pill:hover {
@@ -572,12 +606,26 @@ ul { list-style: none; }
 }
 
 /* ============================================
+   TABS STICKY ZONE — full-width sticky wrapper
+   ============================================ */
+.tabs-sticky-zone {
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  background: var(--gray-50);
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tabs-sticky-zone.is-sticky {
+  box-shadow: 0 4px 20px rgba(10,38,71,0.12);
+}
+
+/* ============================================
    TABS SECTION OUTER (between hero and ticker)
    ============================================ */
 .tabs-section-outer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 24px 0;
+  padding: 20px 24px 0;
   position: relative;
 }
 
@@ -792,8 +840,9 @@ ul { list-style: none; }
   color: var(--gray-600);
   font-family: var(--font); font-size: 0.75rem; font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.specialty-chip:active { transform: scale(0.96); }
 .specialty-chip:hover { border-color: var(--teal); color: var(--teal); }
 .specialty-chip.active {
   background: var(--teal); border-color: var(--teal); color: white;
@@ -856,7 +905,8 @@ ul { list-style: none; }
 }
 .btn-primary i { color: white !important; }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,152,224,0.5); }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { transform: scale(0.97) translateY(0) !important; }
+.btn:active { transform: scale(0.97) !important; }
 .btn-outline { background: transparent; color: var(--navy); border-color: var(--gray-300); }
 .btn-outline:hover { border-color: var(--navy); background: var(--gray-50); transform: translateY(-1px); }
 .btn-submit {
@@ -932,20 +982,20 @@ ul { list-style: none; }
   padding-top: 3px; /* space for top border */
 }
 .result-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
-  border-color: rgba(27,152,224,0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(10,38,71,0.13), 0 2px 8px rgba(10,38,71,0.06);
+  border-color: var(--gray-300);
 }
-/* Colored top border per facility type */
-.result-card[data-type="general"]       { border-top: 3px solid #1565c0; }
-.result-card[data-type="speciality"]    { border-top: 3px solid #6a1b9a; }
-.result-card[data-type="medical_plaza"] { border-top: 3px solid #6a1b9a; }
-.result-card[data-type="diagnostic"]    { border-top: 3px solid #2e7d32; }
-.result-card[data-type="ambulance"]     { border-top: 3px solid #e65100; }
-.result-card[data-type="homecare"]      { border-top: 3px solid #c62828; }
-.result-card[data-type="telemedicine"]  { border-top: 3px solid #006064; }
-.result-card[data-type="pharmacy"]      { border-top: 3px solid #86198f; }
-.result-card[data-type="financing"]     { border-top: 3px solid #065f46; }
+/* Colored top border per facility type (4px for stronger visual signal) */
+.result-card[data-type="general"]       { border-top: 4px solid #1565c0; }
+.result-card[data-type="speciality"]    { border-top: 4px solid #6a1b9a; }
+.result-card[data-type="medical_plaza"] { border-top: 4px solid #6a1b9a; }
+.result-card[data-type="diagnostic"]    { border-top: 4px solid #2e7d32; }
+.result-card[data-type="ambulance"]     { border-top: 4px solid #e65100; }
+.result-card[data-type="homecare"]      { border-top: 4px solid #c62828; }
+.result-card[data-type="telemedicine"]  { border-top: 4px solid #006064; }
+.result-card[data-type="pharmacy"]      { border-top: 4px solid #86198f; }
+.result-card[data-type="financing"]     { border-top: 4px solid #065f46; }
 .result-card:nth-child(1)  { animation-delay: 0.04s; }
 .result-card:nth-child(2)  { animation-delay: 0.08s; }
 .result-card:nth-child(3)  { animation-delay: 0.12s; }
@@ -1023,9 +1073,10 @@ ul { list-style: none; }
   padding: 7px 14px; border-radius: var(--radius-full);
   font-size: 0.8125rem; font-weight: 600;
   min-height: 36px;
-  cursor: pointer; transition: all 0.2s ease;
+  cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1.5px solid transparent; white-space: nowrap;
 }
+.action-btn:active { transform: scale(0.96) !important; }
 .action-call     { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
 .action-call:hover     { background: #166534; color: white; border-color: #166534; transform: translateY(-1px); }
 .action-telegram { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
@@ -1122,6 +1173,12 @@ ul { list-style: none; }
   background: white; border-radius: var(--radius-xl);
   box-shadow: var(--shadow); border: 1px solid var(--gray-100);
   overflow: hidden;
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.bottom-tab-item:has(.bottom-tab-body:not([style*="display: none"])) {
+  border-color: rgba(27,152,224,0.2);
+  box-shadow: 0 4px 20px rgba(10,38,71,0.1);
 }
 .bottom-tab-btn {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
@@ -1419,6 +1476,24 @@ ul { list-style: none; }
 /* ============================================
    CORRECTION MODAL
    ============================================ */
+@keyframes corrModalOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes corrModalBoxIn {
+  from { opacity: 0; transform: scale(0.93) translateY(14px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+#corrModal {
+  animation: corrModalOverlayIn 0.22s ease;
+}
+#corrModal > div {
+  animation: corrModalBoxIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#corrModal > div.corr-anim {
+  animation: corrModalBoxIn 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 .modal-overlay {
   position: fixed; inset: 0; z-index: 2000;
   background: rgba(7,26,48,0.72);
@@ -1670,10 +1745,7 @@ ul { list-style: none; }
   .nav { padding: 8px 16px; }
   .nav-tagline { display: none; }
   .hero { padding: 52px 16px 72px; min-height: 480px; }
-  .hero-stats { gap: 22px; flex-wrap: nowrap; justify-content: center; }
-  .hero-stat-num { font-size: 1.75rem; }
-  .hero-stat-label { font-size: 0.625rem; }
-  .hero-stat-divider { display: none; }
+  /* hero-stats moved to .stats-bar — see stats-bar responsive rules above */
   .filter-section { margin-top: -28px; border-radius: var(--radius-lg); }
   .filter-toggle-btn { padding: 18px 20px; font-size: 0.88rem; }
   .filter-body-inner { padding: 0 16px 20px; }
@@ -1714,9 +1786,7 @@ ul { list-style: none; }
   .hero-nearme-btn { width: 100%; justify-content: center; height: 48px; }
   .hero-search-bar { padding: 5px 5px 5px 14px; min-height: 48px; }
   .hero-search-bar input { font-size: 0.83rem; }
-  .hero-stats { gap: 16px; flex-wrap: nowrap; }
-  .hero-stat-num { font-size: 1.75rem; color: var(--teal); }
-  .hero-stat-label { font-size: 0.625rem; }
+  /* hero-stats moved to .stats-bar */
   .btn { padding: 11px 22px; font-size: 0.86rem; }
   /* Mobile: 1-column card grid */
   .results-grid { grid-template-columns: 1fr !important; gap: 12px; }
@@ -1850,12 +1920,16 @@ ul { list-style: none; }
   align-items: center;
   background: white;
   border-radius: var(--radius-xl);
-  /* Strong shadow to make it stand out */
-  box-shadow: 0 8px 28px rgba(10,38,71,0.13), 0 2px 8px rgba(10,38,71,0.08);
-  margin-bottom: 20px;
+  box-shadow: 0 4px 16px rgba(10,38,71,0.09), 0 1px 4px rgba(10,38,71,0.06);
+  border: 1px solid var(--gray-100);
+  margin-bottom: 16px;
   overflow: visible;
   position: relative;
   width: 100%;
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tabs-sticky-zone.is-sticky .unified-tabs-section {
+  box-shadow: 0 2px 12px rgba(10,38,71,0.08), 0 1px 4px rgba(10,38,71,0.05);
 }
 .unified-tab-arrow {
   flex-shrink: 0;
@@ -1898,6 +1972,7 @@ ul { list-style: none; }
 .unified-tab-btn.active {
   background: var(--teal);
   color: white;
+  border-radius: var(--radius-full) !important;
   box-shadow: 0 4px 18px rgba(27,152,224,0.45);
 }
 .unified-tab-emoji { font-size: 1.1rem; line-height: 1; pointer-events: none; }
@@ -1967,12 +2042,44 @@ ul { list-style: none; }
 .float-call-btn { display: none !important; }
 
 /* ============================================
-   TABS SECTION OUTER — responsive
+   FOCUS STATES (WCAG 2.1 AA — visible focus rings)
+   ============================================ */
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:focus-visible, a:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   REDUCED MOTION (prefers-reduced-motion)
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .ticker-track { animation: none !important; }
+  .result-card { animation: none !important; opacity: 1 !important; }
+  .nw-center-btn { animation: none !important; }
+  .hero-search-bar { animation: none !important; }
+  .nearme-icon-wrap { animation: none !important; }
+}
+
+/* ============================================
+   TABS STICKY ZONE + TABS SECTION OUTER — responsive
    ============================================ */
 @media (max-width: 768px) {
+  .tabs-sticky-zone { top: 56px; }
   .tabs-section-outer { padding: 16px 12px 0; }
 }
 @media (max-width: 520px) {
+  .tabs-sticky-zone { top: 52px; }
   .tabs-section-outer { padding: 12px 10px 0; }
   .filter-btn-text { display: none; }
   .hero-filter-btn { padding: 0 14px; }

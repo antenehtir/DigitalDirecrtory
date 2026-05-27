@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git config *)",
+      "Bash(git push *)",
+      "Bash(git remote *)",
+      "Bash(python3 -c ' *)",
+      "Bash(node --check /mnt/c/Users/nahom/DigitalDirecrtory/script.js)",
+      "Bash(node *)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory add index.html)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory commit -m 'v4.3.1 — Feature 1 polish: clean specialtyType labels & ordering *)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory push)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory add -A)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory commit -m 'v4.4 — specialty sub-dropdown full list + filter auto-collapse *)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory status)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory log --oneline -3)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory remote get-url origin)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory add CLAUDE.md)",
+      "Bash(git -C /mnt/c/Users/nahom/DigitalDirecrtory commit -m 'Add CLAUDE.md — repo guidance for Claude Code *)",
+      "Bash(python3 *)",
+      "Bash(gh run *)",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}
