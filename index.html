@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=7.4" />
+  <link rel="stylesheet" href="styles.css?v=7.5" />
 </head>
 <body class="page-fade">
 
@@ -441,133 +441,142 @@
       <!-- Submit Missing Facility -->
       <div class="bottom-tab-item">
         <button class="bottom-tab-btn" id="submitTabBtn" aria-expanded="false" aria-controls="submitTabBody">
-          <span><i class="fa-solid fa-circle-plus"></i> Register Your Facility</span>
+          <span><i class="fa-solid fa-clipboard-list"></i> Facility Directory Management</span>
           <i class="fa-solid fa-chevron-down bottom-tab-icon" id="submitTabIcon"></i>
         </button>
         <div class="bottom-tab-body" id="submitTabBody" style="display:none;">
-          <div class="reg-form-wrap">
-            <form class="reg-form" id="submitForm" novalidate>
-              <input type="hidden" name="_subject" value="New Facility Registration — Tiru MedDirectory">
-              <input type="hidden" name="_next" value="">
+          <div class="fdm-wrap">
 
-              <!-- Section 1: Facility Identity -->
-              <div class="reg-card reg-card--teal">
-                <div class="reg-card-header">🏥 Facility Identity</div>
-                <div class="reg-grid">
-                  <div class="reg-field">
-                    <label for="sf-name" class="reg-label">Facility Name <span class="reg-required">*</span></label>
-                    <input type="text" id="sf-name" name="facility_name" class="reg-input" placeholder="e.g. St. Mary General Hospital" required autocomplete="organization">
-                  </div>
-                  <div class="reg-field">
-                    <label for="sf-type" class="reg-label">Facility Type <span class="reg-required">*</span></label>
-                    <select id="sf-type" name="facility_type" class="reg-select" required>
-                      <option value="">— Select Type —</option>
-                      <option value="General Hospital">General Hospital</option>
-                      <option value="Specialty Center">Specialty Center</option>
-                      <option value="Diagnostic Center">Diagnostic Center</option>
-                      <option value="Ambulance Service">Ambulance Service</option>
-                      <option value="Home Care Service">Home Care Service</option>
-                      <option value="Telemedicine Service">Telemedicine Service</option>
-                      <option value="Pharmacy">Pharmacy</option>
-                      <option value="Medical Plaza">Medical Plaza</option>
-                      <option value="Healthcare Financing">Healthcare Financing</option>
-                      <option value="Other">Other (Please specify below)</option>
-                    </select>
-                  </div>
-                  <div class="reg-field reg-field--hidden" id="sf-type-other-wrap">
-                    <label for="sf-type-other" class="reg-label">Please specify facility type <span class="reg-required">*</span></label>
-                    <input type="text" id="sf-type-other" name="facility_type_other" class="reg-input" placeholder="Describe the facility type">
-                  </div>
-                  <div class="reg-field">
-                    <label for="sf-specialty" class="reg-label">Specialty / General Service <span class="reg-required">*</span></label>
-                    <select id="sf-specialty" name="specialty" class="reg-select" required>
-                      <option value="">— Select Specialty —</option>
-                      <option>General Medicine</option>
-                      <option>Multi-Specialty</option>
-                      <option>MCH (Mother &amp; Child Health)</option>
-                      <option>Pediatrics</option>
-                      <option>Psychiatry &amp; Mental Health</option>
-                      <option>Psychology</option>
-                      <option>Ophthalmology (Eye)</option>
-                      <option>ENT</option>
-                      <option>Dental</option>
-                      <option>Cardiology</option>
-                      <option>Oncology</option>
-                      <option>Orthopedics</option>
-                      <option>Neurology &amp; Spine</option>
-                      <option>Internal Medicine</option>
-                      <option>Dermatology &amp; Venerology</option>
-                      <option>Physiotherapy</option>
-                      <option>Speech &amp; Language Therapy</option>
-                      <option>Fertility &amp; Reproductive Medicine</option>
-                      <option>Nutrition</option>
-                      <option>Surgery</option>
-                      <option>Pharmaceutical Services</option>
-                      <option>Telemedicine</option>
-                      <option>Home Care</option>
-                      <option value="Other (Please specify)">Other (Please specify)</option>
-                    </select>
-                  </div>
-                  <div class="reg-field reg-field--hidden" id="sf-specialty-other-wrap">
-                    <label for="sf-specialty-other" class="reg-label">Please specify specialty <span class="reg-required">*</span></label>
-                    <input type="text" id="sf-specialty-other" name="specialty_other" class="reg-input" placeholder="e.g. Addiction Medicine">
+            <!-- FDM Tab Switcher -->
+            <div class="fdm-tab-bar">
+              <button class="fdm-tab fdm-tab--active" id="fdmTab1" type="button">
+                <i class="fa-solid fa-circle-plus"></i> Register New Facility
+              </button>
+              <button class="fdm-tab" id="fdmTab2" type="button">
+                <i class="fa-solid fa-pen-to-square"></i> Suggest a Correction
+              </button>
+            </div>
+
+            <!-- ══════ TAB 1: REGISTRATION ══════ -->
+            <div id="fdmRegPanel" class="fdm-panel">
+              <form class="reg-form" id="submitForm" novalidate>
+                <input type="hidden" name="_subject" value="New Facility Registration — Tiru MedDirectory">
+                <input type="hidden" name="_next" value="">
+
+                <!-- Section A: Facility Identity -->
+                <div class="reg-card reg-card--teal">
+                  <div class="reg-card-header">🏥 Facility Identity</div>
+                  <div class="reg-grid">
+                    <div class="reg-field">
+                      <label for="sf-name" class="reg-label">Facility Name <span class="reg-required">*</span></label>
+                      <input type="text" id="sf-name" name="facility_name" class="reg-input" placeholder="e.g. St. Mary General Hospital" required>
+                    </div>
+                    <div class="reg-field">
+                      <label for="sf-type" class="reg-label">Facility Type <span class="reg-required">*</span></label>
+                      <select id="sf-type" name="facility_type" class="reg-select" required>
+                        <option value="">— Select Type —</option>
+                        <option value="General Hospital">General Hospital</option>
+                        <option value="Specialty Center">Specialty Center</option>
+                        <option value="Diagnostic Center">Diagnostic Center</option>
+                        <option value="Ambulance Service">Ambulance Service</option>
+                        <option value="Home Care Service">Home Care Service</option>
+                        <option value="Telemedicine Service">Telemedicine Service</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Medical Plaza">Medical Plaza</option>
+                        <option value="Healthcare Financing">Healthcare Financing</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div class="reg-field reg-field--hidden" id="sf-type-other-wrap">
+                      <label for="sf-type-other" class="reg-label">Please specify facility type <span class="reg-required">*</span></label>
+                      <input type="text" id="sf-type-other" name="facility_type_other" class="reg-input" placeholder="Describe the facility type">
+                    </div>
+                    <div class="reg-field">
+                      <label for="sf-specialty" class="reg-label">Specialty / General Service <span class="reg-required">*</span></label>
+                      <select id="sf-specialty" name="specialty" class="reg-select" required>
+                        <option value="">— Select Specialty —</option>
+                        <option>General Medicine</option>
+                        <option>Multi-Specialty</option>
+                        <option>MCH (Mother &amp; Child Health)</option>
+                        <option>Pediatrics</option>
+                        <option>Psychiatry &amp; Mental Health</option>
+                        <option>Psychology</option>
+                        <option>Ophthalmology (Eye)</option>
+                        <option>ENT</option>
+                        <option>Dental</option>
+                        <option>Cardiology</option>
+                        <option>Oncology</option>
+                        <option>Orthopedics</option>
+                        <option>Neurology &amp; Spine</option>
+                        <option>Internal Medicine</option>
+                        <option>Dermatology &amp; Venerology</option>
+                        <option>Physiotherapy</option>
+                        <option>Speech &amp; Language Therapy</option>
+                        <option>Fertility &amp; Reproductive Medicine</option>
+                        <option>Nutrition</option>
+                        <option>Surgery</option>
+                        <option>Pharmaceutical Services</option>
+                        <option>Telemedicine</option>
+                        <option>Home Care</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div class="reg-field reg-field--hidden" id="sf-specialty-other-wrap">
+                      <label for="sf-specialty-other" class="reg-label">Please specify specialty <span class="reg-required">*</span></label>
+                      <input type="text" id="sf-specialty-other" name="specialty_other" class="reg-input" placeholder="e.g. Addiction Medicine">
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Section 2: Location -->
-              <div class="reg-card reg-card--blue">
-                <div class="reg-card-header">📍 Location</div>
-                <div class="reg-grid">
-                  <div class="reg-field">
-                    <label for="sf-subcity" class="reg-label">Sub-City <span class="reg-required">*</span></label>
-                    <select id="sf-subcity" name="sub_city" class="reg-select" required>
-                      <option value="">— Select Sub-City —</option>
-                      <option>Arada</option>
-                      <option>Addis Ketema</option>
-                      <option>Yeka</option>
-                      <option>Bole</option>
-                      <option>Gullele</option>
-                      <option>Kirkos</option>
-                      <option>Kolfe</option>
-                      <option>Lideta</option>
-                      <option>Nifas Silk-Lafto</option>
-                      <option>Akaki-Kaliti</option>
-                      <option>Lemi Kura</option>
-                      <option>Sheger City</option>
-                    </select>
-                  </div>
-                  <div class="reg-field">
-                    <label for="sf-area" class="reg-label">Area / Neighborhood <span class="reg-required">*</span></label>
-                    <input type="text" id="sf-area" name="area" class="reg-input" placeholder="e.g. Bole, Kazanchis, Sarbet, CMC..." required>
-                  </div>
-                  <div class="reg-field reg-field--full">
-                    <label for="sf-mapurl" class="reg-label">Location / Map URL</label>
-                    <input type="url" id="sf-mapurl" name="map_url" class="reg-input" placeholder="Paste Google Maps link here">
+                <!-- Section B: Location -->
+                <div class="reg-card reg-card--blue">
+                  <div class="reg-card-header">📍 Location</div>
+                  <div class="reg-grid">
+                    <div class="reg-field">
+                      <label for="sf-subcity" class="reg-label">Sub-City <span class="reg-required">*</span></label>
+                      <select id="sf-subcity" name="sub_city" class="reg-select" required>
+                        <option value="">— Select Sub-City —</option>
+                        <option>Arada</option>
+                        <option>Addis Ketema</option>
+                        <option>Yeka</option>
+                        <option>Bole</option>
+                        <option>Gullele</option>
+                        <option>Kirkos</option>
+                        <option>Kolfe</option>
+                        <option>Lideta</option>
+                        <option>Nifas Silk-Lafto</option>
+                        <option>Akaki-Kaliti</option>
+                        <option>Lemi Kura</option>
+                        <option>Sheger City</option>
+                      </select>
+                    </div>
+                    <div class="reg-field">
+                      <label for="sf-area" class="reg-label">Area / Neighborhood <span class="reg-required">*</span></label>
+                      <input type="text" id="sf-area" name="area" class="reg-input" placeholder="e.g. Bole, Kazanchis, Sarbet, CMC..." required>
+                    </div>
+                    <div class="reg-field reg-field--full">
+                      <label for="sf-mapurl" class="reg-label">Location / Map URL</label>
+                      <input type="url" id="sf-mapurl" name="map_url" class="reg-input" placeholder="Paste Google Maps link here">
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Section 3: Contact -->
-              <div class="reg-card reg-card--green">
-                <div class="reg-card-header">📞 Contact Information</div>
-                <div class="reg-grid">
-                  <div class="reg-field reg-field--full">
-                    <label for="sf-phone" class="reg-label">Phone Number(s) <span class="reg-required">*</span></label>
-                    <input type="text" id="sf-phone" name="phone" class="reg-input" placeholder="e.g. +251911234567 / +251922345678 — separate multiple numbers with /" required>
-                    <span class="reg-hint">Add all phone numbers separated by /</span>
+                <!-- Section C: Contact -->
+                <div class="reg-card reg-card--green">
+                  <div class="reg-card-header">📞 Contact</div>
+                  <div class="reg-grid">
+                    <div class="reg-field reg-field--full">
+                      <label for="sf-phone" class="reg-label">Phone Number(s) <span class="reg-required">*</span></label>
+                      <input type="text" id="sf-phone" name="phone" class="reg-input" placeholder="e.g. +251911234567 / +251922345678" required>
+                      <span class="reg-hint">Add all phone numbers separated by /</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Section 4: Social Media (accordion) -->
-              <div class="reg-card reg-card--plain">
-                <button type="button" class="reg-accordion-toggle" id="regSocialToggle" aria-expanded="false" aria-controls="regSocialBody">
-                  <span class="reg-accordion-title">🌐 Social Media &amp; Online Presence</span>
-                  <span class="reg-accordion-icon" id="regSocialIcon">+</span>
-                </button>
-                <div class="reg-accordion-body" id="regSocialBody">
-                  <div class="reg-grid reg-grid--social">
+                <!-- Section D: Social Media (OPEN by default) -->
+                <div class="reg-card reg-card--purple">
+                  <div class="reg-card-header">🌐 Social Media &amp; Online Presence</div>
+                  <div class="reg-grid">
                     <div class="reg-field">
                       <label for="sf-telegram" class="reg-label">Telegram URL</label>
                       <input type="url" id="sf-telegram" name="telegram" class="reg-input" placeholder="https://t.me/yourchannel">
@@ -592,89 +601,269 @@
                       <label for="sf-email" class="reg-label">Email Address</label>
                       <input type="email" id="sf-email" name="email" class="reg-input" placeholder="contact@yourfacility.com">
                     </div>
-                    <div class="reg-field reg-field--full">
+                    <div class="reg-field">
                       <label for="sf-website" class="reg-label">Website URL</label>
                       <input type="url" id="sf-website" name="website" class="reg-input" placeholder="https://www.yourwebsite.com">
                     </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 5: Services & Hours -->
-              <div class="reg-card reg-card--purple">
-                <div class="reg-card-header">⭐ Services &amp; Hours</div>
-                <div class="reg-grid">
-                  <div class="reg-field reg-field--full">
-                    <label for="sf-services" class="reg-label">Special / Unique Services</label>
-                    <textarea id="sf-services" name="special_services" class="reg-textarea" placeholder="List any unique or special services your facility provides that set it apart..."></textarea>
-                  </div>
-                  <div class="reg-field reg-field--full">
-                    <label class="reg-label">Working Hours <span class="reg-required">*</span></label>
-                    <div class="reg-radio-group" id="workingHoursGroup">
-                      <label class="reg-radio-label">
-                        <input type="radio" name="working_hours" value="24/7 (including emergency)" class="reg-radio" required>
-                        <span class="reg-radio-dot"></span>
-                        24/7 (including emergency)
-                      </label>
-                      <label class="reg-radio-label">
-                        <input type="radio" name="working_hours" value="Standard hours (Monday–Friday 8AM–5PM)" class="reg-radio">
-                        <span class="reg-radio-dot"></span>
-                        Standard hours (Monday–Friday 8AM–5PM)
-                      </label>
-                      <label class="reg-radio-label">
-                        <input type="radio" name="working_hours" value="Extended hours (Monday–Saturday)" class="reg-radio">
-                        <span class="reg-radio-dot"></span>
-                        Extended hours (Monday–Saturday)
-                      </label>
-                      <label class="reg-radio-label reg-radio-label--other">
-                        <input type="radio" name="working_hours" value="other" class="reg-radio" id="hoursOtherRadio">
-                        <span class="reg-radio-dot"></span>
-                        <span>Other — specify:</span>
-                        <input type="text" id="sf-hours-other" name="working_hours_other" class="reg-input reg-inline-input" placeholder="e.g. Sat 9AM–2PM">
-                      </label>
+                    <div class="reg-field">
+                      <label for="sf-booking" class="reg-label">Booking URL</label>
+                      <input type="url" id="sf-booking" name="booking" class="reg-input" placeholder="https://booking-link.com">
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Section 6: Additional Notes -->
-              <div class="reg-card reg-card--plain">
-                <div class="reg-card-header">📝 Additional Notes</div>
-                <div class="reg-grid">
-                  <div class="reg-field reg-field--full">
-                    <label for="sf-notes" class="reg-label">Additional Notes</label>
-                    <textarea id="sf-notes" name="additional_notes" class="reg-textarea" placeholder="Any other information you'd like to share about this facility..."></textarea>
+                <!-- Section E: Services & Hours -->
+                <div class="reg-card reg-card--orange">
+                  <div class="reg-card-header">⭐ Services &amp; Hours</div>
+                  <div class="reg-grid">
+                    <div class="reg-field reg-field--full">
+                      <label for="sf-services" class="reg-label">Special / Unique Services</label>
+                      <textarea id="sf-services" name="special_services" class="reg-textarea" placeholder="List unique services your facility provides e.g. 24/7 CT scan, Home visit, Drive-through testing..."></textarea>
+                    </div>
+                    <div class="reg-field reg-field--full">
+                      <label class="reg-label">Working Hours <span class="reg-required">*</span></label>
+                      <div class="reg-radio-group" id="workingHoursGroup">
+                        <label class="reg-radio-label">
+                          <input type="radio" name="working_hours" value="24/7 including emergency" class="reg-radio" required>
+                          <span class="reg-radio-dot"></span>
+                          24/7 including emergency
+                        </label>
+                        <label class="reg-radio-label">
+                          <input type="radio" name="working_hours" value="Standard hours Monday–Friday 8AM–5PM" class="reg-radio">
+                          <span class="reg-radio-dot"></span>
+                          Standard hours Monday–Friday 8AM–5PM
+                        </label>
+                        <label class="reg-radio-label">
+                          <input type="radio" name="working_hours" value="Extended hours Monday–Saturday" class="reg-radio">
+                          <span class="reg-radio-dot"></span>
+                          Extended hours Monday–Saturday
+                        </label>
+                        <label class="reg-radio-label reg-radio-label--other">
+                          <input type="radio" name="working_hours" value="other" class="reg-radio" id="hoursOtherRadio">
+                          <span class="reg-radio-dot"></span>
+                          <span>Other — describe:</span>
+                          <input type="text" id="sf-hours-other" name="working_hours_other" class="reg-input reg-inline-input" placeholder="e.g. Sat 9AM–2PM">
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="reg-error" id="regError" style="display:none;"></div>
+                <!-- Section F: Additional Notes -->
+                <div class="reg-card reg-card--plain">
+                  <div class="reg-card-header">📝 Additional Notes</div>
+                  <div class="reg-grid">
+                    <div class="reg-field reg-field--full">
+                      <label for="sf-notes" class="reg-label">Additional Notes</label>
+                      <textarea id="sf-notes" name="additional_notes" class="reg-textarea" placeholder="Any other information about this facility..."></textarea>
+                    </div>
+                  </div>
+                </div>
 
-              <button type="submit" class="reg-submit-btn" id="regSubmitBtn">
-                <span class="reg-submit-text"><i class="fa-solid fa-paper-plane"></i> Submit Facility Registration</span>
-                <span class="reg-submit-spinner" style="display:none;">
-                  <svg viewBox="0 0 24 24" width="18" height="18" style="animation:reg-spin 0.8s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="28" stroke-dashoffset="8"/></svg>
-                  Submitting...
-                </span>
-              </button>
-            </form>
+                <div class="reg-error" id="regError" style="display:none;"></div>
 
-            <!-- Thank You Card -->
-            <div class="reg-thankyou" id="regThankYou" style="display:none;">
-              <div class="reg-thankyou-check">
-                <svg viewBox="0 0 52 52" width="72" height="72" aria-hidden="true">
-                  <circle cx="26" cy="26" r="25" fill="rgba(34,197,94,0.12)"/>
-                  <circle cx="26" cy="26" r="25" fill="none" stroke="#22c55e" stroke-width="2"/>
-                  <path d="M14 26l8 8 16-16" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <h3 class="reg-thankyou-title">Thank You for Your Contribution! 🎉</h3>
-              <p class="reg-thankyou-msg">Your facility registration has been received. We'll review and add it to Tiru MedDirectory shortly.</p>
-              <button class="reg-reset-btn" id="regResetBtn">
-                <i class="fa-solid fa-plus"></i> Submit Another Facility
-              </button>
-            </div>
-          </div>
+                <button type="submit" class="reg-submit-btn" id="regSubmitBtn">
+                  <span class="reg-submit-text"><i class="fa-solid fa-paper-plane"></i> Submit Facility Registration</span>
+                  <span class="reg-submit-spinner" style="display:none;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" style="animation:reg-spin 0.8s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="28" stroke-dashoffset="8"/></svg>
+                    Submitting...
+                  </span>
+                </button>
+              </form>
+            </div><!-- /fdmRegPanel -->
+
+            <!-- ══════ TAB 2: SUGGEST A CORRECTION ══════ -->
+            <div id="fdmCorrPanel" class="fdm-panel" style="display:none;">
+              <form id="corrForm2" novalidate>
+                <input type="hidden" name="_subject" id="corrSubject2" value="Correction Request — Tiru MedDirectory">
+                <input type="hidden" name="_next" value="">
+                <input type="hidden" name="facility_name" id="cf-facility-hidden">
+
+                <!-- STEP 1: Facility Search -->
+                <div class="reg-card reg-card--teal">
+                  <div class="reg-card-header">🔍 Select Facility to Correct</div>
+                  <div class="reg-field">
+                    <label for="corrSearchInput" class="reg-label">Select the facility to correct <span class="reg-required">*</span></label>
+                    <div class="corr-search-wrap">
+                      <input type="text" id="corrSearchInput" class="reg-input" placeholder="🔍 Type to search facilities..." autocomplete="off" aria-autocomplete="list" aria-controls="corrSearchDropdown">
+                      <div class="corr-search-dropdown" id="corrSearchDropdown" style="display:none;" role="listbox"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- STEP 2: Review & Edit All Fields (hidden until facility selected) -->
+                <div id="corrStep2" style="display:none;">
+
+                  <!-- Section A: Facility Identity -->
+                  <div class="reg-card reg-card--teal">
+                    <div class="reg-card-header">🏥 Facility Identity</div>
+                    <div class="reg-grid">
+                      <div class="reg-field">
+                        <label for="cf-name" class="reg-label">Facility Name</label>
+                        <input type="text" id="cf-name" name="cf_facility_name" class="reg-input cf-field">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-type" class="reg-label">Facility Type</label>
+                        <input type="text" id="cf-type" name="cf_facility_type" class="reg-input cf-field">
+                      </div>
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-specialty" class="reg-label">Specialty</label>
+                        <input type="text" id="cf-specialty" name="cf_specialty" class="reg-input cf-field">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section B: Location -->
+                  <div class="reg-card reg-card--blue">
+                    <div class="reg-card-header">📍 Location</div>
+                    <div class="reg-grid">
+                      <div class="reg-field">
+                        <label for="cf-subcity" class="reg-label">Sub-City</label>
+                        <input type="text" id="cf-subcity" name="cf_sub_city" class="reg-input cf-field">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-area" class="reg-label">Area / Neighborhood</label>
+                        <input type="text" id="cf-area" name="cf_area" class="reg-input cf-field">
+                      </div>
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-mapurl" class="reg-label">Map URL</label>
+                        <input type="text" id="cf-mapurl" name="cf_map_url" class="reg-input cf-field">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section C: Contact -->
+                  <div class="reg-card reg-card--green">
+                    <div class="reg-card-header">📞 Contact</div>
+                    <div class="reg-grid">
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-phone" class="reg-label">Phone Number(s)</label>
+                        <input type="text" id="cf-phone" name="cf_phone" class="reg-input cf-field">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section D: Social Media (OPEN) -->
+                  <div class="reg-card reg-card--purple">
+                    <div class="reg-card-header">🌐 Social Media &amp; Online Presence</div>
+                    <div class="reg-grid">
+                      <div class="reg-field">
+                        <label for="cf-telegram" class="reg-label">Telegram</label>
+                        <input type="text" id="cf-telegram" name="cf_telegram" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-facebook" class="reg-label">Facebook</label>
+                        <input type="text" id="cf-facebook" name="cf_facebook" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-linkedin" class="reg-label">LinkedIn</label>
+                        <input type="text" id="cf-linkedin" name="cf_linkedin" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-instagram" class="reg-label">Instagram</label>
+                        <input type="text" id="cf-instagram" name="cf_instagram" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-tiktok" class="reg-label">TikTok</label>
+                        <input type="text" id="cf-tiktok" name="cf_tiktok" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-email" class="reg-label">Email</label>
+                        <input type="text" id="cf-email" name="cf_email" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-website" class="reg-label">Website</label>
+                        <input type="text" id="cf-website" name="cf_website" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-booking" class="reg-label">Booking URL</label>
+                        <input type="text" id="cf-booking" name="cf_booking" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section E: Services & Hours -->
+                  <div class="reg-card reg-card--orange">
+                    <div class="reg-card-header">⭐ Services &amp; Hours</div>
+                    <div class="reg-grid">
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-services" class="reg-label">Special Services</label>
+                        <textarea id="cf-services" name="cf_special_services" class="reg-textarea cf-field" placeholder="➕ Not provided — add if known"></textarea>
+                      </div>
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-hours" class="reg-label">Working Hours</label>
+                        <input type="text" id="cf-hours" name="cf_working_hours" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Section F: Additional Context -->
+                  <div class="reg-card reg-card--plain">
+                    <div class="reg-card-header">📝 Additional Context</div>
+                    <div class="reg-grid">
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-context" class="reg-label">Notes for This Correction</label>
+                        <textarea id="cf-context" name="cf_additional_context" class="reg-textarea" placeholder="Any extra context about this correction..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                </div><!-- /corrStep2 -->
+
+                <!-- STEP 3: Submitter Details -->
+                <div id="corrStep3" style="display:none;">
+                  <div class="reg-card reg-card--red">
+                    <div class="reg-card-header">👤 About You <span class="reg-required">*</span></div>
+                    <p style="font-size:0.8rem;color:#64748b;line-height:1.55;margin:0 0 14px;">We need this to verify corrections and follow up if needed.</p>
+                    <div class="reg-grid">
+                      <div class="reg-field">
+                        <label for="cf-submitter-name" class="reg-label">Full Name <span class="reg-required">*</span></label>
+                        <input type="text" id="cf-submitter-name" name="submitter_name" class="reg-input" placeholder="Your full name" required>
+                      </div>
+                      <div class="reg-field">
+                        <label for="cf-submitter-position" class="reg-label">Your Position <span class="reg-required">*</span></label>
+                        <select id="cf-submitter-position" name="submitter_position" class="reg-select" required>
+                          <option value="">— Select Position —</option>
+                          <option>Medical Director / CMO</option>
+                          <option>Administrator / Manager</option>
+                          <option>Receptionist / Front Desk</option>
+                          <option>Doctor / Physician</option>
+                          <option>Nurse</option>
+                          <option>Marketing / PR Officer</option>
+                          <option>IT / Digital Officer</option>
+                          <option>Owner / Founder</option>
+                          <option>Patient / Visitor</option>
+                          <option value="Other">Other (specify)</option>
+                        </select>
+                      </div>
+                      <div class="reg-field reg-field--hidden" id="cf-position-other-wrap">
+                        <label for="cf-position-other" class="reg-label">Please specify your position <span class="reg-required">*</span></label>
+                        <input type="text" id="cf-position-other" name="submitter_position_other" class="reg-input" placeholder="Your role">
+                      </div>
+                      <div class="reg-field reg-field--full">
+                        <label for="cf-submitter-contact" class="reg-label">Contact <span class="reg-required">*</span></label>
+                        <input type="text" id="cf-submitter-contact" name="submitter_contact" class="reg-input" placeholder="Phone or email so we can follow up" required>
+                      </div>
+                    </div>
+                  </div>
+                </div><!-- /corrStep3 -->
+
+                <div class="reg-error" id="corrFormError" style="display:none;"></div>
+
+                <div id="corrSubmitWrap" style="display:none;">
+                  <button type="submit" class="reg-submit-btn" id="corrSubmitBtn">
+                    <span class="reg-submit-text"><i class="fa-solid fa-paper-plane"></i> Send Correction Request</span>
+                    <span class="reg-submit-spinner" style="display:none;">
+                      <svg viewBox="0 0 24 24" width="18" height="18" style="animation:reg-spin 0.8s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="28" stroke-dashoffset="8"/></svg>
+                      Sending...
+                    </span>
+                  </button>
+                </div>
+
+              </form>
+            </div><!-- /fdmCorrPanel -->
+
+          </div><!-- /fdm-wrap -->
         </div>
       </div>
 
@@ -843,7 +1032,7 @@
         </button>
         <button class="nw-item" data-cat="pharmacy">
           <span class="nw-item-emoji">💊</span>
-          <span class="nw-item-label">Online<br>Pharmacy</span>
+          <span class="nw-item-label">Pharmacy</span>
         </button>
         <button class="nw-item" data-cat="ambulance">
           <span class="nw-item-emoji">🚑</span>
@@ -870,82 +1059,28 @@
     </div>
   </div>
 
-  <!-- ===== CORRECTION MODAL v7.4 ===== -->
-  <div id="corrModal" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(7,26,48,0.62);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:16px;">
-    <div class="corr-modal-inner corr-anim">
-      <button id="corrClose" class="corr-close-btn" aria-label="Close">
-        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  <!-- ===== SUCCESS POPUP MODAL v7.5 ===== -->
+  <div id="successModal" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px;">
+    <div class="success-modal-card">
+      <button class="success-modal-close" id="successModalClose" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
-      <div class="corr-modal-header">
-        <div class="corr-modal-icon">✏️</div>
-        <div>
-          <h3 class="corr-modal-title">Request a Correction</h3>
-          <p class="corr-modal-subtitle">Help us keep Tiru MedDirectory accurate and up to date.</p>
-        </div>
-      </div>
-      <form id="corrForm" class="corr-form" novalidate>
-        <input type="hidden" name="_subject" id="corrSubject" value="Correction Request — Tiru MedDirectory">
-        <input type="hidden" name="facility_name" id="cFacility">
-        <input type="hidden" name="_replyto" id="cReplyTo">
-        <div class="corr-readonly-row">
-          <span class="corr-readonly-label">Facility</span>
-          <span class="corr-readonly-val" id="corrFacilityDisplay">—</span>
-        </div>
-        <div class="corr-field">
-          <label for="cWhat" class="corr-label">What needs correction <span class="reg-required">*</span></label>
-          <select id="cWhat" name="correction_type" class="reg-select" required>
-            <option value="">— Select —</option>
-            <option>Facility Name</option>
-            <option>Phone Number(s)</option>
-            <option>Address / Location</option>
-            <option>Working Hours</option>
-            <option>Services Listed</option>
-            <option>Social Media Links</option>
-            <option>Website / Booking URL</option>
-            <option>Facility Type or Specialty</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="corr-field">
-          <label for="cCorrect" class="corr-label">Correct Information <span class="reg-required">*</span></label>
-          <textarea id="cCorrect" name="correct_information" class="reg-textarea" rows="3" placeholder="Provide the accurate information here..." required></textarea>
-        </div>
-        <div class="corr-field">
-          <label for="cNotes" class="corr-label">Supporting Details</label>
-          <textarea id="cNotes" name="supporting_details" class="reg-textarea" rows="2" placeholder="Any additional context or supporting information..."></textarea>
-        </div>
-        <div class="corr-two-col">
-          <div class="corr-field">
-            <label for="cName" class="corr-label">Your Name</label>
-            <input type="text" id="cName" name="submitter_name" class="reg-input" placeholder="Your name (optional)">
-          </div>
-          <div class="corr-field">
-            <label for="cContact" class="corr-label">Your Contact</label>
-            <input type="text" id="cContact" name="submitter_contact" class="reg-input" placeholder="Phone or email for follow-up">
-          </div>
-        </div>
-        <div class="reg-error" id="corrError" style="display:none;"></div>
-        <button type="submit" class="reg-submit-btn" id="cSubmit">
-          <span class="reg-submit-text"><i class="fa-solid fa-paper-plane"></i> Send Correction Request</span>
-          <span class="reg-submit-spinner" style="display:none;">
-            <svg viewBox="0 0 24 24" width="18" height="18" style="animation:reg-spin 0.8s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" fill="none" stroke-dasharray="28" stroke-dashoffset="8"/></svg>
-            Sending...
-          </span>
-        </button>
-      </form>
-      <div class="corr-success" id="cThanks" style="display:none;">
-        <svg viewBox="0 0 52 52" width="56" height="56" aria-hidden="true">
-          <circle cx="26" cy="26" r="25" fill="rgba(34,197,94,0.12)"/>
-          <circle cx="26" cy="26" r="25" fill="none" stroke="#22c55e" stroke-width="2"/>
-          <path d="M14 26l8 8 16-16" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <div class="success-check-wrap">
+        <svg class="success-check-svg" viewBox="0 0 52 52" width="80" height="80">
+          <circle class="success-check-circle" cx="26" cy="26" r="24" fill="none" stroke="#22c55e" stroke-width="2" stroke-dasharray="151" stroke-dashoffset="151"/>
+          <path class="success-check-path" d="M13 26l9 9 17-18" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="40" stroke-dashoffset="40"/>
         </svg>
-        <p>Correction request sent! Thank you for helping keep Tiru MedDirectory accurate.</p>
       </div>
+      <h3 class="success-modal-title" id="successModalTitle">Submitted Successfully! 🎉</h3>
+      <p class="success-modal-msg" id="successModalMsg">Thank you for contributing to Tiru MedDirectory. We'll review and add the facility shortly.</p>
+      <button class="reg-reset-btn" id="successModalAnother">
+        <i class="fa-solid fa-plus"></i> Submit Another
+      </button>
     </div>
   </div>
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=7.4"></script>
+  <script src="script.js?v=7.5"></script>
 </body>
 </html>
