@@ -2404,7 +2404,7 @@ specialtyCategory: "orthopedic",
       const safeName = facility.name.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
       const grad     = getFacilityGradient(facility.name, facility.accentColor);
       const initials = facility.monogram || getFacilityInitials(facility.name);
-      return `<div class="ticker-card" data-name="${safeName}" tabindex="0" role="button" aria-label="Search ${safeName}">
+      return `<div class="ticker-card" data-name="${safeName}" data-type="${facility.facilityType}" tabindex="0" role="button" aria-label="Search ${safeName}">
         <div class="grad-avatar" style="background:${grad}">${initials}</div>
         <div class="ticker-card-info">
           <span class="ticker-name">${facility.name}</span>
@@ -3472,6 +3472,19 @@ specialtyCategory: "orthopedic",
     }
     window.addEventListener("scroll", update, { passive: true });
     update();
+  })();
+
+  // ============================================================
+  //  HERO SEARCH HINTS — v7.1
+  // ============================================================
+  (function() {
+    document.querySelectorAll('.hero-hint-tag').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        heroSearch.value = btn.dataset.hint;
+        heroSearch.focus();
+        triggerHeroSearch();
+      });
+    });
   })();
 
   // Show ALL facilities immediately on load (no "ready to search" empty state)

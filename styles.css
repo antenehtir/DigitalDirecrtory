@@ -287,7 +287,7 @@ ul { list-style: none; }
 /* Row: search bar + Near Me button side-by-side */
 .hero-search-row {
   display: flex; align-items: center; gap: 12px;
-  max-width: 700px; margin: 0 auto 14px;
+  max-width: 800px; margin: 0 auto 14px;
 }
 .hero-search-bar-wrap {
   position: relative; flex: 1; min-width: 0;
@@ -400,6 +400,29 @@ ul { list-style: none; }
   transform: translateY(-2px);
 }
 .hero-tag.active { background: var(--teal); border-color: var(--teal); color: white; }
+
+/* Search Hints Row */
+.hero-search-hints {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin-top: 14px;
+}
+.hero-hint-tag {
+  font-size: 0.6875rem; font-weight: 500;
+  background: rgba(255,255,255,0.13);
+  color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 100px; padding: 4px 12px;
+  cursor: pointer; transition: var(--transition);
+  font-family: var(--font); white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+.hero-hint-tag:hover {
+  background: rgba(255,255,255,0.24);
+  color: white;
+  border-color: rgba(255,255,255,0.38);
+  transform: translateY(-1px);
+}
+.hero-hint-tag:active { transform: scale(0.97); }
 
 /* ============================================
    STATS BAR (standalone white strip below hero)
@@ -535,7 +558,7 @@ ul { list-style: none; }
 }
 .ticker-section {
   background: #0A2647;
-  padding: 24px 0 60px;
+  padding: 32px 0;
   overflow: hidden; position: relative;
 }
 .ticker-header {
@@ -557,22 +580,34 @@ ul { list-style: none; }
 .ticker-track {
   display: flex; gap: 16px; width: max-content;
   animation: ticker-scroll 90s linear infinite;
-  padding: 6px 0 10px;
+  padding: 8px 32px 14px;
 }
 .ticker-wrap:hover .ticker-track { animation-play-state: paused; }
 
 .ticker-card {
-  background: white; border-radius: 12px;
+  background: #ffffff; border-radius: 14px;
   padding: 14px 18px;
   display: flex; align-items: center; gap: 12px;
-  min-width: 252px; max-width: 300px;
+  min-width: 256px; max-width: 300px;
   min-height: 80px;
-  box-shadow: 0 2px 14px rgba(0,0,0,0.22);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   cursor: pointer; flex-shrink: 0;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   user-select: none;
+  border-left: 3px solid transparent;
 }
-.ticker-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.ticker-card:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.28); }
+
+/* Per-type left accent border */
+.ticker-card[data-type="general"]       { border-left-color: #1565c0; }
+.ticker-card[data-type="speciality"]    { border-left-color: #6a1b9a; }
+.ticker-card[data-type="medical_plaza"] { border-left-color: #6a1b9a; }
+.ticker-card[data-type="diagnostic"]    { border-left-color: #2e7d32; }
+.ticker-card[data-type="ambulance"]     { border-left-color: #e65100; }
+.ticker-card[data-type="homecare"]      { border-left-color: #c62828; }
+.ticker-card[data-type="telemedicine"]  { border-left-color: #006064; }
+.ticker-card[data-type="pharmacy"]      { border-left-color: #00695c; }
+.ticker-card[data-type="financing"]     { border-left-color: #4527a0; }
 
 /* Gradient Avatar (ticker + cards) */
 .grad-avatar {
