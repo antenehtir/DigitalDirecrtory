@@ -1,5 +1,5 @@
 // ============================================================
-//  OPEN CORRECTION — window-scope (v7.5)
+//  OPEN CORRECTION — window-scope (v7.6)
 //  Defined before DOMContentLoaded so inline onclicks fire
 //  immediately without any timing issues.
 // ============================================================
@@ -12,28 +12,48 @@ window.openCorrection = function(facilityName) {
     if (tabBtn.getAttribute('aria-expanded') === 'false') tabBtn.click();
     setTimeout(function() {
       // 2. Switch to correction tab
-      var tab2 = document.getElementById('fdmTab2');
-      if (tab2) tab2.click();
+      var corrTab = document.getElementById('correctionTabBtn');
+      if (corrTab) corrTab.click();
+
+      // 3. Scroll to the facility management section
+      var section = document.getElementById('facilityManagementSection');
+      if (section) {
+        setTimeout(function() {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+
       setTimeout(function() {
-        // 3. Auto-populate search
-        var searchInput = document.getElementById('corrSearchInput');
+        // 4. Auto-populate search
+        var searchInput = document.getElementById('correctionFacilitySearch');
         if (searchInput && facilityName) {
           searchInput.value = facilityName;
           searchInput.dispatchEvent(new Event('input'));
           setTimeout(function() {
-            // 4. Auto-select matching facility in dropdown
+            // 5. Auto-select matching facility — try data-facility-name first, fallback to name text
             var dropdown = document.getElementById('corrSearchDropdown');
             if (dropdown) {
-              var items = dropdown.querySelectorAll('.corr-dropdown-item');
-              for (var i = 0; i < items.length; i++) {
-                var nameEl = items[i].querySelector('.corr-dropdown-name');
-                if (nameEl && nameEl.textContent.trim() === facilityName) {
-                  items[i].click();
-                  break;
+              var options = dropdown.querySelectorAll('.correction-facility-option');
+              var clicked = false;
+              options.forEach(function(opt) {
+                if (!clicked && opt.getAttribute('data-facility-name') === facilityName) {
+                  opt.click();
+                  clicked = true;
+                }
+              });
+              // Fallback: match by visible name text
+              if (!clicked) {
+                var items = dropdown.querySelectorAll('.corr-dropdown-item');
+                for (var i = 0; i < items.length; i++) {
+                  var nameEl = items[i].querySelector('.corr-dropdown-name');
+                  if (nameEl && nameEl.textContent.trim() === facilityName) {
+                    items[i].click();
+                    break;
+                  }
                 }
               }
             }
-            // 5. Focus submitter name
+            // 6. Focus submitter name
             setTimeout(function() {
               var nameInput = document.getElementById('cf-submitter-name');
               if (nameInput) {
@@ -47,7 +67,7 @@ window.openCorrection = function(facilityName) {
     }, 600);
   }, 700);
 };
-// Backward-compatible alias
+// Backward-compatible aliases
 window.openCorr = window.openCorrection;
 window.closeCorr = function() {
   var m = document.getElementById('successModal');
@@ -2027,7 +2047,16 @@ specialtyCategory: "orthopedic",
           if (f.facilityType !== facilityType) return false;
         }
       }
-      if (nameSearch && !f.name.toLowerCase().includes(nameSearch)) return false;
+      if (nameSearch) {
+        var searchHaystack = [
+          f.name,
+          f.specialty || '',
+          f.specialServices || '',
+          Array.isArray(f.subCity) ? f.subCity.join(' ') : (f.subCity || ''),
+          Array.isArray(f.area)    ? f.area.join(' ')    : (f.area    || '')
+        ].join(' ').toLowerCase();
+        if (!searchHaystack.includes(nameSearch)) return false;
+      }
 
       if (subCity) {
         if (typeof f.subCity === "string") {
@@ -2464,22 +2493,33 @@ specialtyCategory: "orthopedic",
     });
   }
 
-  // Registration form conditional fields
+  // ============================================================
+  //  "OTHER" OPTION — bulletproof global event delegation v7.6
+  //  Handles ALL selects with data-other-target in BOTH forms.
+  //  Also handles working hours radio button separately.
+  // ============================================================
   (function() {
-    var typeSelect    = document.getElementById("sf-type");
-    var typeOtherWrap = document.getElementById("sf-type-other-wrap");
-    if (typeSelect && typeOtherWrap) {
-      typeSelect.addEventListener("change", function() {
-        typeOtherWrap.style.display = typeSelect.value === "Other" ? "" : "none";
-      });
-    }
-    var specSelect    = document.getElementById("sf-specialty");
-    var specOtherWrap = document.getElementById("sf-specialty-other-wrap");
-    if (specSelect && specOtherWrap) {
-      specSelect.addEventListener("change", function() {
-        specOtherWrap.style.display = specSelect.value === "Other" ? "" : "none";
-      });
-    }
+    // Global delegation for SELECT elements with data-other-target
+    document.body.addEventListener('change', function(e) {
+      if (e.target && e.target.tagName === 'SELECT') {
+        var selectEl = e.target;
+        var otherId  = selectEl.getAttribute('data-other-target');
+        if (otherId) {
+          var otherDiv = document.getElementById(otherId);
+          if (otherDiv) {
+            var isOther = (selectEl.value === 'Other' || selectEl.value === 'other');
+            otherDiv.style.display = isOther ? '' : 'none';
+            var inp = otherDiv.querySelector('input, textarea');
+            if (inp) {
+              inp.required = isOther;
+              if (!isOther) inp.value = '';
+            }
+          }
+        }
+      }
+    });
+
+    // Working hours radio buttons (registration form — no data-other-target since it's radios)
     document.querySelectorAll('input[name="working_hours"]').forEach(function(radio) {
       radio.addEventListener("change", function() {
         var ho = document.getElementById("sf-hours-other");
@@ -2570,13 +2610,13 @@ specialtyCategory: "orthopedic",
   buildTicker();
 
   // ============================================================
-  //  FDM TAB SWITCHER v7.5
+  //  FDM TAB SWITCHER v7.6
   // ============================================================
   (function() {
-    var tab1   = document.getElementById('fdmTab1');
-    var tab2   = document.getElementById('fdmTab2');
-    var panel1 = document.getElementById('fdmRegPanel');
-    var panel2 = document.getElementById('fdmCorrPanel');
+    var tab1   = document.getElementById('registrationTabBtn');
+    var tab2   = document.getElementById('correctionTabBtn');
+    var panel1 = document.getElementById('registrationTabContent');
+    var panel2 = document.getElementById('correctionTabContent');
     if (!tab1 || !tab2 || !panel1 || !panel2) return;
     function switchTab(activeTab, inactiveTab, activePanel, inactivePanel) {
       activeTab.classList.add('fdm-tab--active');
@@ -2589,10 +2629,10 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  CORRECTION FORM v7.5 — inline facility search + Formspree
+  //  CORRECTION FORM v7.6 — inline facility search + Formspree
   // ============================================================
   (function() {
-    var searchInput   = document.getElementById('corrSearchInput');
+    var searchInput   = document.getElementById('correctionFacilitySearch');
     var dropdown      = document.getElementById('corrSearchDropdown');
     var step2         = document.getElementById('corrStep2');
     var step3         = document.getElementById('corrStep3');
@@ -2617,7 +2657,8 @@ specialtyCategory: "orthopedic",
         dropdown.innerHTML = results.slice(0, 60).map(function(f) {
           var info = getFacilityTypeInfo(f.facilityType);
           var sc   = Array.isArray(f.subCity) ? f.subCity[0] : (f.subCity || '');
-          return '<div class="corr-dropdown-item" data-id="' + f.id + '" role="option" tabindex="0">' +
+          var safeName = f.name.replace(/"/g, '&quot;');
+          return '<div class="corr-dropdown-item correction-facility-option" data-id="' + f.id + '" data-facility-name="' + safeName + '" role="option" tabindex="0">' +
             '<div class="corr-dropdown-name">' + f.name + '</div>' +
             '<div class="corr-dropdown-meta">' + info.label + (sc ? ' · ' + sc : '') + '</div>' +
             '</div>';
@@ -2702,14 +2743,7 @@ specialtyCategory: "orthopedic",
       if (submitWrap) submitWrap.style.display = '';
     }
 
-    // Position "Other" conditional field
-    var posSelect    = document.getElementById('cf-submitter-position');
-    var posOtherWrap = document.getElementById('cf-position-other-wrap');
-    if (posSelect && posOtherWrap) {
-      posSelect.addEventListener('change', function() {
-        posOtherWrap.style.display = posSelect.value === 'Other' ? '' : 'none';
-      });
-    }
+    // Note: "Other" position field is handled by global event delegation above.
 
     // Correction form submit
     if (corrForm2) {
@@ -2742,6 +2776,9 @@ specialtyCategory: "orthopedic",
         if (corrSpinEl) corrSpinEl.style.display = 'flex';
 
         var formData = new FormData(corrForm2);
+        // Debug: log all form fields before submission
+        console.log('[Correction Form] Fields being submitted:');
+        for (var pair of formData.entries()) { console.log('  ' + pair[0] + ':', pair[1]); }
         fetch('https://formspree.io/f/mgoqpjqe', {
           method: 'POST', body: formData, headers: { 'Accept': 'application/json' }
         })
@@ -2765,31 +2802,44 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  SUCCESS MODAL v7.5
+  //  SUCCESS MODAL v7.6
   // ============================================================
   (function() {
-    var modal    = document.getElementById('successModal');
-    var closeBtn = document.getElementById('successModalClose');
-    var another  = document.getElementById('successModalAnother');
+    var modal      = document.getElementById('successModal');
+    var closeBtn   = document.getElementById('successModalClose');
+    var closeText  = document.getElementById('successModalCloseText');
+    var another    = document.getElementById('successModalAnother');
+
     function closeSuccessModal() {
       if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
     }
-    if (closeBtn) closeBtn.addEventListener('click', closeSuccessModal);
-    if (modal)    modal.addEventListener('click', function(e) { if (e.target === modal) closeSuccessModal(); });
+
+    if (closeBtn)  closeBtn.addEventListener('click',  closeSuccessModal);
+    if (closeText) closeText.addEventListener('click', closeSuccessModal);
+    if (modal)     modal.addEventListener('click', function(e) { if (e.target === modal) closeSuccessModal(); });
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && modal && modal.style.display === 'flex') closeSuccessModal();
     });
+
     if (another) another.addEventListener('click', function() {
       var type = (modal && modal.dataset.type) || 'registration';
       closeSuccessModal();
+
       if (type === 'correction') {
         var corrForm2 = document.getElementById('corrForm2');
         if (corrForm2) corrForm2.reset();
         var step2 = document.getElementById('corrStep2'); if (step2) step2.style.display = 'none';
         var step3 = document.getElementById('corrStep3'); if (step3) step3.style.display = 'none';
         var sw    = document.getElementById('corrSubmitWrap'); if (sw) sw.style.display = 'none';
-        var si    = document.getElementById('corrSearchInput'); if (si) si.value = '';
+        var si    = document.getElementById('correctionFacilitySearch'); if (si) si.value = '';
         var fe    = document.getElementById('corrFormError'); if (fe) fe.style.display = 'none';
+        // Clear all cf-field state classes
+        document.querySelectorAll('.cf-field').forEach(function(f) {
+          f.classList.remove('cf-has-data','cf-empty','cf-changed');
+        });
+        // Scroll back to top of correction tab
+        var corrPanel = document.getElementById('correctionTabContent');
+        if (corrPanel) setTimeout(function() { corrPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
       } else {
         if (submitForm) submitForm.reset();
         ['sf-type-other-wrap','sf-specialty-other-wrap'].forEach(function(id) {
@@ -2797,26 +2847,27 @@ specialtyCategory: "orthopedic",
         });
         var ho = document.getElementById('sf-hours-other'); if (ho) ho.style.display = 'none';
         var re = document.getElementById('regError'); if (re) re.style.display = 'none';
+        // Scroll back to top of registration tab
+        var regPanel = document.getElementById('registrationTabContent');
+        if (regPanel) setTimeout(function() { regPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
       }
     });
   })();
 
   // ============================================================
-  //  MOBILE SWIPE INDICATORS v7.5
+  //  MOBILE SWIPE INDICATORS v7.6 — show immediately on page load
   // ============================================================
   (function() {
     var isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     if (!isTouchDevice) return;
-    var targets = [
-      { el: document.getElementById('unifiedTabsScroll'), key: 'unifiedTabs' },
-      { el: document.getElementById('specialtySubTabs'),  key: 'specTabs'    }
-    ];
-    targets.forEach(function(item) {
-      var el = item.el; var key = 'swipeDismissed_' + item.key;
+
+    function attachSwipeHint(el, key) {
       if (!el || localStorage.getItem(key)) return;
-      if (el.scrollWidth <= el.clientWidth + 2) return;
       var parent = el.parentElement;
       if (!parent) return;
+      // Remove any existing hint
+      var existing = parent.querySelector('.swipe-hint');
+      if (existing) existing.remove();
       var hint = document.createElement('div');
       hint.className = 'swipe-hint';
       hint.setAttribute('aria-hidden', 'true');
@@ -2832,6 +2883,14 @@ specialtyCategory: "orthopedic",
       function onScroll() { if (el.scrollLeft > 20) dismiss(); }
       el.addEventListener('scroll', onScroll);
       setTimeout(function() { if (hint.parentElement) dismiss(); }, 4500);
+    }
+
+    // Attach after layout is ready (use requestAnimationFrame for accurate sizes)
+    requestAnimationFrame(function() {
+      setTimeout(function() {
+        attachSwipeHint(document.getElementById('unifiedTabsScroll'), 'swipeDismissed_unifiedTabs');
+        attachSwipeHint(document.getElementById('specialtySubTabs'),  'swipeDismissed_specTabs');
+      }, 300);
     });
   })();
 
@@ -3380,6 +3439,13 @@ specialtyCategory: "orthopedic",
     facilities.forEach(function (f) {
       corpus.push({ label: f.name, category: "Facility" });
       if (f.specialty && typeof f.specialty === "string") corpus.push({ label: f.specialty, category: "Specialty" });
+      // Special services — split by comma and add individually
+      if (f.specialServices && typeof f.specialServices === "string") {
+        f.specialServices.split(',').forEach(function(svc) {
+          var s = svc.trim();
+          if (s) corpus.push({ label: s, category: "Service" });
+        });
+      }
       // subCity can be an array — flatten each entry individually
       if (f.subCity) {
         var subCities = Array.isArray(f.subCity) ? f.subCity : [f.subCity];
@@ -3829,12 +3895,22 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  HERO SEARCH HINTS — v7.3
+  //  HERO SEARCH HINTS — v7.6
   // ============================================================
   (function() {
     document.querySelectorAll('.hero-hint-tag').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var key = btn.dataset.key;
+        // "Services" tag: focus the search bar with a helpful placeholder
+        if (key === 'services') {
+          var heroInput = document.getElementById('heroSearch');
+          if (heroInput) {
+            heroInput.focus();
+            heroInput.placeholder = 'Type a service (e.g. Dialysis, MRI, CT scan…)';
+            heroInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+          return;
+        }
         if (key) handleUnifiedTabClick(key);
       });
     });

@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=7.5" />
+  <link rel="stylesheet" href="styles.css?v=7.6" />
 </head>
 <body class="page-fade">
 
@@ -119,7 +119,7 @@
             <div class="hero-search-combined">
               <div class="hero-search-bar">
                 <i class="fa-solid fa-magnifying-glass hero-search-icon"></i>
-                <input type="text" id="heroSearch" placeholder="Search by facility name, specialty, or keyword…" autocomplete="off" />
+                <input type="text" id="heroSearch" placeholder="Search by facility name, specialty, service, or area…" autocomplete="off" />
                 <button class="hero-search-btn" id="heroSearchBtn" aria-label="Search">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </button>
@@ -144,6 +144,7 @@
           <button class="hero-hint-tag" data-key="diagnostic">🔬 Diagnostics</button>
           <button class="hero-hint-tag" data-key="ambulance">🚑 Ambulance</button>
           <button class="hero-hint-tag" data-key="telemedicine">💻 Telemedicine</button>
+          <button class="hero-hint-tag" data-key="services">🩺 Services</button>
         </div>
       </div>
 
@@ -439,7 +440,7 @@
     <div class="bottom-tabs">
 
       <!-- Submit Missing Facility -->
-      <div class="bottom-tab-item">
+      <div class="bottom-tab-item" id="facilityManagementSection">
         <button class="bottom-tab-btn" id="submitTabBtn" aria-expanded="false" aria-controls="submitTabBody">
           <span><i class="fa-solid fa-clipboard-list"></i> Facility Directory Management</span>
           <i class="fa-solid fa-chevron-down bottom-tab-icon" id="submitTabIcon"></i>
@@ -449,16 +450,16 @@
 
             <!-- FDM Tab Switcher -->
             <div class="fdm-tab-bar">
-              <button class="fdm-tab fdm-tab--active" id="fdmTab1" type="button">
+              <button class="fdm-tab fdm-tab--active" id="registrationTabBtn" type="button">
                 <i class="fa-solid fa-circle-plus"></i> Register New Facility
               </button>
-              <button class="fdm-tab" id="fdmTab2" type="button">
+              <button class="fdm-tab" id="correctionTabBtn" type="button">
                 <i class="fa-solid fa-pen-to-square"></i> Suggest a Correction
               </button>
             </div>
 
             <!-- ══════ TAB 1: REGISTRATION ══════ -->
-            <div id="fdmRegPanel" class="fdm-panel">
+            <div id="registrationTabContent" class="fdm-panel">
               <form class="reg-form" id="submitForm" novalidate>
                 <input type="hidden" name="_subject" value="New Facility Registration — Tiru MedDirectory">
                 <input type="hidden" name="_next" value="">
@@ -473,7 +474,7 @@
                     </div>
                     <div class="reg-field">
                       <label for="sf-type" class="reg-label">Facility Type <span class="reg-required">*</span></label>
-                      <select id="sf-type" name="facility_type" class="reg-select" required>
+                      <select id="sf-type" name="facility_type" class="reg-select" required data-other-target="sf-type-other-wrap">
                         <option value="">— Select Type —</option>
                         <option value="General Hospital">General Hospital</option>
                         <option value="Specialty Center">Specialty Center</option>
@@ -493,7 +494,7 @@
                     </div>
                     <div class="reg-field">
                       <label for="sf-specialty" class="reg-label">Specialty / General Service <span class="reg-required">*</span></label>
-                      <select id="sf-specialty" name="specialty" class="reg-select" required>
+                      <select id="sf-specialty" name="specialty" class="reg-select" required data-other-target="sf-specialty-other-wrap">
                         <option value="">— Select Specialty —</option>
                         <option>General Medicine</option>
                         <option>Multi-Specialty</option>
@@ -670,14 +671,14 @@
                   </span>
                 </button>
               </form>
-            </div><!-- /fdmRegPanel -->
+            </div><!-- /registrationTabContent -->
 
             <!-- ══════ TAB 2: SUGGEST A CORRECTION ══════ -->
-            <div id="fdmCorrPanel" class="fdm-panel" style="display:none;">
+            <div id="correctionTabContent" class="fdm-panel" style="display:none;">
               <form id="corrForm2" novalidate>
                 <input type="hidden" name="_subject" id="corrSubject2" value="Correction Request — Tiru MedDirectory">
                 <input type="hidden" name="_next" value="">
-                <input type="hidden" name="facility_name" id="cf-facility-hidden">
+                <input type="hidden" name="original_facility" id="cf-facility-hidden">
 
                 <!-- STEP 1: Facility Search -->
                 <div class="reg-card reg-card--teal">
@@ -685,7 +686,7 @@
                   <div class="reg-field">
                     <label for="corrSearchInput" class="reg-label">Select the facility to correct <span class="reg-required">*</span></label>
                     <div class="corr-search-wrap">
-                      <input type="text" id="corrSearchInput" class="reg-input" placeholder="🔍 Type to search facilities..." autocomplete="off" aria-autocomplete="list" aria-controls="corrSearchDropdown">
+                      <input type="text" id="correctionFacilitySearch" class="reg-input" placeholder="🔍 Type to search facilities..." autocomplete="off" aria-autocomplete="list" aria-controls="corrSearchDropdown">
                       <div class="corr-search-dropdown" id="corrSearchDropdown" style="display:none;" role="listbox"></div>
                     </div>
                   </div>
@@ -700,15 +701,15 @@
                     <div class="reg-grid">
                       <div class="reg-field">
                         <label for="cf-name" class="reg-label">Facility Name</label>
-                        <input type="text" id="cf-name" name="cf_facility_name" class="reg-input cf-field">
+                        <input type="text" id="cf-name" name="facility_name" class="reg-input cf-field">
                       </div>
                       <div class="reg-field">
                         <label for="cf-type" class="reg-label">Facility Type</label>
-                        <input type="text" id="cf-type" name="cf_facility_type" class="reg-input cf-field">
+                        <input type="text" id="cf-type" name="facility_type" class="reg-input cf-field">
                       </div>
                       <div class="reg-field reg-field--full">
                         <label for="cf-specialty" class="reg-label">Specialty</label>
-                        <input type="text" id="cf-specialty" name="cf_specialty" class="reg-input cf-field">
+                        <input type="text" id="cf-specialty" name="specialty" class="reg-input cf-field">
                       </div>
                     </div>
                   </div>
@@ -719,15 +720,15 @@
                     <div class="reg-grid">
                       <div class="reg-field">
                         <label for="cf-subcity" class="reg-label">Sub-City</label>
-                        <input type="text" id="cf-subcity" name="cf_sub_city" class="reg-input cf-field">
+                        <input type="text" id="cf-subcity" name="sub_city" class="reg-input cf-field">
                       </div>
                       <div class="reg-field">
                         <label for="cf-area" class="reg-label">Area / Neighborhood</label>
-                        <input type="text" id="cf-area" name="cf_area" class="reg-input cf-field">
+                        <input type="text" id="cf-area" name="area" class="reg-input cf-field">
                       </div>
                       <div class="reg-field reg-field--full">
                         <label for="cf-mapurl" class="reg-label">Map URL</label>
-                        <input type="text" id="cf-mapurl" name="cf_map_url" class="reg-input cf-field">
+                        <input type="text" id="cf-mapurl" name="map_url" class="reg-input cf-field">
                       </div>
                     </div>
                   </div>
@@ -738,7 +739,7 @@
                     <div class="reg-grid">
                       <div class="reg-field reg-field--full">
                         <label for="cf-phone" class="reg-label">Phone Number(s)</label>
-                        <input type="text" id="cf-phone" name="cf_phone" class="reg-input cf-field">
+                        <input type="text" id="cf-phone" name="phone" class="reg-input cf-field">
                       </div>
                     </div>
                   </div>
@@ -749,35 +750,35 @@
                     <div class="reg-grid">
                       <div class="reg-field">
                         <label for="cf-telegram" class="reg-label">Telegram</label>
-                        <input type="text" id="cf-telegram" name="cf_telegram" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-telegram" name="telegram" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-facebook" class="reg-label">Facebook</label>
-                        <input type="text" id="cf-facebook" name="cf_facebook" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-facebook" name="facebook" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-linkedin" class="reg-label">LinkedIn</label>
-                        <input type="text" id="cf-linkedin" name="cf_linkedin" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-linkedin" name="linkedin" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-instagram" class="reg-label">Instagram</label>
-                        <input type="text" id="cf-instagram" name="cf_instagram" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-instagram" name="instagram" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-tiktok" class="reg-label">TikTok</label>
-                        <input type="text" id="cf-tiktok" name="cf_tiktok" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-tiktok" name="tiktok" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-email" class="reg-label">Email</label>
-                        <input type="text" id="cf-email" name="cf_email" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-email" name="facility_email" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-website" class="reg-label">Website</label>
-                        <input type="text" id="cf-website" name="cf_website" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-website" name="website" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                       <div class="reg-field">
                         <label for="cf-booking" class="reg-label">Booking URL</label>
-                        <input type="text" id="cf-booking" name="cf_booking" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-booking" name="booking_url" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                     </div>
                   </div>
@@ -788,11 +789,11 @@
                     <div class="reg-grid">
                       <div class="reg-field reg-field--full">
                         <label for="cf-services" class="reg-label">Special Services</label>
-                        <textarea id="cf-services" name="cf_special_services" class="reg-textarea cf-field" placeholder="➕ Not provided — add if known"></textarea>
+                        <textarea id="cf-services" name="special_services" class="reg-textarea cf-field" placeholder="➕ Not provided — add if known"></textarea>
                       </div>
                       <div class="reg-field reg-field--full">
                         <label for="cf-hours" class="reg-label">Working Hours</label>
-                        <input type="text" id="cf-hours" name="cf_working_hours" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
+                        <input type="text" id="cf-hours" name="working_hours" class="reg-input cf-field" placeholder="➕ Not provided — add if known">
                       </div>
                     </div>
                   </div>
@@ -803,7 +804,7 @@
                     <div class="reg-grid">
                       <div class="reg-field reg-field--full">
                         <label for="cf-context" class="reg-label">Notes for This Correction</label>
-                        <textarea id="cf-context" name="cf_additional_context" class="reg-textarea" placeholder="Any extra context about this correction..."></textarea>
+                        <textarea id="cf-context" name="additional_notes" class="reg-textarea" placeholder="Any extra context about this correction..."></textarea>
                       </div>
                     </div>
                   </div>
@@ -822,7 +823,7 @@
                       </div>
                       <div class="reg-field">
                         <label for="cf-submitter-position" class="reg-label">Your Position <span class="reg-required">*</span></label>
-                        <select id="cf-submitter-position" name="submitter_position" class="reg-select" required>
+                        <select id="cf-submitter-position" name="submitter_position" class="reg-select" required data-other-target="cf-position-other-wrap">
                           <option value="">— Select Position —</option>
                           <option>Medical Director / CMO</option>
                           <option>Administrator / Manager</option>
@@ -861,7 +862,7 @@
                 </div>
 
               </form>
-            </div><!-- /fdmCorrPanel -->
+            </div><!-- /correctionTabContent -->
 
           </div><!-- /fdm-wrap -->
         </div>
@@ -1073,14 +1074,19 @@
       </div>
       <h3 class="success-modal-title" id="successModalTitle">Submitted Successfully! 🎉</h3>
       <p class="success-modal-msg" id="successModalMsg">Thank you for contributing to Tiru MedDirectory. We'll review and add the facility shortly.</p>
-      <button class="reg-reset-btn" id="successModalAnother">
-        <i class="fa-solid fa-plus"></i> Submit Another
-      </button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <button class="reg-reset-btn" id="successModalAnother">
+          <i class="fa-solid fa-plus"></i> Submit Another
+        </button>
+        <button class="reg-reset-btn" id="successModalCloseText" style="border-color:#94a3b8;color:#64748b;">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=7.5"></script>
+  <script src="script.js?v=7.6"></script>
 </body>
 </html>

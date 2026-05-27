@@ -1253,7 +1253,7 @@ ul { list-style: none; }
 .bottom-tab-item {
   background: white; border-radius: var(--radius-xl);
   box-shadow: var(--shadow); border: 1px solid var(--gray-100);
-  overflow: hidden;
+  overflow: visible;  /* must be visible so correction search dropdown can escape */
   transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
               border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2457,7 +2457,8 @@ button:focus-visible, a:focus-visible {
 /* ============================================
    FDM TABS v7.5
    ============================================ */
-.fdm-wrap { padding: 24px 28px 32px; }
+.fdm-wrap { padding: 24px 28px 32px; overflow: visible; }
+.fdm-panel { overflow: visible; animation: fadeInUp 0.22s ease; }
 .fdm-tab-bar {
   display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
 }
@@ -2474,7 +2475,7 @@ button:focus-visible, a:focus-visible {
   box-shadow: 0 4px 14px rgba(27,152,224,0.3);
 }
 .fdm-tab:hover:not(.fdm-tab--active) { background: rgba(27,152,224,0.08); }
-.fdm-panel { animation: fadeInUp 0.22s ease; }
+/* .fdm-panel rule moved to top of FDM section with overflow:visible */
 
 /* Extra card accent colors */
 .reg-card--orange { border-left-color: #f97316; }
@@ -2487,8 +2488,8 @@ button:focus-visible, a:focus-visible {
 .corr-search-dropdown {
   position: absolute; top: calc(100% + 4px); left: 0; right: 0;
   background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(10,38,71,0.14);
-  max-height: 280px; overflow-y: auto; z-index: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  max-height: 280px; overflow-y: auto; z-index: 99999;
   scrollbar-width: thin;
 }
 .corr-dropdown-item {
@@ -2540,34 +2541,56 @@ button:focus-visible, a:focus-visible {
 }
 
 /* ============================================
-   MOBILE SWIPE INDICATORS v7.5
+   MOBILE SWIPE INDICATORS v7.6
    ============================================ */
 .swipe-hint {
-  position: absolute; top: 50%; right: 6px;
+  display: none;  /* hidden by default; shown only on touch devices */
+  align-items: center;
+  position: absolute; right: 0; top: 50%;
   transform: translateY(-50%);
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.95));
+  width: 48px; height: 100%;
+  justify-content: flex-end; padding-right: 8px;
   pointer-events: none; z-index: 10;
-  transition: opacity 0.3s; display: none;
+  transition: opacity 0.3s;
 }
 .swipe-hint-chevron {
-  display: flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--teal); color: #fff;
-  font-size: 1.2rem; font-weight: 700; line-height: 1;
-  box-shadow: 0 2px 8px rgba(27,152,224,0.4);
+  font-size: 18px; color: var(--teal); font-weight: 700;
 }
 @media (hover: none) and (pointer: coarse) {
-  .swipe-hint { display: block; }
-  .swipe-hint-chevron { animation: swipe-pulse 1.2s ease-in-out infinite; }
+  .swipe-hint {
+    display: flex;
+  }
+  .swipe-hint-chevron {
+    animation: swipeHintPulse 1.2s ease-in-out infinite;
+  }
 }
-@keyframes swipe-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50%       { transform: scale(1.15); opacity: 1; }
+@keyframes swipeHintPulse {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  50%       { transform: translateX(4px); opacity: 0.6; }
 }
 
 /* ============================================
-   FORM RESPONSIVE v7.5
+   FORM RESPONSIVE v7.6
    ============================================ */
 @media (max-width: 640px) {
   .fdm-wrap { padding: 16px 16px 24px; }
   .fdm-tab  { height: 38px; padding: 0 14px; font-size: 0.8125rem; }
 }
+
+/* ============================================
+   TAB SCROLL FORCE v7.6 — always swipeable
+   ============================================ */
+.unified-tabs-scroll {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+.specialty-sub-tabs {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Ensure reg-card doesn't clip correction dropdown */
+.reg-card { overflow: visible; }
