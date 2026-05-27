@@ -1,20 +1,32 @@
 // ============================================================
-//  CORRECTION MODAL — window-scope (v5.1 fresh)
+//  CORRECTION MODAL — window-scope (v7.4)
 //  Defined before DOMContentLoaded so inline onclicks fire
 //  immediately without any timing issues.
 // ============================================================
 window.openCorr = function(name) {
   var m = document.getElementById('corrModal');
   if (!m) return;
-  document.getElementById('cFacility').value = name || '';
-  document.getElementById('cWhat').value = '';
-  document.getElementById('cCorrect').value = '';
-  document.getElementById('cNotes').value = '';
-  document.getElementById('cName').value = '';
-  document.getElementById('cContact').value = '';
-  document.getElementById('cThanks').style.display = 'none';
+  // Set facility name in hidden input and display span
+  var hiddenField = document.getElementById('cFacility');
+  var displayEl   = document.getElementById('corrFacilityDisplay');
+  var subjectEl   = document.getElementById('corrSubject');
+  if (hiddenField)  hiddenField.value  = name || '';
+  if (displayEl)    displayEl.textContent = name || '—';
+  if (subjectEl)    subjectEl.value = 'Correction Request — ' + (name || '') + ' — Tiru MedDirectory';
+  // Reset form (but re-apply hidden field after reset)
+  var form = document.getElementById('corrForm');
+  if (form) form.reset();
+  if (hiddenField)  hiddenField.value  = name || '';
+  if (displayEl)    displayEl.textContent = name || '—';
+  // Hide thank-you, show form
+  var thanks = document.getElementById('cThanks');
+  if (thanks) thanks.style.display = 'none';
+  if (form) form.style.display = '';
+  var errEl = document.getElementById('corrError');
+  if (errEl) errEl.style.display = 'none';
+  // Animate modal in
   m.style.display = 'flex';
-  var inner = m.querySelector('div');
+  var inner = m.querySelector('.corr-modal-inner');
   if (inner) {
     inner.classList.remove('corr-anim');
     void inner.offsetWidth;
@@ -1798,8 +1810,6 @@ specialtyCategory: "orthopedic",
 
   // Submit form elements
   const submitForm       = document.getElementById("submitForm");
-  const thankYouMessage  = document.getElementById("thankYouMessage");
-  const submitAnotherBtn = document.getElementById("submitAnotherBtn");
 
   // ============================================================
   //  AREA MAPPING
@@ -1830,7 +1840,7 @@ specialtyCategory: "orthopedic",
       case "ambulance":     return { icon: "fa-solid fa-truck-medical",     label: "Ambulance Service",      cls: "type-ambulance",      emoji: "🚑" };
       case "homecare":      return { icon: "fa-solid fa-house-medical",     label: "Home Care",              cls: "type-homecare",       emoji: "🏡" };
       case "telemedicine":  return { icon: "fa-solid fa-laptop-medical",    label: "Telemedicine",           cls: "type-telemedicine",   emoji: "💻" };
-      case "pharmacy":      return { icon: "fa-solid fa-pills",             label: "Online Pharmacy",        cls: "type-pharmacy",       emoji: "💊" };
+      case "pharmacy":      return { icon: "fa-solid fa-pills",             label: "Pharmacy",               cls: "type-pharmacy",       emoji: "💊" };
       case "medical_plaza": return { icon: "fa-solid fa-building-columns",  label: "Medical Plaza",          cls: "type-medical-plaza",  emoji: "🏛️" };
       case "financing":     return { icon: "fa-solid fa-credit-card",       label: "Healthcare Financing",   cls: "type-financing",      emoji: "💳" };
       default:              return { icon: "fa-solid fa-hospital",          label: type,                     cls: "type-general",        emoji: "🏥" };
@@ -2340,51 +2350,157 @@ specialtyCategory: "orthopedic",
   });
 
   // ============================================================
-  //  SUBMIT MISSING FACILITY FORM
+  //  REGISTRATION FORM v7.4 — Formspree async submit
   // ============================================================
-  submitForm.addEventListener("submit", function (e) {
-    e.preventDefault();
+  function showRegError(msg) {
+    var el = document.getElementById("regError");
+    if (el) { el.textContent = msg; el.style.display = "block"; }
+  }
+  function hideRegError() {
+    var el = document.getElementById("regError");
+    if (el) el.style.display = "none";
+  }
+  function regSetLoading(on) {
+    var btn    = document.getElementById("regSubmitBtn");
+    var textEl = btn ? btn.querySelector(".reg-submit-text") : null;
+    var spinEl = btn ? btn.querySelector(".reg-submit-spinner") : null;
+    if (!btn) return;
+    btn.disabled          = on;
+    if (textEl) textEl.style.display = on ? "none" : "";
+    if (spinEl) spinEl.style.display = on ? "flex" : "none";
+  }
 
-    const name     = document.getElementById("sf-name").value.trim();
-    const type     = document.getElementById("sf-type").value;
-    const specialty= document.getElementById("sf-specialty").value.trim();
-    const subcity  = document.getElementById("sf-subcity").value;
-    const area     = document.getElementById("sf-area").value.trim();
-    const phone    = document.getElementById("sf-phone").value.trim();
-    const telegram = document.getElementById("sf-telegram").value.trim();
-    const notes    = document.getElementById("sf-notes").value.trim();
+  if (submitForm) {
+    submitForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      hideRegError();
 
-    // Basic validation
-    if (!name || !type || !subcity || !phone) {
-      alert("Please fill in all required fields (marked with *).");
-      return;
+      // Required field validation
+      var fname     = document.getElementById("sf-name").value.trim();
+      var ftype     = document.getElementById("sf-type").value;
+      var fsubcity  = document.getElementById("sf-subcity").value;
+      var farea     = document.getElementById("sf-area").value.trim();
+      var fphone    = document.getElementById("sf-phone").value.trim();
+      var fspecialty= document.getElementById("sf-specialty").value;
+      var hoursRadio= document.querySelector('input[name="working_hours"]:checked');
+
+      if (!fname || !ftype || !fsubcity || !farea || !fphone || !fspecialty) {
+        showRegError("Please fill in all required fields marked with *.");
+        return;
+      }
+      if (!hoursRadio) {
+        showRegError("Please select working hours.");
+        return;
+      }
+      // Conditional "Other" fields
+      if (ftype === "Other") {
+        var typeOther = (document.getElementById("sf-type-other") || {}).value || "";
+        if (!typeOther.trim()) { showRegError("Please specify the facility type."); return; }
+      }
+      if (fspecialty === "Other (Please specify)") {
+        var specOther = (document.getElementById("sf-specialty-other") || {}).value || "";
+        if (!specOther.trim()) { showRegError("Please specify the specialty."); return; }
+      }
+      if (hoursRadio.value === "other") {
+        var hoursText = (document.getElementById("sf-hours-other") || {}).value || "";
+        if (!hoursText.trim()) { showRegError("Please specify your working hours."); return; }
+      }
+
+      regSetLoading(true);
+
+      var formData = new FormData(submitForm);
+      // If hours "other" option selected, inject the text value
+      if (hoursRadio.value === "other") {
+        formData.set("working_hours", document.getElementById("sf-hours-other").value.trim());
+      }
+
+      fetch("https://formspree.io/f/mgoqpjqe", {
+        method: "POST",
+        body: formData,
+        headers: { "Accept": "application/json" }
+      })
+      .then(function(res) {
+        if (res.ok) {
+          submitForm.style.display = "none";
+          var ty = document.getElementById("regThankYou");
+          if (ty) ty.style.display = "flex";
+        } else {
+          res.json().then(function(data) {
+            var msg = data.errors ? data.errors.map(function(err) { return err.message; }).join(", ") : "Submission failed. Please try again.";
+            showRegError(msg);
+            regSetLoading(false);
+          }).catch(function() {
+            showRegError("Submission failed. Please try again.");
+            regSetLoading(false);
+          });
+        }
+      })
+      .catch(function() {
+        showRegError("Submission failed. Please try again or contact us directly.");
+        regSetLoading(false);
+      });
+    });
+  }
+
+  var regResetBtn = document.getElementById("regResetBtn");
+  if (regResetBtn) {
+    regResetBtn.addEventListener("click", function() {
+      if (submitForm) submitForm.reset();
+      // Hide conditional fields
+      ["sf-type-other-wrap","sf-specialty-other-wrap"].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.style.display = "none";
+      });
+      var hoursOther = document.getElementById("sf-hours-other");
+      if (hoursOther) hoursOther.style.display = "none";
+      hideRegError();
+      regSetLoading(false);
+      if (submitForm) submitForm.style.display = "";
+      var ty = document.getElementById("regThankYou");
+      if (ty) ty.style.display = "none";
+    });
+  }
+
+  // Registration form conditional fields & accordion
+  (function() {
+    // Facility type → show "Other" text input
+    var typeSelect    = document.getElementById("sf-type");
+    var typeOtherWrap = document.getElementById("sf-type-other-wrap");
+    if (typeSelect && typeOtherWrap) {
+      typeSelect.addEventListener("change", function() {
+        typeOtherWrap.style.display = typeSelect.value === "Other" ? "" : "none";
+      });
     }
-
-    const subject = encodeURIComponent("Facility Registration — Tiru MedDirectory: " + name);
-    const body = encodeURIComponent(
-      "Facility Name: " + name + "\n" +
-      "Type: " + type + "\n" +
-      "Specialty: " + specialty + "\n" +
-      "Sub-City: " + subcity + "\n" +
-      "Area: " + area + "\n" +
-      "Phone: " + phone + "\n" +
-      "Telegram / Website: " + telegram + "\n" +
-      "Notes: " + notes
-    );
-
-    // Open email client
-    window.location.href = "mailto:antenehtirusew8@gmail.com?subject=" + subject + "&body=" + body;
-
-    // Show thank-you state
-    submitForm.style.display = "none";
-    thankYouMessage.style.display = "flex";
-  });
-
-  submitAnotherBtn.addEventListener("click", function () {
-    submitForm.reset();
-    submitForm.style.display = "flex";
-    thankYouMessage.style.display = "none";
-  });
+    // Specialty → show "Other" text input
+    var specSelect    = document.getElementById("sf-specialty");
+    var specOtherWrap = document.getElementById("sf-specialty-other-wrap");
+    if (specSelect && specOtherWrap) {
+      specSelect.addEventListener("change", function() {
+        specOtherWrap.style.display = specSelect.value === "Other (Please specify)" ? "" : "none";
+      });
+    }
+    // Working hours "other" → show inline text input
+    document.querySelectorAll('input[name="working_hours"]').forEach(function(radio) {
+      radio.addEventListener("change", function() {
+        var hoursOther = document.getElementById("sf-hours-other");
+        if (hoursOther) hoursOther.style.display = (radio.value === "other" && radio.checked) ? "" : "none";
+      });
+    });
+    // Social media accordion
+    var toggle = document.getElementById("regSocialToggle");
+    var body   = document.getElementById("regSocialBody");
+    var icon   = document.getElementById("regSocialIcon");
+    if (toggle && body) {
+      // Start collapsed
+      body.style.display = "none";
+      toggle.addEventListener("click", function() {
+        var open = body.style.display !== "none";
+        body.style.display = open ? "none" : "";
+        if (icon) icon.textContent = open ? "+" : "−";
+        toggle.setAttribute("aria-expanded", !open);
+      });
+    }
+  })();
 
   // ============================================================
   //  TICKER — build from live facility data, shuffle on load + 30s
@@ -2468,42 +2584,76 @@ specialtyCategory: "orthopedic",
   buildTicker();
 
   // ============================================================
-  //  CORRECTION MODAL v5.1 — wire up #corrModal
+  //  CORRECTION MODAL v7.4 — Formspree async submit
   //  (openCorr / closeCorr defined at window scope above)
   // ============================================================
   (function() {
-    var m = document.getElementById('corrModal');
+    var m        = document.getElementById('corrModal');
     var closeBtn = document.getElementById('corrClose');
-    var submitBtn = document.getElementById('cSubmit');
+    var form     = document.getElementById('corrForm');
+    var submitBtn= document.getElementById('cSubmit');
     if (closeBtn) closeBtn.onclick = window.closeCorr;
     if (m) m.onclick = function(e) { if (e.target === m) window.closeCorr(); };
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && m && m.style.display === 'flex') window.closeCorr();
     });
-    if (submitBtn) submitBtn.onclick = function() {
-      var what    = (document.getElementById('cWhat').value    || '').trim();
-      var correct = (document.getElementById('cCorrect').value || '').trim();
-      if (!what || !correct) {
-        alert('Please fill in the required fields marked with *');
-        return;
-      }
-      var name    = document.getElementById('cFacility').value;
-      var notes   = document.getElementById('cNotes').value;
-      var by      = document.getElementById('cName').value;
-      var contact = document.getElementById('cContact').value;
-      var sub = encodeURIComponent('Correction Request — ' + name + ' — Tiru MedDirectory');
-      var bod = encodeURIComponent(
-        'Facility: ' + name +
-        '\nWhat needs correction: ' + what +
-        '\nCorrect info: ' + correct +
-        '\nNotes: ' + (notes || 'N/A') +
-        '\nSubmitted by: ' + (by || 'Anonymous') +
-        '\nContact: ' + (contact || 'N/A')
-      );
-      window.open('mailto:antenehtirusew8@gmail.com?subject=' + sub + '&body=' + bod);
-      document.getElementById('cThanks').style.display = 'block';
-      setTimeout(window.closeCorr, 3000);
-    };
+
+    function corrSetLoading(on) {
+      if (!submitBtn) return;
+      submitBtn.disabled = on;
+      var textEl = submitBtn.querySelector('.reg-submit-text');
+      var spinEl = submitBtn.querySelector('.reg-submit-spinner');
+      if (textEl) textEl.style.display = on ? 'none' : '';
+      if (spinEl) spinEl.style.display = on ? 'flex' : 'none';
+    }
+    function showCorrError(msg) {
+      var el = document.getElementById('corrError');
+      if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var what    = (document.getElementById('cWhat').value    || '').trim();
+        var correct = (document.getElementById('cCorrect').value || '').trim();
+        var contact = (document.getElementById('cContact').value || '').trim();
+        var errEl   = document.getElementById('corrError');
+        if (errEl) errEl.style.display = 'none';
+
+        if (!what || !correct) {
+          showCorrError('Please fill in the required fields marked with *.');
+          return;
+        }
+
+        // Wire _replyto if contact looks like an email
+        var replyTo = document.getElementById('cReplyTo');
+        if (replyTo && contact.indexOf('@') > -1) replyTo.value = contact;
+
+        corrSetLoading(true);
+
+        var formData = new FormData(form);
+        fetch('https://formspree.io/f/mgoqpjqe', {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        })
+        .then(function(res) {
+          if (res.ok) {
+            form.style.display = 'none';
+            var thanks = document.getElementById('cThanks');
+            if (thanks) thanks.style.display = 'flex';
+            setTimeout(window.closeCorr, 3200);
+          } else {
+            showCorrError('Submission failed. Please try again.');
+            corrSetLoading(false);
+          }
+        })
+        .catch(function() {
+          showCorrError('Submission failed. Please try again or contact us directly.');
+          corrSetLoading(false);
+        });
+      });
+    }
   })();
 
   // Expose specialty sub-tab function globally (for any inline onclick usage)
