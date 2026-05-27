@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Antex MedDirectory** — a single-page health facility finder for Addis Ababa, Ethiopia. Vanilla HTML/CSS/JS, no build step, no framework, no package.json. Three files total:
+**Tiru MedDirectory** — a single-page health facility finder for Addis Ababa, Ethiopia. Vanilla HTML/CSS/JS, no build step, no framework, no package.json. Three files total:
 
 | File | Role |
 |------|------|

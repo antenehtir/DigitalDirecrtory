@@ -2360,7 +2360,7 @@ specialtyCategory: "orthopedic",
       return;
     }
 
-    const subject = encodeURIComponent("Facility Registration — Antex MedDirectory: " + name);
+    const subject = encodeURIComponent("Facility Registration — Tiru MedDirectory: " + name);
     const body = encodeURIComponent(
       "Facility Name: " + name + "\n" +
       "Type: " + type + "\n" +
@@ -2491,7 +2491,7 @@ specialtyCategory: "orthopedic",
       var notes   = document.getElementById('cNotes').value;
       var by      = document.getElementById('cName').value;
       var contact = document.getElementById('cContact').value;
-      var sub = encodeURIComponent('Correction Request — ' + name + ' — Antex MedDirectory');
+      var sub = encodeURIComponent('Correction Request — ' + name + ' — Tiru MedDirectory');
       var bod = encodeURIComponent(
         'Facility: ' + name +
         '\nWhat needs correction: ' + what +
