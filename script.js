@@ -1,71 +1,44 @@
 // ============================================================
-//  OPEN CORRECTION — window-scope (v7.6)
+//  OPEN CORRECTION — window-scope (v7.7)
 //  Defined before DOMContentLoaded so inline onclicks fire
-//  immediately without any timing issues.
+//  immediately without timing issues.
 // ============================================================
 window.openCorrection = function(facilityName) {
-  // 1. Open the bottom tab if closed
-  var tabBtn = document.getElementById('submitTabBtn');
-  if (!tabBtn) return;
-  tabBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  setTimeout(function() {
-    if (tabBtn.getAttribute('aria-expanded') === 'false') tabBtn.click();
+  // 1. Open the accordion if closed
+  var submitTabBtn  = document.getElementById('submitTabBtn');
+  var submitTabBody = document.getElementById('submitTabBody');
+  if (submitTabBtn && submitTabBody && submitTabBody.style.display === 'none') {
+    submitTabBtn.click();
+  }
+
+  // 2. Switch to correction tab
+  var corrBtn = document.getElementById('correctionTabBtn');
+  if (corrBtn) corrBtn.click();
+
+  // 3. Scroll to section
+  var section = document.getElementById('facilityManagementSection');
+  if (section) {
     setTimeout(function() {
-      // 2. Switch to correction tab
-      var corrTab = document.getElementById('correctionTabBtn');
-      if (corrTab) corrTab.click();
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  }
 
-      // 3. Scroll to the facility management section
-      var section = document.getElementById('facilityManagementSection');
-      if (section) {
-        setTimeout(function() {
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
-
+  // 4. Populate search + auto-select
+  setTimeout(function() {
+    var search = document.getElementById('correctionFacilitySearch');
+    if (search) {
+      search.value = facilityName;
+      search.dispatchEvent(new Event('input', { bubbles: true }));
       setTimeout(function() {
-        // 4. Auto-populate search
-        var searchInput = document.getElementById('correctionFacilitySearch');
-        if (searchInput && facilityName) {
-          searchInput.value = facilityName;
-          searchInput.dispatchEvent(new Event('input'));
-          setTimeout(function() {
-            // 5. Auto-select matching facility — try data-facility-name first, fallback to name text
-            var dropdown = document.getElementById('corrSearchDropdown');
-            if (dropdown) {
-              var options = dropdown.querySelectorAll('.correction-facility-option');
-              var clicked = false;
-              options.forEach(function(opt) {
-                if (!clicked && opt.getAttribute('data-facility-name') === facilityName) {
-                  opt.click();
-                  clicked = true;
-                }
-              });
-              // Fallback: match by visible name text
-              if (!clicked) {
-                var items = dropdown.querySelectorAll('.corr-dropdown-item');
-                for (var i = 0; i < items.length; i++) {
-                  var nameEl = items[i].querySelector('.corr-dropdown-name');
-                  if (nameEl && nameEl.textContent.trim() === facilityName) {
-                    items[i].click();
-                    break;
-                  }
-                }
-              }
-            }
-            // 6. Focus submitter name
-            setTimeout(function() {
-              var nameInput = document.getElementById('cf-submitter-name');
-              if (nameInput) {
-                nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                nameInput.focus();
-              }
-            }, 400);
-          }, 300);
-        }
-      }, 600);
-    }, 600);
-  }, 700);
+        var opts = document.querySelectorAll('.correction-facility-option');
+        opts.forEach(function(opt) {
+          if (opt.getAttribute('data-facility-name') === facilityName) {
+            opt.click();
+          }
+        });
+      }, 200);
+    }
+  }, 400);
 };
 // Backward-compatible aliases
 window.openCorr = window.openCorrection;
@@ -73,6 +46,27 @@ window.closeCorr = function() {
   var m = document.getElementById('successModal');
   if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
 };
+
+// ============================================================
+//  "OTHER" FIELD DELEGATION — global, before DOMContentLoaded
+//  Handles every SELECT with data-other-target in both forms.
+// ============================================================
+document.addEventListener('change', function(e) {
+  var sel = e.target;
+  if (!sel || sel.tagName !== 'SELECT') return;
+  var targetId = sel.getAttribute('data-other-target');
+  if (!targetId) return;
+  var wrap = document.getElementById(targetId);
+  if (!wrap) return;
+  var isOther = (sel.value === 'Other' || sel.value === 'other' || sel.value === 'OTHER');
+  wrap.style.display = isOther ? 'block' : 'none';
+  wrap.style.marginTop = isOther ? '8px' : '0';
+  var inp = wrap.querySelector('input, textarea');
+  if (inp) {
+    inp.required = isOther;
+    if (!isOther) inp.value = '';
+  }
+});
 
 document.addEventListener("DOMContentLoaded", function () {
   // ============================================================
@@ -2493,40 +2487,14 @@ specialtyCategory: "orthopedic",
     });
   }
 
-  // ============================================================
-  //  "OTHER" OPTION — bulletproof global event delegation v7.6
-  //  Handles ALL selects with data-other-target in BOTH forms.
-  //  Also handles working hours radio button separately.
-  // ============================================================
-  (function() {
-    // Global delegation for SELECT elements with data-other-target
-    document.body.addEventListener('change', function(e) {
-      if (e.target && e.target.tagName === 'SELECT') {
-        var selectEl = e.target;
-        var otherId  = selectEl.getAttribute('data-other-target');
-        if (otherId) {
-          var otherDiv = document.getElementById(otherId);
-          if (otherDiv) {
-            var isOther = (selectEl.value === 'Other' || selectEl.value === 'other');
-            otherDiv.style.display = isOther ? '' : 'none';
-            var inp = otherDiv.querySelector('input, textarea');
-            if (inp) {
-              inp.required = isOther;
-              if (!isOther) inp.value = '';
-            }
-          }
-        }
-      }
+  // "Other" SELECT delegation is now global (before DOMContentLoaded) — see top of file.
+  // Working hours radio buttons (radios don't bubble through SELECT delegation):
+  document.querySelectorAll('input[name="working_hours"]').forEach(function(radio) {
+    radio.addEventListener("change", function() {
+      var ho = document.getElementById("sf-hours-other");
+      if (ho) ho.style.display = (radio.value === "other" && radio.checked) ? "block" : "none";
     });
-
-    // Working hours radio buttons (registration form — no data-other-target since it's radios)
-    document.querySelectorAll('input[name="working_hours"]').forEach(function(radio) {
-      radio.addEventListener("change", function() {
-        var ho = document.getElementById("sf-hours-other");
-        if (ho) ho.style.display = (radio.value === "other" && radio.checked) ? "" : "none";
-      });
-    });
-  })();
+  });
 
   // ============================================================
   //  TICKER — build from live facility data, shuffle on load + 30s
@@ -2776,6 +2744,10 @@ specialtyCategory: "orthopedic",
         if (corrSpinEl) corrSpinEl.style.display = 'flex';
 
         var formData = new FormData(corrForm2);
+        // Dynamic subject so Formspree email clearly identifies the facility
+        var facilityNameForSubject = (document.getElementById('correctionFacilitySearch') || {}).value || 'Unknown Facility';
+        formData.set('_subject', 'Correction Request — ' + facilityNameForSubject + ' — Tiru MedDirectory');
+        formData.set('form_type', 'CORRECTION REQUEST');
         // Debug: log all form fields before submission
         console.log('[Correction Form] Fields being submitted:');
         for (var pair of formData.entries()) { console.log('  ' + pair[0] + ':', pair[1]); }
@@ -2802,55 +2774,67 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  SUCCESS MODAL v7.6
+  //  SUCCESS MODAL v7.7 — closeAndReset pattern
   // ============================================================
   (function() {
-    var modal      = document.getElementById('successModal');
-    var closeBtn   = document.getElementById('successModalClose');
-    var closeText  = document.getElementById('successModalCloseText');
-    var another    = document.getElementById('successModalAnother');
+    var modal    = document.getElementById('successModal');
+    var closeBtn = document.getElementById('successModalClose');
+    var closeTxt = document.getElementById('successModalCloseText');
+    var another  = document.getElementById('successModalAnother');
 
+    // Dismiss popup only (no reset)
     function closeSuccessModal() {
       if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
     }
 
-    if (closeBtn)  closeBtn.addEventListener('click',  closeSuccessModal);
-    if (closeText) closeText.addEventListener('click', closeSuccessModal);
-    if (modal)     modal.addEventListener('click', function(e) { if (e.target === modal) closeSuccessModal(); });
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && modal && modal.style.display === 'flex') closeSuccessModal();
-    });
-
-    if (another) another.addEventListener('click', function() {
-      var type = (modal && modal.dataset.type) || 'registration';
+    // Close AND reset the appropriate form
+    function closeAndReset(formType) {
       closeSuccessModal();
 
-      if (type === 'correction') {
-        var corrForm2 = document.getElementById('corrForm2');
-        if (corrForm2) corrForm2.reset();
+      // Hide all "other" wrapper divs (both naming conventions)
+      ['sf-type-other-wrap', 'sf-specialty-other-wrap', 'cf-position-other-wrap'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) { el.style.display = 'none'; var inp = el.querySelector('input,textarea'); if (inp) { inp.required = false; inp.value = ''; } }
+      });
+
+      if (formType === 'correction') {
+        var corrForm = document.getElementById('corrForm2');
+        if (corrForm) corrForm.reset();
         var step2 = document.getElementById('corrStep2'); if (step2) step2.style.display = 'none';
         var step3 = document.getElementById('corrStep3'); if (step3) step3.style.display = 'none';
         var sw    = document.getElementById('corrSubmitWrap'); if (sw) sw.style.display = 'none';
         var si    = document.getElementById('correctionFacilitySearch'); if (si) si.value = '';
         var fe    = document.getElementById('corrFormError'); if (fe) fe.style.display = 'none';
-        // Clear all cf-field state classes
         document.querySelectorAll('.cf-field').forEach(function(f) {
-          f.classList.remove('cf-has-data','cf-empty','cf-changed');
+          f.classList.remove('cf-has-data', 'cf-empty', 'cf-changed');
         });
-        // Scroll back to top of correction tab
-        var corrPanel = document.getElementById('correctionTabContent');
-        if (corrPanel) setTimeout(function() { corrPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
       } else {
         if (submitForm) submitForm.reset();
-        ['sf-type-other-wrap','sf-specialty-other-wrap'].forEach(function(id) {
-          var el = document.getElementById(id); if (el) el.style.display = 'none';
-        });
         var ho = document.getElementById('sf-hours-other'); if (ho) ho.style.display = 'none';
         var re = document.getElementById('regError'); if (re) re.style.display = 'none';
-        // Scroll back to top of registration tab
-        var regPanel = document.getElementById('registrationTabContent');
-        if (regPanel) setTimeout(function() { regPanel.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
       }
+
+      // Scroll back to top of facility management section
+      var section = document.getElementById('facilityManagementSection');
+      if (section) setTimeout(function() { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+
+    // X button and text "Close" button — dismiss only, no reset
+    if (closeBtn) closeBtn.addEventListener('click', closeSuccessModal);
+    if (closeTxt) closeTxt.addEventListener('click', closeSuccessModal);
+
+    // Click outside card — dismiss only
+    if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeSuccessModal(); });
+
+    // Escape key — dismiss only
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal && modal.style.display === 'flex') closeSuccessModal();
+    });
+
+    // "Submit Another" — close + full reset + scroll
+    if (another) another.addEventListener('click', function() {
+      var type = (modal && modal.dataset.type) || 'registration';
+      closeAndReset(type);
     });
   })();
 
