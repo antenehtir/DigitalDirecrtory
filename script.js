@@ -4,52 +4,53 @@
 //  immediately without timing issues.
 // ============================================================
 window.openCorrection = function(facilityName) {
-  // STEP A: Force open the accordion body directly
-  var body = document.getElementById('submitTabBody');
-  var icon = document.getElementById('submitTabIcon');
-  var btn  = document.getElementById('submitTabBtn');
-  if (body) {
-    body.style.display = 'block';
-    body.style.visibility = 'visible';
-  }
-  if (icon) icon.classList.add('open');
-  if (btn)  btn.setAttribute('aria-expanded', 'true');
-
-  // STEP B: Force show Suggest Correction tab, hide Register tab
+  var body   = document.getElementById('submitTabBody');
+  var icon   = document.getElementById('submitTabIcon');
+  var btn    = document.getElementById('submitTabBtn');
   var tab1   = document.getElementById('registrationTabBtn');
   var tab2   = document.getElementById('correctionTabBtn');
   var panel1 = document.getElementById('registrationTabContent');
   var panel2 = document.getElementById('correctionTabContent');
-  if (panel1) { panel1.style.display = 'none'; panel1.style.visibility = 'hidden'; }
-  if (panel2) { panel2.style.display = 'block'; panel2.style.visibility = 'visible'; }
-  if (tab1) { tab1.classList.remove('fdm-tab--active'); tab1.setAttribute('aria-selected','false'); }
-  if (tab2) { tab2.classList.add('fdm-tab--active'); tab2.setAttribute('aria-selected','true'); }
+  var section = document.getElementById('facilityManagementSection')
+             || document.getElementById('submitTabBtn');
 
-  // STEP C: Scroll to section
-  var section = document.getElementById('facilityManagementSection');
-  if (!section) section = document.getElementById('submitTabBtn');
+  // STEP 1: Scroll immediately (before touching DOM)
   if (section) {
-    setTimeout(function() {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 200);
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // STEP D: Populate facility name in correction search
+  // STEP 2: After 600ms (scroll settled), force open accordion + switch tab via cssText !important
   setTimeout(function() {
-    var search = document.getElementById('correctionFacilitySearch');
-    if (search && facilityName) {
-      search.value = facilityName;
-      search.dispatchEvent(new Event('input', { bubbles: true }));
-      setTimeout(function() {
-        var opts = document.querySelectorAll('.correction-facility-option');
-        opts.forEach(function(opt) {
-          if (opt.getAttribute('data-facility-name') === facilityName) {
-            opt.click();
-          }
-        });
-      }, 300);
+    if (body)  {
+      body.classList.remove('hidden', 'collapsed', 'closed');
+      body.style.cssText = 'display:block !important; visibility:visible !important;';
     }
-  }, 500);
+    if (icon)  { icon.classList.add('open'); }
+    if (btn)   { btn.setAttribute('aria-expanded', 'true'); }
+    if (panel1){ panel1.style.cssText = 'display:none !important; visibility:hidden !important;'; }
+    if (panel2){ panel2.style.cssText = 'display:block !important; visibility:visible !important;'; }
+    if (tab1)  { tab1.classList.remove('fdm-tab--active'); tab1.setAttribute('aria-selected', 'false'); }
+    if (tab2)  { tab2.classList.add('fdm-tab--active'); tab2.setAttribute('aria-selected', 'true'); }
+
+    // STEP 3: After 200ms more, populate correction search field
+    setTimeout(function() {
+      var search = document.getElementById('correctionFacilitySearch');
+      if (search && facilityName) {
+        search.value = facilityName;
+        search.dispatchEvent(new Event('input', { bubbles: true }));
+
+        // STEP 4: After 300ms more, auto-select the facility in the dropdown
+        setTimeout(function() {
+          var opts = document.querySelectorAll('.correction-facility-option');
+          opts.forEach(function(opt) {
+            if (opt.getAttribute('data-facility-name') === facilityName) {
+              opt.click();
+            }
+          });
+        }, 300);
+      }
+    }, 200);
+  }, 600);
 };
 // Backward-compatible aliases
 window.openCorr = window.openCorrection;
