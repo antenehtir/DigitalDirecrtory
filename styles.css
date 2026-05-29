@@ -2594,3 +2594,126 @@ button:focus-visible, a:focus-visible {
 
 /* Ensure reg-card doesn't clip correction dropdown */
 .reg-card { overflow: visible; }
+
+/* ============================================
+   v7.8 ADDITIONS
+   ============================================ */
+
+/* Fix 9: Global navbar reset button */
+.nav-reset-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  border-radius: var(--radius-full);
+  color: rgba(255,255,255,0.82);
+  font-family: var(--font); font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition); white-space: nowrap;
+  flex-shrink: 0;
+}
+.nav-reset-btn:hover {
+  background: rgba(27,152,224,0.28); border-color: var(--teal);
+  color: white; transform: translateY(-1px);
+}
+@media (max-width: 640px) {
+  .nav-reset-label { display: none; }
+  .nav-reset-btn { padding: 6px 10px; }
+}
+
+/* Fix 5: Ticker animation — -webkit- prefixes + mobile force-play */
+.ticker-track {
+  -webkit-animation: ticker-scroll 90s linear infinite;
+  -webkit-animation-play-state: running;
+  animation-play-state: running;
+}
+@media (hover: none) and (pointer: coarse) {
+  .ticker-track {
+    -webkit-animation-play-state: running !important;
+    animation-play-state: running !important;
+  }
+  .ticker-wrap { overflow: hidden; }
+}
+
+/* Fix 6: Pure CSS swipe indicator — shows chevron on touch-only devices */
+.swipe-hint-container { position: relative; }
+@media (hover: none) and (pointer: coarse) {
+  .swipe-hint-container::after {
+    content: '›';
+    position: absolute; right: 0; top: 0; bottom: 0;
+    width: 36px;
+    display: flex; align-items: center; justify-content: flex-end;
+    padding-right: 6px;
+    background: linear-gradient(to right, transparent, rgba(248,250,252,0.9));
+    pointer-events: none; z-index: 5;
+    font-size: 1.4rem; color: var(--teal); font-weight: 700; line-height: 1;
+    animation: swipeHintPulse 1.4s ease-in-out infinite;
+  }
+}
+
+/* Fix 1: Correction anchor button — style as clickable action link */
+a.action-correction {
+  display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; text-decoration: none;
+}
+
+/* Fix 2: Near Me filter row */
+.nearme-filter-row {
+  padding: 12px 24px 4px;
+}
+.nearme-filter-inner {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 10px; max-width: 1000px; margin: 0 auto;
+}
+.nearme-filter-label {
+  font-size: 0.8rem; font-weight: 600;
+  color: var(--gray-600); white-space: nowrap;
+}
+.nearme-radius-pills {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.nearme-radius-pill {
+  padding: 5px 14px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--gray-200);
+  background: white; color: var(--gray-700);
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition);
+}
+.nearme-radius-pill:hover {
+  border-color: var(--teal); color: var(--teal);
+  background: var(--teal-light);
+}
+.nearme-radius-pill.active {
+  background: var(--teal); color: white;
+  border-color: var(--teal); box-shadow: 0 2px 8px rgba(27,152,224,0.35);
+}
+.nearme-count {
+  font-size: 0.8rem; color: var(--gray-600); font-weight: 500;
+  white-space: nowrap;
+}
+.nearme-reset-btn {
+  margin-left: auto;
+  padding: 5px 14px; border-radius: var(--radius-full);
+  border: 1.5px solid var(--gray-200);
+  background: white; color: var(--gray-700);
+  font-family: var(--font); font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; transition: var(--transition);
+}
+.nearme-reset-btn:hover {
+  border-color: var(--danger); color: var(--danger);
+  background: #fff5f5;
+}
+
+/* Fix 2: Distance badge on Near Me cards */
+.nearme-dist-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: var(--radius-full);
+  background: var(--teal); color: white;
+  font-size: 0.7rem; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .nearme-filter-row { padding: 10px 16px 4px; }
+  .nearme-reset-btn  { margin-left: 0; }
+}

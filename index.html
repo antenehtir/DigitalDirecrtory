@@ -17,7 +17,7 @@
   <!-- Leaflet.js for Near Me map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-  <link rel="stylesheet" href="styles.css?v=7.7" />
+  <link rel="stylesheet" href="styles.css?v=7.8" />
 </head>
 <body class="page-fade">
 
@@ -97,6 +97,9 @@
         </div>
         <button class="nav-home-btn" id="homeBtn" aria-label="Return to home">🏠 <span class="hnav-label">Home</span></button>
       </div>
+      <button class="nav-reset-btn" id="navResetBtn" onclick="window.globalReset && window.globalReset()" aria-label="Reset all filters">
+        ↺ <span class="nav-reset-label">Reset</span>
+      </button>
       <div class="header-nav-tabs" role="tablist" aria-label="Site navigation">
         <button class="top-nav-tab" data-panel="tn-about" role="tab" aria-selected="false">ℹ️ <span class="hnav-label">About</span></button>
         <button class="top-nav-tab" data-panel="tn-news" role="tab" aria-selected="false">📰 <span class="hnav-label">News</span><span class="top-nav-dot" id="topNavNewsDot" style="display:none;"></span></button>
@@ -144,7 +147,7 @@
           <button class="hero-hint-tag" data-key="diagnostic">🔬 Diagnostics</button>
           <button class="hero-hint-tag" data-key="ambulance">🚑 Ambulance</button>
           <button class="hero-hint-tag" data-key="telemedicine">💻 Telemedicine</button>
-          <button class="hero-hint-tag" data-key="services">🩺 Services</button>
+          <button class="hero-hint-tag" data-key="diagnostic">🔬 Get Lab Service</button>
         </div>
       </div>
 
@@ -296,7 +299,7 @@
   <div class="tabs-section-outer">
 
     <!-- Unified Category Tabs -->
-    <div class="unified-tabs-section" id="unifiedTabsSection">
+    <div class="unified-tabs-section swipe-hint-container" id="unifiedTabsSection">
       <button class="unified-tab-arrow" id="unifiedTabLeft" aria-label="Scroll categories left">&#8249;</button>
       <div class="unified-tabs-scroll" id="unifiedTabsScroll" role="tablist" aria-label="Facility categories">
         <!-- populated by buildUnifiedTabs() in JS -->
@@ -324,7 +327,7 @@
     </nav>
 
     <!-- Specialty sub-type chips -->
-    <div class="specialty-sub-tabs-nav" id="specialtySubTabsWrap" style="display:none;">
+    <div class="specialty-sub-tabs-nav swipe-hint-container" id="specialtySubTabsWrap" style="display:none;">
       <button class="spec-tab-arrow" id="specTabLeft" aria-label="Scroll specialties left">&#8249;</button>
       <div id="specialtySubTabs" class="specialty-sub-tabs" role="navigation" aria-label="Filter by specialty type">
         <!-- populated by buildSpecialtySubTabs() -->
@@ -385,6 +388,21 @@
           Location access denied. Please enable it in your browser settings, or use the filter above to search by sub-city.
         </div>
       </div>
+      <!-- Radius filter row (shown after location granted) -->
+      <div id="nearmeFilterRow" class="nearme-filter-row" style="display:none;">
+        <div class="nearme-filter-inner">
+          <div class="nearme-radius-pills" id="nearmeRadiusPills">
+            <span class="nearme-filter-label">Radius:</span>
+            <button class="nearme-radius-pill active" data-radius="all">All</button>
+            <button class="nearme-radius-pill" data-radius="1">1 km</button>
+            <button class="nearme-radius-pill" data-radius="3">3 km</button>
+            <button class="nearme-radius-pill" data-radius="5">5 km</button>
+            <button class="nearme-radius-pill" data-radius="10">10 km</button>
+          </div>
+          <span id="nearmeCount" class="nearme-count"></span>
+          <button id="resetNearMeBtn" class="nearme-reset-btn">↺ Reset Near Me</button>
+        </div>
+      </div>
       <div id="nearMeMap" class="nearme-map" style="display:none;"></div>
       <div class="nearme-results">
         <div class="results-grid" id="nearMeGrid"></div>
@@ -438,6 +456,25 @@
 
     <!-- ===== BOTTOM TABS ===== -->
     <div class="bottom-tabs">
+
+      <!-- Directory Guidelines (shown first) -->
+      <div class="bottom-tab-item">
+        <button class="bottom-tab-btn" id="rulesTabBtn" aria-expanded="false" aria-controls="rulesTabBody">
+          <span><i class="fa-solid fa-circle-info"></i> Directory Guidelines</span>
+          <i class="fa-solid fa-chevron-down bottom-tab-icon" id="rulesTabIcon"></i>
+        </button>
+        <div class="bottom-tab-body" id="rulesTabBody" style="display:none;">
+          <div class="rules-content">
+            <ul class="rules-list">
+              <li><i class="fa-solid fa-circle-check"></i> Tiru MedDirectory is completely free for all users.</li>
+              <li><i class="fa-solid fa-circle-check"></i> Select a facility type to narrow your search, or leave blank to browse all.</li>
+              <li><i class="fa-solid fa-circle-check"></i> Track real-time updates by joining a facility's Telegram or visiting their website.</li>
+              <li><i class="fa-solid fa-circle-check"></i> To register a missing facility or request a correction, use the options below.</li>
+              <li><i class="fa-solid fa-circle-check"></i> For feedback: <strong>@AntenehTir</strong> on Telegram or <a href="mailto:antenehtirusew8@gmail.com" style="color:var(--teal-dark);">antenehtirusew8@gmail.com</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
       <!-- Submit Missing Facility -->
       <div class="bottom-tab-item" id="facilityManagementSection">
@@ -868,25 +905,6 @@
         </div>
       </div>
 
-      <!-- Directory Guidelines -->
-      <div class="bottom-tab-item">
-        <button class="bottom-tab-btn" id="rulesTabBtn" aria-expanded="false" aria-controls="rulesTabBody">
-          <span><i class="fa-solid fa-circle-info"></i> Directory Guidelines</span>
-          <i class="fa-solid fa-chevron-down bottom-tab-icon" id="rulesTabIcon"></i>
-        </button>
-        <div class="bottom-tab-body" id="rulesTabBody" style="display:none;">
-          <div class="rules-content">
-            <ul class="rules-list">
-              <li><i class="fa-solid fa-circle-check"></i> Tiru MedDirectory is completely free for all users.</li>
-              <li><i class="fa-solid fa-circle-check"></i> Select a facility type to narrow your search, or leave blank to browse all.</li>
-              <li><i class="fa-solid fa-circle-check"></i> Track real-time updates by joining a facility's Telegram or visiting their website.</li>
-              <li><i class="fa-solid fa-circle-check"></i> To register a missing facility or request a correction, use the options below.</li>
-              <li><i class="fa-solid fa-circle-check"></i> For feedback: <strong>@AntenehTir</strong> on Telegram or <a href="mailto:antenehtirusew8@gmail.com" style="color:var(--teal-dark);">antenehtirusew8@gmail.com</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
     </div><!-- /bottom-tabs -->
 
   </main>
@@ -1087,6 +1105,6 @@
 
   <!-- Leaflet.js -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="script.js?v=7.7"></script>
+  <script src="script.js?v=7.8"></script>
 </body>
 </html>

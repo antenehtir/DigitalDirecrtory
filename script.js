@@ -42,6 +42,34 @@ window.openCorrection = function(facilityName) {
 };
 // Backward-compatible aliases
 window.openCorr = window.openCorrection;
+
+// ============================================================
+//  GLOBAL RESET — v7.8
+//  Clears all filters, returns to "All Facilities" view.
+// ============================================================
+window.globalReset = function() {
+  // Clear filter form dropdowns
+  ['facilityType','specialtyType','subCity','area'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['areaSearch','nameSearch'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  // Clear hero search bar
+  var heroSearch = document.getElementById('heroSearch');
+  if (heroSearch) {
+    heroSearch.value = '';
+    heroSearch.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  // Return to All Facilities tab and render
+  if (typeof handleUnifiedTabClick === 'function') {
+    handleUnifiedTabClick('all');
+  }
+  // Scroll to top of page smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 window.closeCorr = function() {
   var m = document.getElementById('successModal');
   if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
@@ -2194,9 +2222,9 @@ specialtyCategory: "orthopedic",
             ${facility.twitter   ? `<a href="${facility.twitter}"   target="_blank" class="social-link social-twitter"   title="Twitter/X">${socialSvg('twitter')}</a>` : ""}
             ${facility.youtube   ? `<a href="${facility.youtube}"   target="_blank" class="social-link social-youtube"   title="YouTube">${socialSvg('youtube')}</a>` : ""}
           </div>` : ""}
-          <button class="action-btn action-correction" type="button" onclick="window.openCorrection(${JSON.stringify(facility.name)})">
-            <i class="fa-solid fa-pen-to-square"></i> Request Correction
-          </button>
+          <a href="#facilityManagementSection" class="action-btn action-correction" onclick="window.openCorrection(${JSON.stringify(facility.name)})">
+            ✏️ Request Correction ↓
+          </a>
         </div>
       </div>`;
   }
@@ -2774,7 +2802,7 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  SUCCESS MODAL v7.7 — closeAndReset pattern
+  //  SUCCESS MODAL v7.8 — always resets on every close action
   // ============================================================
   (function() {
     var modal    = document.getElementById('successModal');
@@ -2782,21 +2810,12 @@ specialtyCategory: "orthopedic",
     var closeTxt = document.getElementById('successModalCloseText');
     var another  = document.getElementById('successModalAnother');
 
-    // Dismiss popup only (no reset)
-    function closeSuccessModal() {
-      if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
-    }
-
-    // Close AND reset the appropriate form
-    function closeAndReset(formType) {
-      closeSuccessModal();
-
-      // Hide all "other" wrapper divs (both naming conventions)
+    // Shared field-reset logic (called on every close)
+    function _doFieldReset(formType) {
       ['sf-type-other-wrap', 'sf-specialty-other-wrap', 'cf-position-other-wrap'].forEach(function(id) {
         var el = document.getElementById(id);
         if (el) { el.style.display = 'none'; var inp = el.querySelector('input,textarea'); if (inp) { inp.required = false; inp.value = ''; } }
       });
-
       if (formType === 'correction') {
         var corrForm = document.getElementById('corrForm2');
         if (corrForm) corrForm.reset();
@@ -2813,25 +2832,29 @@ specialtyCategory: "orthopedic",
         var ho = document.getElementById('sf-hours-other'); if (ho) ho.style.display = 'none';
         var re = document.getElementById('regError'); if (re) re.style.display = 'none';
       }
+    }
 
-      // Scroll back to top of facility management section
+    // Close the modal AND reset fields (always)
+    function closeSuccessModal() {
+      var type = (modal && modal.dataset.type) || 'registration';
+      if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+      _doFieldReset(type);
+    }
+
+    // "Submit Another" — same reset + scroll back to the form
+    function closeAndReset(formType) {
+      if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+      _doFieldReset(formType);
       var section = document.getElementById('facilityManagementSection');
       if (section) setTimeout(function() { section.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     }
 
-    // X button and text "Close" button — dismiss only, no reset
     if (closeBtn) closeBtn.addEventListener('click', closeSuccessModal);
     if (closeTxt) closeTxt.addEventListener('click', closeSuccessModal);
-
-    // Click outside card — dismiss only
-    if (modal) modal.addEventListener('click', function(e) { if (e.target === modal) closeSuccessModal(); });
-
-    // Escape key — dismiss only
+    if (modal)    modal.addEventListener('click', function(e) { if (e.target === modal) closeSuccessModal(); });
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape' && modal && modal.style.display === 'flex') closeSuccessModal();
     });
-
-    // "Submit Another" — close + full reset + scroll
     if (another) another.addEventListener('click', function() {
       var type = (modal && modal.dataset.type) || 'registration';
       closeAndReset(type);
@@ -2839,44 +2862,9 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  MOBILE SWIPE INDICATORS v7.6 — show immediately on page load
+  //  MOBILE SWIPE INDICATORS v7.8 — pure CSS via .swipe-hint-container::after
+  //  (JS-based hint removed; CSS handles it on touch devices)
   // ============================================================
-  (function() {
-    var isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    if (!isTouchDevice) return;
-
-    function attachSwipeHint(el, key) {
-      if (!el || localStorage.getItem(key)) return;
-      var parent = el.parentElement;
-      if (!parent) return;
-      // Remove any existing hint
-      var existing = parent.querySelector('.swipe-hint');
-      if (existing) existing.remove();
-      var hint = document.createElement('div');
-      hint.className = 'swipe-hint';
-      hint.setAttribute('aria-hidden', 'true');
-      hint.innerHTML = '<span class="swipe-hint-chevron">›</span>';
-      if (window.getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
-      parent.appendChild(hint);
-      function dismiss() {
-        hint.style.opacity = '0';
-        setTimeout(function() { if (hint.parentElement) hint.remove(); }, 300);
-        localStorage.setItem(key, '1');
-        el.removeEventListener('scroll', onScroll);
-      }
-      function onScroll() { if (el.scrollLeft > 20) dismiss(); }
-      el.addEventListener('scroll', onScroll);
-      setTimeout(function() { if (hint.parentElement) dismiss(); }, 4500);
-    }
-
-    // Attach after layout is ready (use requestAnimationFrame for accurate sizes)
-    requestAnimationFrame(function() {
-      setTimeout(function() {
-        attachSwipeHint(document.getElementById('unifiedTabsScroll'), 'swipeDismissed_unifiedTabs');
-        attachSwipeHint(document.getElementById('specialtySubTabs'),  'swipeDismissed_specTabs');
-      }, 300);
-    });
-  })();
 
   // Expose specialty sub-tab function globally (for any inline onclick usage)
   window.selectSpecialtyType = function(val) {
@@ -3563,23 +3551,188 @@ specialtyCategory: "orthopedic",
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   }
 
+  // Parse lat/lng from a Google Maps URL if it contains coordinates
+  function parseLatLngFromMapUrl(url) {
+    if (!url || typeof url !== 'string') return null;
+    // Pattern: @lat,lng,zoom  (works for most maps.app.goo.gl and full URLs)
+    var atMatch = url.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (atMatch) return [parseFloat(atMatch[1]), parseFloat(atMatch[2])];
+    // Pattern: q=lat,lng
+    var qMatch = url.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (qMatch) return [parseFloat(qMatch[1]), parseFloat(qMatch[2])];
+    // Pattern: ll=lat,lng
+    var llMatch = url.match(/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+    if (llMatch) return [parseFloat(llMatch[1]), parseFloat(llMatch[2])];
+    return null;
+  }
+
   function getFacilityCoords(facility) {
-    const sc = (Array.isArray(facility.subCity) ? facility.subCity[0] : facility.subCity || "").toLowerCase().trim();
+    // Try URL-parsed coords first (most accurate)
+    var mapUrl = Array.isArray(facility.map) ? facility.map[0] : facility.map;
+    var parsed = parseLatLngFromMapUrl(mapUrl);
+    if (parsed) return parsed;
+    // Fall back to sub-city approximation
+    var sc = (Array.isArray(facility.subCity) ? facility.subCity[0] : facility.subCity || "").toLowerCase().trim();
     return subCityCoords[sc] || null;
   }
 
+  // Type-colored pins for the map
+  function getFacilityTypeColor(type) {
+    switch (type) {
+      case "general":       return "#1565c0";
+      case "speciality":
+      case "medical_plaza": return "#6a1b9a";
+      case "diagnostic":    return "#2e7d32";
+      case "ambulance":     return "#e65100";
+      case "homecare":      return "#c62828";
+      case "telemedicine":  return "#006064";
+      case "pharmacy":      return "#00695c";
+      case "financing":     return "#4527a0";
+      default:              return "#1B98E0";
+    }
+  }
+
+  // Near Me state
+  var _nearMeUserLat = null, _nearMeUserLng = null;
+  var _nearMeRadius  = 'all';
+  var _nearMeAllResults = [];
+
+  function buildNearMeMap(userLat, userLng, toShow) {
+    var mapEl = document.getElementById("nearMeMap");
+    if (!mapEl) return;
+    mapEl.style.display = "block";
+
+    if (!window.L) {
+      mapEl.innerHTML = '<p style="text-align:center;padding:40px;color:#475569;">Map unavailable — Leaflet failed to load.</p>';
+      return;
+    }
+
+    if (!leafletMap) {
+      leafletMap = L.map("nearMeMap").setView([userLat, userLng], 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+        maxZoom: 18
+      }).addTo(leafletMap);
+    } else {
+      leafletMap.setView([userLat, userLng], 13);
+      // Remove old markers (keep tile layer)
+      leafletMap.eachLayer(function(layer) {
+        if (layer instanceof L.Marker) leafletMap.removeLayer(layer);
+      });
+    }
+
+    // User pin (pulsing blue dot)
+    var userIcon = L.divIcon({
+      className: "",
+      html: '<div style="width:14px;height:14px;background:#1B98E0;border:3px solid white;border-radius:50%;box-shadow:0 0 0 5px rgba(27,152,224,0.3)"></div>',
+      iconSize: [14,14], iconAnchor: [7,7]
+    });
+    L.marker([userLat, userLng], { icon: userIcon }).addTo(leafletMap).bindPopup("<b>📍 You are here</b>");
+
+    // Facility pins — top 20, colored by type
+    toShow.slice(0, 20).forEach(function(f) {
+      if (!f._coords) return;
+      var color    = getFacilityTypeColor(f.facilityType);
+      var info     = getFacilityTypeInfo(f.facilityType);
+      var distText = f._dist < 0.1 ? '<0.1 km' : f._dist.toFixed(1) + ' km';
+      var label    = f.monogram || getFacilityInitials(f.name);
+      var facIcon  = L.divIcon({
+        className: "",
+        html: '<div style="width:30px;height:30px;background:' + color + ';border:2.5px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:9px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,0.32);line-height:1">' + label + '</div>',
+        iconSize: [30,30], iconAnchor: [15,15]
+      });
+      L.marker(f._coords, { icon: facIcon }).addTo(leafletMap)
+        .bindPopup('<b>' + f.name + '</b><br>' + info.emoji + ' ' + info.label + '<br>📍 ' + distText + (f.availability ? '<br>' + f.availability : ''));
+    });
+  }
+
+  function renderNearMeResults() {
+    var radius = _nearMeRadius;
+    var filtered;
+    if (radius === 'all') {
+      filtered = _nearMeAllResults.filter(function(f) { return f._coords; }).slice(0, 20);
+    } else {
+      var r = parseInt(radius, 10);
+      filtered = _nearMeAllResults.filter(function(f) { return f._coords && f._dist <= r; });
+    }
+
+    // Update count label
+    var countEl = document.getElementById('nearmeCount');
+    if (countEl) {
+      var label = filtered.length + ' facilit' + (filtered.length === 1 ? 'y' : 'ies');
+      label += radius === 'all' ? ' (20 nearest)' : ' within ' + radius + ' km';
+      countEl.textContent = label;
+    }
+
+    var nearGrid = document.getElementById('nearMeGrid');
+    if (!nearGrid) return;
+
+    if (filtered.length === 0) {
+      nearGrid.innerHTML = '<div class="empty-state"><i class="fa-solid fa-magnifying-glass-minus empty-state-icon"></i><h3>No Facilities Found</h3><p>Try a larger radius or tap "All" to see the 20 nearest.</p></div>';
+      return;
+    }
+
+    // Build cards with distance badge injected
+    var html = '';
+    filtered.forEach(function(f) {
+      var distText = f._dist < 0.1 ? '<0.1 km' : f._dist.toFixed(1) + ' km';
+      var badge    = '<span class="nearme-dist-badge"><i class="fa-solid fa-location-dot"></i> ' + distText + '</span>';
+      var cardHtml = buildFacilityCard(f);
+      // Inject badge right after opening .result-card-header div
+      cardHtml = cardHtml.replace('<div class="result-card-header">', '<div class="result-card-header">' + badge);
+      html += cardHtml;
+    });
+    nearGrid.innerHTML = html;
+  }
+
+  function resetNearMe() {
+    _nearMeUserLat = null; _nearMeUserLng = null;
+    _nearMeRadius  = 'all'; _nearMeAllResults = [];
+
+    if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+
+    var mapEl = document.getElementById('nearMeMap');
+    if (mapEl) { mapEl.style.display = 'none'; mapEl.innerHTML = ''; }
+
+    var nearGrid = document.getElementById('nearMeGrid');
+    if (nearGrid) nearGrid.innerHTML = '';
+
+    var filterRow = document.getElementById('nearmeFilterRow');
+    if (filterRow) filterRow.style.display = 'none';
+
+    // Reset radius pills to "All"
+    document.querySelectorAll('.nearme-radius-pill').forEach(function(p) {
+      p.classList.toggle('active', p.dataset.radius === 'all');
+    });
+
+    var countEl = document.getElementById('nearmeCount');
+    if (countEl) countEl.textContent = '';
+
+    var nearMeBtn = document.getElementById('nearMeBtn');
+    if (nearMeBtn) {
+      nearMeBtn.style.display = 'block';
+      nearMeBtn.disabled = false;
+      nearMeBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Use My Location';
+    }
+    var nearMeDenied = document.getElementById('nearMeDenied');
+    if (nearMeDenied) nearMeDenied.style.display = 'none';
+
+    var nearmeHero = document.getElementById('nearmeHero');
+    if (nearmeHero) nearmeHero.style.paddingBottom = '';
+  }
+
   function initNearMe(userLat, userLng) {
+    _nearMeUserLat = userLat; _nearMeUserLng = userLng;
+
     // Filter by category wheel selection if set
-    const facilityPool = _nearMeCategoryFilter
-      ? facilities.filter(f => {
+    var facilityPool = _nearMeCategoryFilter
+      ? facilities.filter(function(f) {
           if (_nearMeCategoryFilter === "speciality") {
             if (f.facilityType !== "speciality" && f.facilityType !== "medical_plaza") return false;
             if (_nearMeSpecialtyFilter) {
               if (_nearMeSpecialtyFilter === "medical_plaza") return f.facilityType === "medical_plaza";
               if (f.facilityType !== "speciality") return false;
-              if (Array.isArray(f.specialtyCategory)) {
-                return f.specialtyCategory.some(c => c.trim().toLowerCase() === _nearMeSpecialtyFilter);
-              }
+              if (Array.isArray(f.specialtyCategory)) return f.specialtyCategory.some(function(c) { return c.trim().toLowerCase() === _nearMeSpecialtyFilter; });
               return f.specialtyCategory && f.specialtyCategory.trim().toLowerCase() === _nearMeSpecialtyFilter;
             }
             return true;
@@ -3588,94 +3741,63 @@ specialtyCategory: "orthopedic",
         })
       : facilities;
 
-    // Sort filtered facilities by distance to user
-    const withDist = facilityPool.map(f => {
-      const coords = getFacilityCoords(f);
-      const dist   = coords ? haversineKm(userLat, userLng, coords[0], coords[1]) : 999;
-      return { ...f, _dist: dist, _coords: coords };
-    }).sort((a, b) => a._dist - b._dist);
+    // Sort by haversine distance
+    _nearMeAllResults = facilityPool.map(function(f) {
+      var coords = getFacilityCoords(f);
+      var dist   = coords ? haversineKm(userLat, userLng, coords[0], coords[1]) : 999;
+      return Object.assign({}, f, { _dist: dist, _coords: coords });
+    }).sort(function(a, b) { return a._dist - b._dist; });
 
-    // Build/update Leaflet map
-    const mapEl = document.getElementById("nearMeMap");
-    mapEl.style.display = "block";
+    // Build map with top 20
+    buildNearMeMap(userLat, userLng, _nearMeAllResults.slice(0, 20));
 
-    if (!window.L) {
-      mapEl.innerHTML = '<p style="text-align:center;padding:40px;color:#475569;">Map unavailable — Leaflet failed to load.</p>';
-    } else {
-      if (!leafletMap) {
-        leafletMap = L.map("nearMeMap").setView([userLat, userLng], 13);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
-          maxZoom: 18
-        }).addTo(leafletMap);
-      } else {
-        leafletMap.setView([userLat, userLng], 13);
-      }
-
-      // User pin
-      const userIcon = L.divIcon({
-        className: "",
-        html: '<div style="width:14px;height:14px;background:#1B98E0;border:3px solid white;border-radius:50%;box-shadow:0 0 0 4px rgba(27,152,224,0.3)"></div>',
-        iconSize: [14,14], iconAnchor: [7,7]
-      });
-      L.marker([userLat, userLng], { icon: userIcon }).addTo(leafletMap).bindPopup("<b>You are here</b>");
-
-      // Facility pins (top 20)
-      withDist.slice(0, 20).forEach(f => {
-        if (!f._coords) return;
-        const info = getFacilityTypeInfo(f.facilityType);
-        const facIcon = L.divIcon({
-          className: "",
-          html: `<div style="width:32px;height:32px;background:${getFacilityGradient(f.name,f.accentColor)};border:2px solid white;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,0.28)">${f.monogram||getFacilityInitials(f.name)}</div>`,
-          iconSize: [32,32], iconAnchor: [16,16]
+    // Show filter row + wire radius pills (once)
+    var filterRow = document.getElementById('nearmeFilterRow');
+    if (filterRow && filterRow.style.display === 'none') {
+      filterRow.style.display = 'block';
+      document.querySelectorAll('.nearme-radius-pill').forEach(function(pill) {
+        pill.addEventListener('click', function() {
+          document.querySelectorAll('.nearme-radius-pill').forEach(function(p) { p.classList.remove('active'); });
+          this.classList.add('active');
+          _nearMeRadius = this.dataset.radius;
+          renderNearMeResults();
         });
-        L.marker(f._coords, { icon: facIcon }).addTo(leafletMap)
-          .bindPopup(`<b>${f.name}</b><br>${info.emoji} ${info.label}<br>${f.availability || ""}`);
       });
+      var resetBtn = document.getElementById('resetNearMeBtn');
+      if (resetBtn) resetBtn.addEventListener('click', resetNearMe);
     }
 
-    // Show nearby facility cards in nearMeGrid (not the main resultsGrid)
-    const nearGrid = document.getElementById("nearMeGrid");
-    const rg       = document.getElementById("resultsGrid");
-    const nearby   = withDist.filter(f => f._coords && f._dist < 15);
-    // Use all sorted facilities if none found within 15 km
-    const toShow   = nearby.length > 0 ? nearby : withDist.filter(f => f._coords).slice(0, 20);
-
-    // Temporarily unhide resultsSection so renderResults can write to resultsGrid
-    const rSec = document.getElementById("resultsSection");
-    const prevDisplay = rSec.style.display;
-    rSec.style.display = "block";
-    renderResults(toShow);
-    nearGrid.innerHTML = rg.innerHTML;
-    rg.innerHTML = "";
-    rSec.style.display = prevDisplay || "none";
+    renderNearMeResults();
 
     // Scroll map into view
-    mapEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    var mapEl = document.getElementById('nearMeMap');
+    if (mapEl) setTimeout(function() { mapEl.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
   }
 
-  const nearMeBtn    = document.getElementById("nearMeBtn");
-  const nearMeDenied = document.getElementById("nearMeDenied");
+  var nearMeBtn    = document.getElementById("nearMeBtn");
+  var nearMeDenied = document.getElementById("nearMeDenied");
 
   if (nearMeBtn) {
     nearMeBtn.addEventListener("click", function () {
       this.disabled = true;
       this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating…';
       if (!navigator.geolocation) {
-        nearMeDenied.style.display = "flex";
+        if (nearMeDenied) nearMeDenied.style.display = "flex";
         this.style.display = "none";
         return;
       }
+      var btn = this;
       navigator.geolocation.getCurrentPosition(
-        pos => {
-          nearMeBtn.style.display = "none";
-          document.getElementById("nearmeHero").style.paddingBottom = "28px";
+        function(pos) {
+          btn.style.display = "none";
+          var nearmeHero = document.getElementById("nearmeHero");
+          if (nearmeHero) nearmeHero.style.paddingBottom = "28px";
           initNearMe(pos.coords.latitude, pos.coords.longitude);
         },
-        () => {
-          nearMeDenied.style.display = "flex";
-          nearMeBtn.disabled = false;
-          nearMeBtn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Use My Location';
+        function() {
+          if (nearMeDenied) nearMeDenied.style.display = "flex";
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Use My Location';
         },
         { timeout: 10000 }
       );
@@ -3879,25 +4001,30 @@ specialtyCategory: "orthopedic",
   })();
 
   // ============================================================
-  //  HERO SEARCH HINTS — v7.6
+  //  HERO SEARCH HINTS — v7.8
   // ============================================================
   (function() {
     document.querySelectorAll('.hero-hint-tag').forEach(function(btn) {
       btn.addEventListener('click', function() {
         var key = btn.dataset.key;
-        // "Services" tag: focus the search bar with a helpful placeholder
-        if (key === 'services') {
-          var heroInput = document.getElementById('heroSearch');
-          if (heroInput) {
-            heroInput.focus();
-            heroInput.placeholder = 'Type a service (e.g. Dialysis, MRI, CT scan…)';
-            heroInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          return;
-        }
         if (key) handleUnifiedTabClick(key);
       });
     });
+  })();
+
+  // ============================================================
+  //  HERO SEARCH MOBILE PLACEHOLDER — v7.8
+  // ============================================================
+  (function() {
+    var inp = document.getElementById('heroSearch');
+    if (!inp) return;
+    function setPlaceholder() {
+      inp.placeholder = window.innerWidth <= 480
+        ? 'Search facilities…'
+        : 'Search by facility name, specialty, service, or area…';
+    }
+    setPlaceholder();
+    window.addEventListener('resize', setPlaceholder);
   })();
 
   // Show ALL facilities immediately on load (no "ready to search" empty state)
