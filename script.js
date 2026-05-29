@@ -4,16 +4,27 @@
 //  immediately without timing issues.
 // ============================================================
 window.openCorrection = function(facilityName) {
-  // 1. Open the accordion if closed
-  var submitTabBtn  = document.getElementById('submitTabBtn');
+  // 1. Open accordion directly — avoids setupBottomTab's 50 ms scrollIntoView
+  //    side-effect that could briefly expose the Registration tab
   var submitTabBody = document.getElementById('submitTabBody');
-  if (submitTabBtn && submitTabBody && submitTabBody.style.display === 'none') {
-    submitTabBtn.click();
+  var submitTabIcon = document.getElementById('submitTabIcon');
+  var submitTabBtn  = document.getElementById('submitTabBtn');
+  if (submitTabBody && submitTabBody.style.display === 'none') {
+    submitTabBody.style.display = 'block';
+    if (submitTabIcon) submitTabIcon.classList.add('open');
+    if (submitTabBtn)  submitTabBtn.setAttribute('aria-expanded', 'true');
   }
 
-  // 2. Switch to correction tab
-  var corrBtn = document.getElementById('correctionTabBtn');
-  if (corrBtn) corrBtn.click();
+  // 2. Switch to "Suggest a Correction" tab via direct DOM — no .click() indirection
+  //    so the user lands there immediately with zero chance of seeing Register tab
+  var tab1   = document.getElementById('registrationTabBtn');
+  var tab2   = document.getElementById('correctionTabBtn');
+  var panel1 = document.getElementById('registrationTabContent');
+  var panel2 = document.getElementById('correctionTabContent');
+  if (tab2)   tab2.classList.add('fdm-tab--active');
+  if (tab1)   tab1.classList.remove('fdm-tab--active');
+  if (panel2) panel2.style.display = '';
+  if (panel1) panel1.style.display = 'none';
 
   // 3. Scroll to section
   var section = document.getElementById('facilityManagementSection');
@@ -23,7 +34,7 @@ window.openCorrection = function(facilityName) {
     }, 150);
   }
 
-  // 4. Populate search + auto-select
+  // 4. Populate correction search + auto-select the facility
   setTimeout(function() {
     var search = document.getElementById('correctionFacilitySearch');
     if (search) {
