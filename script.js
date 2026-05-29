@@ -15,16 +15,19 @@ window.openCorrection = function(facilityName) {
     if (submitTabBtn)  submitTabBtn.setAttribute('aria-expanded', 'true');
   }
 
-  // 2. Switch to "Suggest a Correction" tab via direct DOM — no .click() indirection
-  //    so the user lands there immediately with zero chance of seeing Register tab
+  // 2. Switch to "Suggest a Correction" tab via direct DOM
   var tab1   = document.getElementById('registrationTabBtn');
   var tab2   = document.getElementById('correctionTabBtn');
   var panel1 = document.getElementById('registrationTabContent');
   var panel2 = document.getElementById('correctionTabContent');
-  if (tab2)   tab2.classList.add('fdm-tab--active');
-  if (tab1)   tab1.classList.remove('fdm-tab--active');
-  if (panel2) panel2.style.display = '';
-  if (panel1) panel1.style.display = 'none';
+
+  // Force hide registration panel
+  if (panel1) { panel1.style.display = 'none'; panel1.style.visibility = 'hidden'; }
+  // Force show correction panel
+  if (panel2) { panel2.style.display = 'block'; panel2.style.visibility = 'visible'; }
+  // Update tab button visual states
+  if (tab1) { tab1.classList.remove('fdm-tab--active'); tab1.setAttribute('aria-selected','false'); }
+  if (tab2) { tab2.classList.add('fdm-tab--active'); tab2.setAttribute('aria-selected','true'); }
 
   // 3. Scroll to section
   var section = document.getElementById('facilityManagementSection');
