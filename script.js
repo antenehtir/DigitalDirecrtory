@@ -4,43 +4,40 @@
 //  immediately without timing issues.
 // ============================================================
 window.openCorrection = function(facilityName) {
-  // 1. Open accordion directly — avoids setupBottomTab's 50 ms scrollIntoView
-  //    side-effect that could briefly expose the Registration tab
-  var submitTabBody = document.getElementById('submitTabBody');
-  var submitTabIcon = document.getElementById('submitTabIcon');
-  var submitTabBtn  = document.getElementById('submitTabBtn');
-  if (submitTabBody && submitTabBody.style.display === 'none') {
-    submitTabBody.style.display = 'block';
-    if (submitTabIcon) submitTabIcon.classList.add('open');
-    if (submitTabBtn)  submitTabBtn.setAttribute('aria-expanded', 'true');
+  // STEP A: Force open the accordion body directly
+  var body = document.getElementById('submitTabBody');
+  var icon = document.getElementById('submitTabIcon');
+  var btn  = document.getElementById('submitTabBtn');
+  if (body) {
+    body.style.display = 'block';
+    body.style.visibility = 'visible';
   }
+  if (icon) icon.classList.add('open');
+  if (btn)  btn.setAttribute('aria-expanded', 'true');
 
-  // 2. Switch to "Suggest a Correction" tab via direct DOM
+  // STEP B: Force show Suggest Correction tab, hide Register tab
   var tab1   = document.getElementById('registrationTabBtn');
   var tab2   = document.getElementById('correctionTabBtn');
   var panel1 = document.getElementById('registrationTabContent');
   var panel2 = document.getElementById('correctionTabContent');
-
-  // Force hide registration panel
   if (panel1) { panel1.style.display = 'none'; panel1.style.visibility = 'hidden'; }
-  // Force show correction panel
   if (panel2) { panel2.style.display = 'block'; panel2.style.visibility = 'visible'; }
-  // Update tab button visual states
   if (tab1) { tab1.classList.remove('fdm-tab--active'); tab1.setAttribute('aria-selected','false'); }
   if (tab2) { tab2.classList.add('fdm-tab--active'); tab2.setAttribute('aria-selected','true'); }
 
-  // 3. Scroll to section
+  // STEP C: Scroll to section
   var section = document.getElementById('facilityManagementSection');
+  if (!section) section = document.getElementById('submitTabBtn');
   if (section) {
     setTimeout(function() {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 150);
+    }, 200);
   }
 
-  // 4. Populate correction search + auto-select the facility
+  // STEP D: Populate facility name in correction search
   setTimeout(function() {
     var search = document.getElementById('correctionFacilitySearch');
-    if (search) {
+    if (search && facilityName) {
       search.value = facilityName;
       search.dispatchEvent(new Event('input', { bubbles: true }));
       setTimeout(function() {
@@ -50,9 +47,9 @@ window.openCorrection = function(facilityName) {
             opt.click();
           }
         });
-      }, 200);
+      }, 300);
     }
-  }, 400);
+  }, 500);
 };
 // Backward-compatible aliases
 window.openCorr = window.openCorrection;
