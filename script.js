@@ -2044,7 +2044,7 @@ specialtyCategory: "orthopedic",
   facilityType: "speciality",
   specialty: "Comprehensive dermatology care",
   specialServices: "",
-  specialtyCategory: "dermatology",
+  specialtyCategory: "dermatology and venerology",
   subCity: ["lideta", "kirkos"],
   area: ["wollosefer", "gazebo"],
   location: [
